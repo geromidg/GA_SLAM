@@ -1,0 +1,17 @@
+<package>
+  <description brief="Library for solving the SLAM problem in 2.5D">
+  This library solves the SLAM problem by creating a robot-centric elevation map and correcting the pose using a low resolution global map.
+  </description>
+  <author>Dimitris Geromichalos/geromidg@gmail.com</author>
+  <license></license>
+  <url>http://</url>
+  <logo>http://</logo>
+  <depend package="base/cmake" />
+  <!--
+   To add any dependencies use the depend tag
+  <depend package="dummy-dependency-0" />
+	...
+  <depend package="dummy-dependency-n-1" />
+  <depend package="dummy-dependency-n" />
+  -->
+</package>
