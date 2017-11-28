@@ -32,6 +32,14 @@ void GaSlam::transformPointCloudToMap(
         const Pose& pose,
         const Pose& tf,
         const PointCloud::ConstPtr& inputCloud) {
+    Pose poseRotation, tfWithPose;
+    double roll, pitch, yaw;
+
+    pcl::getEulerAngles(pose, roll, pitch, yaw);
+    pcl::getTransformation(0., 0., 0., -roll, -pitch, 0., poseRotation);
+    tfWithPose = poseRotation * tf;
+
+    pcl::transformPointCloud(*inputCloud, *filteredCloud_, tfWithPose);
 }
 
 void GaSlam::cropPointCloudToMap(void) {}
