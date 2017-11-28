@@ -10,17 +10,14 @@
 #include "grid_map_core/grid_map_core.hpp"
 
 using Pose = Eigen::Affine3d;
-using Transformation = Eigen::Transform<double, 3, Eigen::Affine>;
 using Map = grid_map::GridMap;
 using PointCloud = pcl::PointCloud<pcl::PointXYZ>;
-using PointCloudPtr = PointCloud::Ptr;
-using PointCloudConstPtr = PointCloud::ConstPtr;
 
 namespace ga_slam {
 
 class GaSlam {
   public:
-    GaSlam(void) {}
+    GaSlam(void) : GaSlam(Map()) {}
 
     explicit GaSlam(const Map& globalMap);
 
@@ -31,22 +28,37 @@ class GaSlam {
 
     virtual ~GaSlam(void) {}
 
-    void registerData(const Pose& pose, const PointCloudConstPtr& pointCloud);
-
-    void fuseMap(void);
-
-    void correctPose(void);
-
     const Map& getFusedMap(void) const { return fusedMap_; }
 
     const Map& getGlobalMap(void) const { return globalMap_; }
 
     const Pose& getCorrectedPose(void) const { return pose_; }
 
+    const PointCloud::ConstPtr getFilteredPointCloud(void) const {
+            return filteredCloud_; }
+
+    void registerData(
+            const Pose& pose,
+            const Pose& tf,
+            const PointCloud::ConstPtr& pointCloud);
+
+    void fuseMap(void);
+
+    void correctPose(void);
+
   protected:
     void translateMap(const Pose& deltaPose);
 
-    void updateMap(const PointCloudConstPtr& pointCloud);
+    void updateMap(const PointCloud::ConstPtr& pointCloud);
+
+    void downsamplePointCloud(void);
+
+    void transformPointCloudToMap(
+            const Pose& pose,
+            const Pose& tf,
+            const PointCloud::ConstPtr& inputCloud);
+
+    void cropPointCloudToMap(void);
 
   protected:
     Map map_;
@@ -54,6 +66,8 @@ class GaSlam {
     Map globalMap_;
 
     Pose pose_;
+
+    PointCloud::Ptr filteredCloud_;
 };
 
 }  // namespace ga_slam
