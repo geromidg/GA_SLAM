@@ -28,6 +28,8 @@ class GaSlam {
 
     virtual ~GaSlam(void) {}
 
+    const Map& getRawMap(void) const { return rawMap_; }
+
     const Map& getFusedMap(void) const { return fusedMap_; }
 
     const Map& getGlobalMap(void) const { return globalMap_; }
@@ -61,7 +63,7 @@ class GaSlam {
     void cropPointCloudToMap(void);
 
   protected:
-    Map map_;
+    Map rawMap_;
     Map fusedMap_;
     Map globalMap_;
 
