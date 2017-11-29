@@ -80,6 +80,11 @@ class GaSlam {
     double voxelSize_;
     double minElevation_;
     double maxElevation_;
+
+    const std::string layerMeanZ_;
+    const std::string layerVarX_;
+    const std::string layerVarY_;
+    const std::string layerVarZ_;
 };
 
 }  // namespace ga_slam

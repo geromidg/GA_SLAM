@@ -7,7 +7,16 @@
 namespace ga_slam {
 
 GaSlam::GaSlam(const Map& globalMap)
-        : globalMap_(globalMap) {
+        : globalMap_(globalMap),
+          layerMeanZ_("meanZ"),
+          layerVarX_("varX"),
+          layerVarY_("varY"),
+          layerVarZ_("varZ") {
+    rawMap_ = Map({layerMeanZ_, layerVarX_, layerVarY_, layerVarZ_});
+    rawMap_.setBasicLayers({layerMeanZ_, layerVarX_, layerVarY_, layerVarZ_});
+    rawMap_.clearBasic();
+    rawMap_.resetTimestamp();
+
     filteredCloud_.reset(new PointCloud);
 }
 
@@ -24,6 +33,9 @@ bool GaSlam::setParameters(
     voxelSize_ = voxelSize;
     minElevation_ = minElevation;
     maxElevation_ = maxElevation;
+
+    rawMap_.setGeometry(grid_map::Length(mapSizeX_, mapSizeY_), mapResolution_,
+            grid_map::Position(robotPositionX_, robotPositionY_));
 
     return true;
 }
