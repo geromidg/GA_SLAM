@@ -2,6 +2,7 @@
 
 #include <pcl/common/transforms.h>
 #include <pcl/filters/voxel_grid.h>
+#include <pcl/filters/crop_box.h>
 
 namespace ga_slam {
 
@@ -63,7 +64,26 @@ void GaSlam::transformPointCloudToMap(const Pose& pose, const Pose& tf) {
     pcl::transformPointCloud(*filteredCloud_, *filteredCloud_, tfWithPose);
 }
 
-void GaSlam::cropPointCloudToMap(void) {}
+void GaSlam::cropPointCloudToMap(void) {
+    pcl::CropBox<pcl::PointXYZ> cropBox;
+
+    Eigen::Vector4f minCutoffPoint(
+            -(mapSizeX_ / 2) - robotPositionX_,
+            -(mapSizeY_ / 2) - robotPositionY_,
+            minElevation_,
+            0.);
+
+    Eigen::Vector4f maxCutoffPoint(
+            (mapSizeX_ / 2) - robotPositionX_,
+            (mapSizeY_ / 2) - robotPositionY_,
+            maxElevation_,
+            0.);
+
+    cropBox.setInputCloud(filteredCloud_);
+    cropBox.setMin(minCutoffPoint);
+    cropBox.setMax(maxCutoffPoint);
+    cropBox.filter(*filteredCloud_);
+}
 
 }  // namespace ga_slam
 
