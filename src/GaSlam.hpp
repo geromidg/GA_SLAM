@@ -68,6 +68,8 @@ class GaSlam {
 
     void cropPointCloudToMap(void);
 
+    Pose calculateDeltaPose(const Pose& lastPose, const Pose& nextPose);
+
   protected:
     Map rawMap_;
     Map fusedMap_;
