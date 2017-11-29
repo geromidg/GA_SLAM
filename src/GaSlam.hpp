@@ -44,22 +44,22 @@ class GaSlam {
             double minElevation, double maxElevation);
 
     void registerData(
-            const Pose& pose,
-            const Pose& tf,
-            const PointCloud::ConstPtr& pointCloud);
+            const Pose& inputPose,
+            const Pose& cameraToMapTF,
+            const PointCloud::ConstPtr& inputCloud);
 
     void fuseMap(void);
 
     void correctPose(void);
 
   protected:
-    void translateMap(const Pose& deltaPose);
+    void transformMap(const Pose& inputPose);
 
-    void updateMap(const PointCloud::ConstPtr& pointCloud);
+    void updateMap(const PointCloud::ConstPtr& inputCloud);
 
     void downsamplePointCloud(const PointCloud::ConstPtr& inputCloud);
 
-    void transformPointCloudToMap(const Pose& pose, const Pose& tf);
+    void transformPointCloudToMap(const Pose& pose, const Pose& cameraToMapTF);
 
     void cropPointCloudToMap(void);
 

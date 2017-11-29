@@ -41,21 +41,24 @@ bool GaSlam::setParameters(
 }
 
 void GaSlam::registerData(
-        const Pose& pose,
-        const Pose& tf,
-        const PointCloud::ConstPtr& pointCloud) {
-    downsamplePointCloud(pointCloud);
-    transformPointCloudToMap(pose, tf);
+        const Pose& inputPose,
+        const Pose& cameraToMapTF,
+        const PointCloud::ConstPtr& inputCloud) {
+    downsamplePointCloud(inputCloud);
+    transformPointCloudToMap(inputPose, cameraToMapTF);
     cropPointCloudToMap();
+
+    transformMap(inputPose);
+    updateMap(inputCloud);
 }
 
 void GaSlam::fuseMap(void) {}
 
 void GaSlam::correctPose(void) {}
 
-void GaSlam::translateMap(const Pose& deltaPose) {}
+void GaSlam::transformMap(const Pose& inputPose) {}
 
-void GaSlam::updateMap(const PointCloud::ConstPtr& pointCloud) {}
+void GaSlam::updateMap(const PointCloud::ConstPtr& inputCloud) {}
 
 void GaSlam::downsamplePointCloud(const PointCloud::ConstPtr& inputCloud) {
     pcl::VoxelGrid<pcl::PointXYZ> voxelGrid;
@@ -65,13 +68,15 @@ void GaSlam::downsamplePointCloud(const PointCloud::ConstPtr& inputCloud) {
     voxelGrid.filter(*filteredCloud_);
 }
 
-void GaSlam::transformPointCloudToMap(const Pose& pose, const Pose& tf) {
+void GaSlam::transformPointCloudToMap(
+        const Pose& pose,
+        const Pose& cameraToMapTF) {
     Pose poseRotation, tfWithPose;
     double roll, pitch, yaw;
 
     pcl::getEulerAngles(pose, roll, pitch, yaw);
     pcl::getTransformation(0., 0., 0., -roll, -pitch, 0., poseRotation);
-    tfWithPose = poseRotation * tf;
+    tfWithPose = poseRotation * cameraToMapTF;
 
     pcl::transformPointCloud(*filteredCloud_, *filteredCloud_, tfWithPose);
 }
