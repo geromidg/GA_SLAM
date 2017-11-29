@@ -1,6 +1,7 @@
 #include "GaSlam.hpp"
 
 #include <pcl/common/transforms.h>
+#include <pcl/filters/voxel_grid.h>
 
 namespace ga_slam {
 
@@ -13,8 +14,8 @@ void GaSlam::registerData(
         const Pose& pose,
         const Pose& tf,
         const PointCloud::ConstPtr& pointCloud) {
-    downsamplePointCloud();
-    transformPointCloudToMap(pose, tf, pointCloud);
+    downsamplePointCloud(pointCloud);
+    transformPointCloudToMap(pose, tf);
     cropPointCloudToMap();
 }
 
@@ -26,12 +27,17 @@ void GaSlam::translateMap(const Pose& deltaPose) {}
 
 void GaSlam::updateMap(const PointCloud::ConstPtr& pointCloud) {}
 
-void GaSlam::downsamplePointCloud(void) {}
+void GaSlam::downsamplePointCloud(
+        const PointCloud::ConstPtr& inputCloud,
+        double voxelSize) {
+    pcl::VoxelGrid<pcl::PointXYZ> voxelGrid;
 
-void GaSlam::transformPointCloudToMap(
-        const Pose& pose,
-        const Pose& tf,
-        const PointCloud::ConstPtr& inputCloud) {
+    voxelGrid.setInputCloud(inputCloud);
+    voxelGrid.setLeafSize(voxelSize, voxelSize, voxelSize);
+    voxelGrid.filter(*filteredCloud_);
+}
+
+void GaSlam::transformPointCloudToMap(const Pose& pose, const Pose& tf) {
     Pose poseRotation, tfWithPose;
     double roll, pitch, yaw;
 
@@ -39,7 +45,7 @@ void GaSlam::transformPointCloudToMap(
     pcl::getTransformation(0., 0., 0., -roll, -pitch, 0., poseRotation);
     tfWithPose = poseRotation * tf;
 
-    pcl::transformPointCloud(*inputCloud, *filteredCloud_, tfWithPose);
+    pcl::transformPointCloud(*filteredCloud_, *filteredCloud_, tfWithPose);
 }
 
 void GaSlam::cropPointCloudToMap(void) {}
