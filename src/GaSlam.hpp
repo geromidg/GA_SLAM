@@ -26,8 +26,6 @@ class GaSlam {
     GaSlam(GaSlam&&) = delete;
     GaSlam& operator=(GaSlam&&) = delete;
 
-    virtual ~GaSlam(void) {}
-
     const Map& getRawMap(void) const { return rawMap_; }
 
     const Map& getFusedMap(void) const { return fusedMap_; }
@@ -37,7 +35,22 @@ class GaSlam {
     const Pose& getCorrectedPose(void) const { return pose_; }
 
     const PointCloud::ConstPtr getFilteredPointCloud(void) const {
-            return filteredCloud_; }
+        return filteredCloud_; }
+
+    bool setParameters(
+            double mapSizeX, double mapSizeY,
+            double robotPositionX, double robotPositionY,
+            double mapResolution, double voxelSize,
+            double minElevation, double maxElevation) {
+        mapSizeX_ = mapSizeX;
+        mapSizeY_ = mapSizeY;
+        robotPositionX_ = robotPositionX;
+        robotPositionY_ = robotPositionY;
+        mapResolution_ = mapResolution;
+        voxelSize_ = voxelSize;
+        minElevation_ = minElevation;
+        maxElevation_ = maxElevation;
+        return true; }
 
     void registerData(
             const Pose& pose,
@@ -69,6 +82,15 @@ class GaSlam {
     Pose pose_;
 
     PointCloud::Ptr filteredCloud_;
+
+    double mapSizeX_;
+    double mapSizeY_;
+    double robotPositionX_;
+    double robotPositionY_;
+    double mapResolution_;
+    double voxelSize_;
+    double minElevation_;
+    double maxElevation_;
 };
 
 }  // namespace ga_slam
