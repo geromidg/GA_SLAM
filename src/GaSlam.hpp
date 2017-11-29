@@ -66,9 +66,7 @@ class GaSlam {
 
     void updateMap(const PointCloud::ConstPtr& pointCloud);
 
-    void downsamplePointCloud(
-            const PointCloud::ConstPtr& inputCloud,
-            double voxelSize = 0.025);
+    void downsamplePointCloud(const PointCloud::ConstPtr& inputCloud);
 
     void transformPointCloudToMap(const Pose& pose, const Pose& tf);
 

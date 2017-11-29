@@ -27,13 +27,11 @@ void GaSlam::translateMap(const Pose& deltaPose) {}
 
 void GaSlam::updateMap(const PointCloud::ConstPtr& pointCloud) {}
 
-void GaSlam::downsamplePointCloud(
-        const PointCloud::ConstPtr& inputCloud,
-        double voxelSize) {
+void GaSlam::downsamplePointCloud(const PointCloud::ConstPtr& inputCloud) {
     pcl::VoxelGrid<pcl::PointXYZ> voxelGrid;
 
     voxelGrid.setInputCloud(inputCloud);
-    voxelGrid.setLeafSize(voxelSize, voxelSize, voxelSize);
+    voxelGrid.setLeafSize(voxelSize_, voxelSize_, voxelSize_);
     voxelGrid.filter(*filteredCloud_);
 }
 
