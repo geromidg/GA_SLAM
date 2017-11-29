@@ -10,6 +10,23 @@ GaSlam::GaSlam(const Map& globalMap)
     filteredCloud_.reset(new PointCloud);
 }
 
+bool GaSlam::setParameters(
+        double mapSizeX, double mapSizeY,
+        double robotPositionX, double robotPositionY,
+        double mapResolution, double voxelSize,
+        double minElevation, double maxElevation) {
+    mapSizeX_ = mapSizeX;
+    mapSizeY_ = mapSizeY;
+    robotPositionX_ = robotPositionX;
+    robotPositionY_ = robotPositionY;
+    mapResolution_ = mapResolution;
+    voxelSize_ = voxelSize;
+    minElevation_ = minElevation;
+    maxElevation_ = maxElevation;
+
+    return true;
+}
+
 void GaSlam::registerData(
         const Pose& pose,
         const Pose& tf,
