@@ -44,12 +44,8 @@ void GaSlam::registerData(
         const Pose& inputPose,
         const Pose& cameraToMapTF,
         const PointCloud::ConstPtr& inputCloud) {
-    downsamplePointCloud(inputCloud);
-    transformPointCloudToMap(inputPose, cameraToMapTF);
-    cropPointCloudToMap();
-
     transformMap(inputPose);
-    updateMap(inputCloud);
+    updateMap(inputPose, cameraToMapTF, inputCloud);
 }
 
 void GaSlam::fuseMap(void) {}
@@ -58,7 +54,32 @@ void GaSlam::correctPose(void) {}
 
 void GaSlam::transformMap(const Pose& inputPose) {}
 
-void GaSlam::updateMap(const PointCloud::ConstPtr& inputCloud) {}
+void GaSlam::updateMap(
+        const Pose& inputPose,
+        const Pose& cameraToMapTF,
+        const PointCloud::ConstPtr& inputCloud) {
+    downsamplePointCloud(inputCloud);
+    transformPointCloudToMap(inputPose, cameraToMapTF);
+    cropPointCloudToMap();
+
+    rawMap_.clearBasic();
+
+    for (const auto& point : filteredCloud_->points) {
+        grid_map::Index index;
+
+        if (!rawMap_.getIndex(grid_map::Position(point.x, point.y), index))
+            continue;
+
+        auto& meanZ = rawMap_.at(layerMeanZ_, index);
+
+        if (rawMap_.isValid(index, layerMeanZ_) && meanZ > point.z)
+            continue;
+
+        meanZ = point.z;
+    }
+
+    rawMap_.setTimestamp(inputCloud->header.stamp);
+}
 
 void GaSlam::downsamplePointCloud(const PointCloud::ConstPtr& inputCloud) {
     pcl::VoxelGrid<pcl::PointXYZ> voxelGrid;
