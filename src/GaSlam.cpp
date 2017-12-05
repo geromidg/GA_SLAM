@@ -13,7 +13,7 @@ GaSlam::GaSlam(const Map& globalMap)
           layerVarY_("varY"),
           layerVarZ_("varZ") {
     rawMap_ = Map({layerMeanZ_, layerVarX_, layerVarY_, layerVarZ_});
-    rawMap_.setBasicLayers({layerMeanZ_, layerVarX_, layerVarY_, layerVarZ_});
+    rawMap_.setBasicLayers({layerMeanZ_});
     rawMap_.clearBasic();
     rawMap_.resetTimestamp();
 
