@@ -44,24 +44,27 @@ void GaSlam::registerData(
         const Pose& inputPose,
         const Pose& cameraToMapTF,
         const PointCloud::ConstPtr& inputCloud) {
+    processPointCloud(inputPose, cameraToMapTF, inputCloud);
     transformMap(inputPose);
-    updateMap(inputPose, cameraToMapTF, inputCloud);
+    updateMap();
 }
 
 void GaSlam::fuseMap(void) {}
 
 void GaSlam::correctPose(void) {}
 
-void GaSlam::transformMap(const Pose& inputPose) {}
-
-void GaSlam::updateMap(
+void GaSlam::processPointCloud(
         const Pose& inputPose,
         const Pose& cameraToMapTF,
         const PointCloud::ConstPtr& inputCloud) {
     downsamplePointCloud(inputCloud);
     transformPointCloudToMap(inputPose, cameraToMapTF);
     cropPointCloudToMap();
+}
 
+void GaSlam::transformMap(const Pose& inputPose) {}
+
+void GaSlam::updateMap(void) {
     rawMap_.clearBasic();
 
     for (const auto& point : filteredCloud_->points) {
@@ -78,7 +81,7 @@ void GaSlam::updateMap(
         meanZ = point.z;
     }
 
-    rawMap_.setTimestamp(inputCloud->header.stamp);
+    rawMap_.setTimestamp(filteredCloud_->header.stamp);
 }
 
 void GaSlam::downsamplePointCloud(const PointCloud::ConstPtr& inputCloud) {
