@@ -63,11 +63,10 @@ void GaSlam::processPointCloud(
 }
 
 void GaSlam::transformMap(const Pose& inputPose) {
-    auto deltaPose = calculateDeltaPose(pose_, inputPose);
+    auto translation = inputPose.translation();
+    grid_map::Position positionXY(-translation.x(), -translation.y());
 
-    // TODO
-
-    pose_ = inputPose;
+    rawMap_.move(positionXY);
 }
 
 void GaSlam::updateMap(void) {

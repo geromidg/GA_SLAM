@@ -32,7 +32,7 @@ class GaSlam {
 
     const Map& getGlobalMap(void) const { return globalMap_; }
 
-    const Pose& getCorrectedPose(void) const { return pose_; }
+    const Pose& getCorrectedPose(void) const { return lastPose_; }
 
     const PointCloud::ConstPtr getFilteredPointCloud(void) const {
         return filteredCloud_; }
@@ -75,7 +75,7 @@ class GaSlam {
     Map fusedMap_;
     Map globalMap_;
 
-    Pose pose_;
+    Pose lastPose_;
 
     PointCloud::Ptr filteredCloud_;
 
