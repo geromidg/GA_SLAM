@@ -65,20 +65,35 @@ void GaSlam::processPointCloud(
 void GaSlam::transformMap(const Pose& inputPose) {}
 
 void GaSlam::updateMap(void) {
-    rawMap_.clearBasic();
+    rawMap_.add("newMeanZ");
 
+    auto& meanZData = rawMap_.get("meanZ");
+    auto& newMeanZData = rawMap_.get("newMeanZ");
+
+    // Calculate measurement map (newMeanZ layer) from point cloud
     for (const auto& point : filteredCloud_->points) {
         grid_map::Index index;
 
         if (!rawMap_.getIndex(grid_map::Position(point.x, point.y), index))
             continue;
 
-        auto& meanZ = rawMap_.at(layerMeanZ_, index);
+        float& newMeanZ = rawMap_.at("newMeanZ", index);
 
-        if (rawMap_.isValid(index, layerMeanZ_) && meanZ > point.z)
+        if (!std::isfinite(newMeanZ) || point.z > newMeanZ)
+            newMeanZ = point.z;
+    }
+
+    // Fuse measurement map with prior map
+    for (grid_map::GridMapIterator it(rawMap_); !it.isPastEnd(); ++it) {
+        const auto& index = it.getLinearIndex();
+
+        if (!std::isfinite(newMeanZData(index)))
             continue;
 
-        meanZ = point.z;
+        if (!std::isfinite(meanZData(index)))
+            meanZData(index) = newMeanZData(index);
+        else
+            meanZData(index) = (meanZData(index) + newMeanZData(index)) / 2.;
     }
 
     rawMap_.setTimestamp(filteredCloud_->header.stamp);
