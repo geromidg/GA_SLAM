@@ -13,7 +13,7 @@ GaSlam::GaSlam(const Map& globalMap)
           layerVarY_("varY"),
           layerVarZ_("varZ") {
     rawMap_ = Map({layerMeanZ_, layerVarX_, layerVarY_, layerVarZ_});
-    rawMap_.setBasicLayers({layerMeanZ_, layerVarX_, layerVarY_, layerVarZ_});
+    rawMap_.setBasicLayers({layerMeanZ_});
     rawMap_.clearBasic();
     rawMap_.resetTimestamp();
 
@@ -44,21 +44,72 @@ void GaSlam::registerData(
         const Pose& inputPose,
         const Pose& cameraToMapTF,
         const PointCloud::ConstPtr& inputCloud) {
-    downsamplePointCloud(inputCloud);
-    transformPointCloudToMap(inputPose, cameraToMapTF);
-    cropPointCloudToMap();
-
+    processPointCloud(inputPose, cameraToMapTF, inputCloud);
     transformMap(inputPose);
-    updateMap(inputCloud);
+    updateMap();
 }
 
 void GaSlam::fuseMap(void) {}
 
 void GaSlam::correctPose(void) {}
 
+void GaSlam::processPointCloud(
+        const Pose& inputPose,
+        const Pose& cameraToMapTF,
+        const PointCloud::ConstPtr& inputCloud) {
+    downsamplePointCloud(inputCloud);
+    transformPointCloudToMap(inputPose, cameraToMapTF);
+    cropPointCloudToMap();
+}
+
 void GaSlam::transformMap(const Pose& inputPose) {}
 
-void GaSlam::updateMap(const PointCloud::ConstPtr& inputCloud) {}
+void GaSlam::updateMap(void) {
+    const std::string layerNewMeanZ("newMeanZ");
+    const std::string layerCount("count");
+    rawMap_.add(layerNewMeanZ, NAN);
+    rawMap_.add(layerCount, 0.);
+
+    auto& meanZData = rawMap_.get(layerMeanZ_);
+    auto& newMeanZData = rawMap_.get(layerNewMeanZ);
+    auto& countData = rawMap_.get(layerCount);
+
+    // Calculate measurement map (newMeanZ layer) from point cloud
+    for (const auto& point : filteredCloud_->points) {
+        grid_map::Index index;
+
+        if (!rawMap_.getIndex(grid_map::Position(point.x, point.y), index))
+            continue;
+
+        float& newMeanZ = newMeanZData(index(0), index(1));
+        float& count = countData(index(0), index(1));
+
+        if (!count)
+            newMeanZ = point.z;
+        else
+            newMeanZ = (newMeanZ * count + point.z) / (count + 1.);
+
+        count++;
+    }
+
+    // Fuse measurement map with prior map
+    for (grid_map::GridMapIterator it(rawMap_); !it.isPastEnd(); ++it) {
+        const auto& index = it.getLinearIndex();
+
+        float& meanZ = meanZData(index);
+        float& newMeanZ = newMeanZData(index);
+
+        if (!std::isfinite(newMeanZ))
+            continue;
+
+        if (!std::isfinite(meanZ))
+            meanZ = newMeanZ;
+        else
+            meanZ = (meanZ + newMeanZ) / 2.;
+    }
+
+    rawMap_.setTimestamp(filteredCloud_->header.stamp);
+}
 
 void GaSlam::downsamplePointCloud(const PointCloud::ConstPtr& inputCloud) {
     pcl::VoxelGrid<pcl::PointXYZ> voxelGrid;

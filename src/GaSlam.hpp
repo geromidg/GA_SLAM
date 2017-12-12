@@ -53,9 +53,14 @@ class GaSlam {
     void correctPose(void);
 
   protected:
+    void processPointCloud(
+            const Pose& inputPose,
+            const Pose& cameraToMapTF,
+            const PointCloud::ConstPtr& inputCloud);
+
     void transformMap(const Pose& inputPose);
 
-    void updateMap(const PointCloud::ConstPtr& inputCloud);
+    void updateMap(void);
 
     void downsamplePointCloud(const PointCloud::ConstPtr& inputCloud);
 
