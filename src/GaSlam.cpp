@@ -62,7 +62,12 @@ void GaSlam::processPointCloud(
     cropPointCloudToMap();
 }
 
-void GaSlam::transformMap(const Pose& inputPose) {}
+void GaSlam::transformMap(const Pose& inputPose) {
+    const auto& translation = inputPose.translation();
+    grid_map::Position positionXY(translation.x(), translation.y());
+
+    rawMap_.move(positionXY);
+}
 
 void GaSlam::updateMap(void) {
     const std::string layerNewMeanZ("newMeanZ");
@@ -113,7 +118,6 @@ void GaSlam::updateMap(void) {
 
 void GaSlam::downsamplePointCloud(const PointCloud::ConstPtr& inputCloud) {
     pcl::VoxelGrid<pcl::PointXYZ> voxelGrid;
-
     voxelGrid.setInputCloud(inputCloud);
     voxelGrid.setLeafSize(voxelSize_, voxelSize_, voxelSize_);
     voxelGrid.filter(*filteredCloud_);
@@ -122,35 +126,38 @@ void GaSlam::downsamplePointCloud(const PointCloud::ConstPtr& inputCloud) {
 void GaSlam::transformPointCloudToMap(
         const Pose& pose,
         const Pose& cameraToMapTF) {
-    Pose poseRotation, tfWithPose;
-    double roll, pitch, yaw;
-
-    pcl::getEulerAngles(pose, roll, pitch, yaw);
-    pcl::getTransformation(0., 0., 0., -roll, -pitch, 0., poseRotation);
-    tfWithPose = poseRotation * cameraToMapTF;
-
+    const auto tfWithPose = pose * cameraToMapTF;
     pcl::transformPointCloud(*filteredCloud_, *filteredCloud_, tfWithPose);
 }
 
 void GaSlam::cropPointCloudToMap(void) {
-    pcl::CropBox<pcl::PointXYZ> cropBox;
+    const auto& position = rawMap_.getPosition();
 
     Eigen::Vector4f minCutoffPoint(
-            -(mapSizeX_ / 2) - robotPositionX_,
-            -(mapSizeY_ / 2) - robotPositionY_,
+            -(mapSizeX_ / 2) - position.x(),
+            -(mapSizeY_ / 2) - position.y(),
             minElevation_,
             0.);
 
     Eigen::Vector4f maxCutoffPoint(
-            (mapSizeX_ / 2) - robotPositionX_,
-            (mapSizeY_ / 2) - robotPositionY_,
+            (mapSizeX_ / 2) + position.x(),
+            (mapSizeY_ / 2) + position.y(),
             maxElevation_,
             0.);
 
+    pcl::CropBox<pcl::PointXYZ> cropBox;
     cropBox.setInputCloud(filteredCloud_);
     cropBox.setMin(minCutoffPoint);
     cropBox.setMax(maxCutoffPoint);
     cropBox.filter(*filteredCloud_);
+}
+
+Pose GaSlam::calculateDeltaPose(const Pose& lastPose, const Pose& nextPose) {
+    auto deltaPose = lastPose;
+    deltaPose.rotate(nextPose.linear());
+    deltaPose.translate(nextPose.translation());
+
+    return deltaPose;
 }
 
 }  // namespace ga_slam
