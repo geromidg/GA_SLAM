@@ -47,6 +47,8 @@ void GaSlam::registerData(
     processPointCloud(inputPose, cameraToMapTF, inputCloud);
     transformMap(inputPose);
     updateMap();
+
+    lastPose_ = inputPose;
 }
 
 void GaSlam::fuseMap(void) {}
