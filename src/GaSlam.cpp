@@ -41,14 +41,18 @@ bool GaSlam::setParameters(
 }
 
 void GaSlam::registerData(
+        const PointCloud::ConstPtr& inputCloud,
         const Pose& inputPose,
-        const Pose& cameraToMapTF,
-        const PointCloud::ConstPtr& inputCloud) {
-    processPointCloud(inputPose, cameraToMapTF, inputCloud);
-    transformMap(inputPose);
+        const Pose& sensorToBodyTF,
+        const Pose& bodyToGroundTF) {
+    auto bodyToMapTF = inputPose * bodyToGroundTF;
+    const auto& sensorToMapTF = bodyToMapTF * sensorToBodyTF;
+
+    processPointCloud(inputCloud, sensorToMapTF);
+    translateMap(bodyToMapTF.translation());
     updateMap();
 
-    lastPose_ = inputPose;
+    correctedPose_ = bodyToMapTF;
 }
 
 void GaSlam::fuseMap(void) {}
@@ -56,16 +60,14 @@ void GaSlam::fuseMap(void) {}
 void GaSlam::correctPose(void) {}
 
 void GaSlam::processPointCloud(
-        const Pose& inputPose,
-        const Pose& cameraToMapTF,
-        const PointCloud::ConstPtr& inputCloud) {
+        const PointCloud::ConstPtr& inputCloud,
+        const Pose& sensorToMapTF) {
     downsamplePointCloud(inputCloud);
-    transformPointCloudToMap(inputPose, cameraToMapTF);
+    transformPointCloudToMap(sensorToMapTF);
     cropPointCloudToMap();
 }
 
-void GaSlam::transformMap(const Pose& inputPose) {
-    const auto& translation = inputPose.translation();
+void GaSlam::translateMap(const Eigen::Vector3d& translation) {
     grid_map::Position positionXY(translation.x(), translation.y());
 
     rawMap_.move(positionXY);
@@ -125,41 +127,23 @@ void GaSlam::downsamplePointCloud(const PointCloud::ConstPtr& inputCloud) {
     voxelGrid.filter(*filteredCloud_);
 }
 
-void GaSlam::transformPointCloudToMap(
-        const Pose& pose,
-        const Pose& cameraToMapTF) {
-    const auto tfWithPose = pose * cameraToMapTF;
-    pcl::transformPointCloud(*filteredCloud_, *filteredCloud_, tfWithPose);
+void GaSlam::transformPointCloudToMap(const Pose& sensorToMapTF) {
+    pcl::transformPointCloud(*filteredCloud_, *filteredCloud_, sensorToMapTF);
 }
 
 void GaSlam::cropPointCloudToMap(void) {
     const auto& position = rawMap_.getPosition();
+    const auto pointX = (mapSizeX_ / 2) + position.x();
+    const auto pointY = (mapSizeY_ / 2) + position.y();
 
-    Eigen::Vector4f minCutoffPoint(
-            -(mapSizeX_ / 2) - position.x(),
-            -(mapSizeY_ / 2) - position.y(),
-            minElevation_,
-            0.);
-
-    Eigen::Vector4f maxCutoffPoint(
-            (mapSizeX_ / 2) + position.x(),
-            (mapSizeY_ / 2) + position.y(),
-            maxElevation_,
-            0.);
+    Eigen::Vector4f minCutoffPoint(-pointX, -pointY, minElevation_, 0.);
+    Eigen::Vector4f maxCutoffPoint(pointX, pointY, maxElevation_, 0.);
 
     pcl::CropBox<pcl::PointXYZ> cropBox;
     cropBox.setInputCloud(filteredCloud_);
     cropBox.setMin(minCutoffPoint);
     cropBox.setMax(maxCutoffPoint);
     cropBox.filter(*filteredCloud_);
-}
-
-Pose GaSlam::calculateDeltaPose(const Pose& lastPose, const Pose& nextPose) {
-    auto deltaPose = lastPose;
-    deltaPose.rotate(nextPose.linear());
-    deltaPose.translate(nextPose.translation());
-
-    return deltaPose;
 }
 
 }  // namespace ga_slam

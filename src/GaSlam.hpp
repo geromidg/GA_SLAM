@@ -32,7 +32,7 @@ class GaSlam {
 
     const Map& getGlobalMap(void) const { return globalMap_; }
 
-    const Pose& getCorrectedPose(void) const { return lastPose_; }
+    const Pose& getCorrectedPose(void) const { return correctedPose_; }
 
     const PointCloud::ConstPtr getFilteredPointCloud(void) const {
         return filteredCloud_; }
@@ -44,9 +44,10 @@ class GaSlam {
             double minElevation, double maxElevation);
 
     void registerData(
+            const PointCloud::ConstPtr& inputCloud,
             const Pose& inputPose,
-            const Pose& cameraToMapTF,
-            const PointCloud::ConstPtr& inputCloud);
+            const Pose& sensorToBodyTF,
+            const Pose& bodyToGroundTF = Pose::Identity());
 
     void fuseMap(void);
 
@@ -54,28 +55,25 @@ class GaSlam {
 
   protected:
     void processPointCloud(
-            const Pose& inputPose,
-            const Pose& cameraToMapTF,
-            const PointCloud::ConstPtr& inputCloud);
+            const PointCloud::ConstPtr& inputCloud,
+            const Pose& sensorToMapTF);
 
-    void transformMap(const Pose& inputPose);
+    void translateMap(const Eigen::Vector3d& translation);
 
     void updateMap(void);
 
     void downsamplePointCloud(const PointCloud::ConstPtr& inputCloud);
 
-    void transformPointCloudToMap(const Pose& pose, const Pose& cameraToMapTF);
+    void transformPointCloudToMap(const Pose& sensorToMapTF);
 
     void cropPointCloudToMap(void);
-
-    Pose calculateDeltaPose(const Pose& lastPose, const Pose& nextPose);
 
   protected:
     Map rawMap_;
     Map fusedMap_;
     Map globalMap_;
 
-    Pose lastPose_;
+    Pose correctedPose_;
 
     PointCloud::Ptr filteredCloud_;
 
