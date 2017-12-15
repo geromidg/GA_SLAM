@@ -55,7 +55,12 @@ void GaSlam::registerData(
 
 void GaSlam::fuseMap(void) {}
 
-void GaSlam::correctPose(void) {}
+void GaSlam::correctPose(void) {
+    PointCloud::Ptr mapCloud(new PointCloud);
+
+    convertMapToPointCloud(mapCloud);
+    getICPFitnessScore(filteredCloud_, mapCloud);
+}
 
 void GaSlam::processPointCloud(
         const PointCloud::ConstPtr& inputCloud,
@@ -142,6 +147,24 @@ void GaSlam::fuseGaussians(
 
     mean1 = mean1 + (gain * innovation);
     variance1 = variance1 * (1. - gain);
+}
+
+void GaSlam::convertMapToPointCloud(PointCloud::Ptr cloud) const {
+    cloud->clear();
+    cloud->reserve(rawMap_.getSize().x() * rawMap_.getSize().y());
+    cloud->is_dense = true;
+    cloud->header.stamp = rawMap_.getTimestamp();
+
+    const auto& meanData = rawMap_.get(layerMeanZ_);
+    grid_map::Position point;
+
+    for (grid_map::GridMapIterator it(rawMap_); !it.isPastEnd(); ++it) {
+        const grid_map::Index index(*it);
+
+        rawMap_.getPosition(index, point);
+        cloud->push_back(pcl::PointXYZ(
+                point.x(), point.y(), meanData(index(0), index(1))));
+    }
 }
 
 }  // namespace ga_slam
