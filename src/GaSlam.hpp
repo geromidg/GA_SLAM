@@ -68,6 +68,12 @@ class GaSlam {
 
     void cropPointCloudToMap(void);
 
+    void calculatePointCloudVariances(void);
+
+    static void fuseGaussians(
+            float& mean1, float& variance1,
+            const float& mean2, const float& variance2);
+
   protected:
     Map rawMap_;
     Map fusedMap_;
@@ -76,6 +82,7 @@ class GaSlam {
     Pose correctedPose_;
 
     PointCloud::Ptr filteredCloud_;
+    std::vector<float> cloudVariances_;
 
     double mapSizeX_;
     double mapSizeY_;
@@ -87,8 +94,6 @@ class GaSlam {
     double maxElevation_;
 
     const std::string layerMeanZ_;
-    const std::string layerVarX_;
-    const std::string layerVarY_;
     const std::string layerVarZ_;
 };
 

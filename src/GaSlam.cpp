@@ -9,11 +9,9 @@ namespace ga_slam {
 GaSlam::GaSlam(const Map& globalMap)
         : globalMap_(globalMap),
           layerMeanZ_("meanZ"),
-          layerVarX_("varX"),
-          layerVarY_("varY"),
           layerVarZ_("varZ") {
-    rawMap_ = Map({layerMeanZ_, layerVarX_, layerVarY_, layerVarZ_});
-    rawMap_.setBasicLayers({layerMeanZ_});
+    rawMap_ = Map({layerMeanZ_, layerVarZ_});
+    rawMap_.setBasicLayers({layerMeanZ_, layerVarZ_});
     rawMap_.clearBasic();
     rawMap_.resetTimestamp();
 
@@ -65,6 +63,7 @@ void GaSlam::processPointCloud(
     downsamplePointCloud(inputCloud);
     transformPointCloudToMap(sensorToMapTF);
     cropPointCloudToMap();
+    calculatePointCloudVariances();
 }
 
 void GaSlam::translateMap(const Eigen::Vector3d& translation) {
@@ -74,47 +73,28 @@ void GaSlam::translateMap(const Eigen::Vector3d& translation) {
 }
 
 void GaSlam::updateMap(void) {
-    const std::string layerNewMeanZ("newMeanZ");
-    const std::string layerCount("count");
-    rawMap_.add(layerNewMeanZ, NAN);
-    rawMap_.add(layerCount, 0.);
+    auto& meanData = rawMap_.get(layerMeanZ_);
+    auto& varianceData = rawMap_.get(layerVarZ_);
 
-    auto& meanZData = rawMap_.get(layerMeanZ_);
-    auto& newMeanZData = rawMap_.get(layerNewMeanZ);
-    auto& countData = rawMap_.get(layerCount);
+    size_t cloudIndex = 0;
+    grid_map::Index mapIndex;
 
-    // Calculate measurement map (newMeanZ layer) from point cloud
     for (const auto& point : filteredCloud_->points) {
-        grid_map::Index index;
+        cloudIndex++;
 
-        if (!rawMap_.getIndex(grid_map::Position(point.x, point.y), index))
+        if (!rawMap_.getIndex(grid_map::Position(point.x, point.y), mapIndex))
             continue;
 
-        float& newMeanZ = newMeanZData(index(0), index(1));
-        float& count = countData(index(0), index(1));
+        float& mean = meanData(mapIndex(0), mapIndex(1));
+        float& variance = varianceData(mapIndex(0), mapIndex(1));
+        const float& pointVariance = cloudVariances_[cloudIndex - 1];
 
-        if (!count)
-            newMeanZ = point.z;
-        else
-            newMeanZ = (newMeanZ * count + point.z) / (count + 1.);
-
-        count++;
-    }
-
-    // Fuse measurement map with prior map
-    for (grid_map::GridMapIterator it(rawMap_); !it.isPastEnd(); ++it) {
-        const auto& index = it.getLinearIndex();
-
-        float& meanZ = meanZData(index);
-        float& newMeanZ = newMeanZData(index);
-
-        if (!std::isfinite(newMeanZ))
-            continue;
-
-        if (!std::isfinite(meanZ))
-            meanZ = newMeanZ;
-        else
-            meanZ = (meanZ + newMeanZ) / 2.;
+        if (!std::isfinite(mean)) {
+            mean = point.z;
+            variance = pointVariance;
+        } else {
+            fuseGaussians(mean, variance, point.z, pointVariance);
+        }
     }
 
     rawMap_.setTimestamp(filteredCloud_->header.stamp);
@@ -144,6 +124,24 @@ void GaSlam::cropPointCloudToMap(void) {
     cropBox.setMin(minCutoffPoint);
     cropBox.setMax(maxCutoffPoint);
     cropBox.filter(*filteredCloud_);
+}
+
+void GaSlam::calculatePointCloudVariances(void) {
+    cloudVariances_.clear();
+    cloudVariances_.reserve(filteredCloud_->size());
+
+    for (const auto& point : filteredCloud_->points)
+        cloudVariances_.push_back(1.);
+}
+
+void GaSlam::fuseGaussians(
+        float& mean1, float& variance1,
+        const float& mean2, const float& variance2) {
+    const double innovation = mean2 - mean1;
+    const double gain = variance1 / (variance1 + variance2);
+
+    mean1 = mean1 + (gain * innovation);
+    variance1 = variance1 * (1. - gain);
 }
 
 }  // namespace ga_slam
