@@ -3,6 +3,7 @@
 #include <pcl/common/transforms.h>
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/filters/crop_box.h>
+#include <pcl/registration/icp.h>
 
 namespace ga_slam {
 
@@ -55,12 +56,7 @@ void GaSlam::registerData(
 
 void GaSlam::fuseMap(void) {}
 
-void GaSlam::correctPose(void) {
-    PointCloud::Ptr mapCloud(new PointCloud);
-
-    convertMapToPointCloud(mapCloud);
-    getICPFitnessScore(filteredCloud_, mapCloud);
-}
+void GaSlam::correctPose(void) {}
 
 void GaSlam::processPointCloud(
         const PointCloud::ConstPtr& inputCloud,
@@ -149,7 +145,7 @@ void GaSlam::fuseGaussians(
     variance1 = variance1 * (1. - gain);
 }
 
-void GaSlam::convertMapToPointCloud(PointCloud::Ptr cloud) const {
+void GaSlam::convertMapToPointCloud(PointCloud::Ptr& cloud) const {
     cloud->clear();
     cloud->reserve(rawMap_.getSize().x() * rawMap_.getSize().y());
     cloud->is_dense = true;
@@ -165,6 +161,20 @@ void GaSlam::convertMapToPointCloud(PointCloud::Ptr cloud) const {
         cloud->push_back(pcl::PointXYZ(
                 point.x(), point.y(), meanData(index(0), index(1))));
     }
+}
+
+double GaSlam::measurePointCloudAlignment(
+            const PointCloud::ConstPtr& cloud1,
+            const PointCloud::ConstPtr& cloud2) {
+    pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ> icp;
+    icp.setMaximumIterations(1);
+    icp.setInputSource(cloud1);
+    icp.setInputTarget(cloud2);
+
+    PointCloud transformedCloud;
+    icp.align(transformedCloud);
+
+    return icp.getFitnessScore();
 }
 
 }  // namespace ga_slam

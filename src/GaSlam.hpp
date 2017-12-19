@@ -70,11 +70,11 @@ class GaSlam {
 
     void calculatePointCloudVariances(void);
 
-    void convertMapToPointCloud(PointCloud::Ptr cloud) const;
+    void convertMapToPointCloud(PointCloud::Ptr& cloud) const;
 
-    static double getICPFitnessScore(
-            const PointCloud::ConstPtr cloud1,
-            const PointCloud::ConstPtr cloud2) {}
+    static double measurePointCloudAlignment(
+            const PointCloud::ConstPtr& cloud1,
+            const PointCloud::ConstPtr& cloud2);
 
     static void fuseGaussians(
             float& mean1, float& variance1,
