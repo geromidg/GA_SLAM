@@ -1,9 +1,11 @@
-#include "GaSlam.hpp"
+#include "ga_slam/GaSlam.hpp"
 
 #include <pcl/common/transforms.h>
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/filters/crop_box.h>
 #include <pcl/registration/icp.h>
+
+#include "grid_map_core/iterators/GridMapIterator.hpp"
 
 namespace ga_slam {
 
@@ -16,7 +18,7 @@ GaSlam::GaSlam(const Map& globalMap)
     rawMap_.clearBasic();
     rawMap_.resetTimestamp();
 
-    filteredCloud_.reset(new PointCloud);
+    filteredCloud_.reset(new Cloud);
 }
 
 bool GaSlam::setParameters(
@@ -40,14 +42,14 @@ bool GaSlam::setParameters(
 }
 
 void GaSlam::registerData(
-        const PointCloud::ConstPtr& inputCloud,
+        const Cloud::ConstPtr& inputCloud,
         const Pose& inputPose,
         const Pose& sensorToBodyTF,
         const Pose& bodyToGroundTF) {
     auto bodyToMapTF = inputPose * bodyToGroundTF;
     const auto& sensorToMapTF = bodyToMapTF * sensorToBodyTF;
 
-    processPointCloud(inputCloud, sensorToMapTF);
+    preProcessCloud(inputCloud, sensorToMapTF);
     translateMap(bodyToMapTF.translation());
     updateMap();
 
@@ -58,13 +60,13 @@ void GaSlam::fuseMap(void) {}
 
 void GaSlam::correctPose(void) {}
 
-void GaSlam::processPointCloud(
-        const PointCloud::ConstPtr& inputCloud,
+void GaSlam::preProcessCloud(
+        const Cloud::ConstPtr& inputCloud,
         const Pose& sensorToMapTF) {
-    downsamplePointCloud(inputCloud);
-    transformPointCloudToMap(sensorToMapTF);
-    cropPointCloudToMap();
-    calculatePointCloudVariances();
+    downsampleCloud(inputCloud);
+    transformCloudToMap(sensorToMapTF);
+    cropCloudToMap();
+    calculateCloudVariances();
 }
 
 void GaSlam::translateMap(const Eigen::Vector3d& translation) {
@@ -101,18 +103,18 @@ void GaSlam::updateMap(void) {
     rawMap_.setTimestamp(filteredCloud_->header.stamp);
 }
 
-void GaSlam::downsamplePointCloud(const PointCloud::ConstPtr& inputCloud) {
+void GaSlam::downsampleCloud(const Cloud::ConstPtr& inputCloud) {
     pcl::VoxelGrid<pcl::PointXYZ> voxelGrid;
     voxelGrid.setInputCloud(inputCloud);
     voxelGrid.setLeafSize(voxelSize_, voxelSize_, voxelSize_);
     voxelGrid.filter(*filteredCloud_);
 }
 
-void GaSlam::transformPointCloudToMap(const Pose& sensorToMapTF) {
+void GaSlam::transformCloudToMap(const Pose& sensorToMapTF) {
     pcl::transformPointCloud(*filteredCloud_, *filteredCloud_, sensorToMapTF);
 }
 
-void GaSlam::cropPointCloudToMap(void) {
+void GaSlam::cropCloudToMap(void) {
     const auto& position = rawMap_.getPosition();
     const auto pointX = (mapSizeX_ / 2) + position.x();
     const auto pointY = (mapSizeY_ / 2) + position.y();
@@ -127,7 +129,7 @@ void GaSlam::cropPointCloudToMap(void) {
     cropBox.filter(*filteredCloud_);
 }
 
-void GaSlam::calculatePointCloudVariances(void) {
+void GaSlam::calculateCloudVariances(void) {
     cloudVariances_.clear();
     cloudVariances_.reserve(filteredCloud_->size());
 
@@ -145,7 +147,7 @@ void GaSlam::fuseGaussians(
     variance1 = variance1 * (1. - gain);
 }
 
-void GaSlam::convertMapToPointCloud(PointCloud::Ptr& cloud) const {
+void GaSlam::convertMapToCloud(Cloud::Ptr& cloud) const {
     cloud->clear();
     cloud->reserve(rawMap_.getSize().x() * rawMap_.getSize().y());
     cloud->is_dense = true;
@@ -163,15 +165,15 @@ void GaSlam::convertMapToPointCloud(PointCloud::Ptr& cloud) const {
     }
 }
 
-double GaSlam::measurePointCloudAlignment(
-            const PointCloud::ConstPtr& cloud1,
-            const PointCloud::ConstPtr& cloud2) {
+double GaSlam::measureCloudAlignment(
+            const Cloud::ConstPtr& cloud1,
+            const Cloud::ConstPtr& cloud2) {
     pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ> icp;
     icp.setMaximumIterations(1);
     icp.setInputSource(cloud1);
     icp.setInputTarget(cloud2);
 
-    PointCloud transformedCloud;
+    Cloud transformedCloud;
     icp.align(transformedCloud);
 
     return icp.getFitnessScore();

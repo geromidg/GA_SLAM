@@ -1,5 +1,4 @@
-#ifndef _GASLAM_HPP_
-#define _GASLAM_HPP_
+#pragma once
 
 #include <Eigen/Geometry>
 #include <Eigen/Core>
@@ -7,13 +6,13 @@
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 
-#include "grid_map_core/grid_map_core.hpp"
+#include "grid_map_core/GridMap.hpp"
+
+namespace ga_slam {
 
 using Pose = Eigen::Affine3d;
 using Map = grid_map::GridMap;
-using PointCloud = pcl::PointCloud<pcl::PointXYZ>;
-
-namespace ga_slam {
+using Cloud = pcl::PointCloud<pcl::PointXYZ>;
 
 class GaSlam {
   public:
@@ -34,7 +33,7 @@ class GaSlam {
 
     const Pose& getCorrectedPose(void) const { return correctedPose_; }
 
-    const PointCloud::ConstPtr getFilteredPointCloud(void) const {
+    const Cloud::ConstPtr getFilteredCloud(void) const {
         return filteredCloud_; }
 
     bool setParameters(
@@ -44,7 +43,7 @@ class GaSlam {
             double minElevation, double maxElevation);
 
     void registerData(
-            const PointCloud::ConstPtr& inputCloud,
+            const Cloud::ConstPtr& inputCloud,
             const Pose& inputPose,
             const Pose& sensorToBodyTF,
             const Pose& bodyToGroundTF = Pose::Identity());
@@ -54,27 +53,27 @@ class GaSlam {
     void correctPose(void);
 
   protected:
-    void processPointCloud(
-            const PointCloud::ConstPtr& inputCloud,
+    void preProcessCloud(
+            const Cloud::ConstPtr& inputCloud,
             const Pose& sensorToMapTF);
 
     void translateMap(const Eigen::Vector3d& translation);
 
     void updateMap(void);
 
-    void downsamplePointCloud(const PointCloud::ConstPtr& inputCloud);
+    void downsampleCloud(const Cloud::ConstPtr& inputCloud);
 
-    void transformPointCloudToMap(const Pose& sensorToMapTF);
+    void transformCloudToMap(const Pose& sensorToMapTF);
 
-    void cropPointCloudToMap(void);
+    void cropCloudToMap(void);
 
-    void calculatePointCloudVariances(void);
+    void calculateCloudVariances(void);
 
-    void convertMapToPointCloud(PointCloud::Ptr& cloud) const;
+    void convertMapToCloud(Cloud::Ptr& cloud) const;
 
-    static double measurePointCloudAlignment(
-            const PointCloud::ConstPtr& cloud1,
-            const PointCloud::ConstPtr& cloud2);
+    static double measureCloudAlignment(
+            const Cloud::ConstPtr& cloud1,
+            const Cloud::ConstPtr& cloud2);
 
     static void fuseGaussians(
             float& mean1, float& variance1,
@@ -87,7 +86,7 @@ class GaSlam {
 
     Pose correctedPose_;
 
-    PointCloud::Ptr filteredCloud_;
+    Cloud::Ptr filteredCloud_;
     std::vector<float> cloudVariances_;
 
     double mapSizeX_;
@@ -104,6 +103,4 @@ class GaSlam {
 };
 
 }  // namespace ga_slam
-
-#endif  // _GASLAM_HPP_
 
