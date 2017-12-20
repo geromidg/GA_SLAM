@@ -17,7 +17,7 @@ namespace ga_slam
         Map globalMap;
         globalMap.setTimestamp(timestamp);
 
-        GaSlam gaSlam(globalMap);
+        // GaSlam gaSlam(globalMap);
 
         std::cout << globalMap.getTimestamp() << std::endl;
     }
