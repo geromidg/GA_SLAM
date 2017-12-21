@@ -15,7 +15,7 @@ class DataRegistration {
 
     const Map& getMap(void) const { return map_; }
 
-    const Cloud::ConstPtr getProcessedCloud(void) const {
+    const Cloud::ConstPtr& getProcessedCloud(void) const {
             return processedCloud_; }
 
     bool setParameters(
@@ -30,8 +30,6 @@ class DataRegistration {
             const Pose& estimatedPose);
 
   protected:
-    void translateMap(const Eigen::Vector3d& translation);
-
     void updateMap(void);
 
     static void fuseGaussians(
@@ -44,17 +42,7 @@ class DataRegistration {
     Cloud::Ptr processedCloud_;
     std::vector<float> cloudVariances_;
 
-    double mapSizeX_;
-    double mapSizeY_;
-    double robotPositionX_;
-    double robotPositionY_;
-    double mapResolution_;
     double voxelSize_;
-    double minElevation_;
-    double maxElevation_;
-
-    const std::string layerMeanZ_;
-    const std::string layerVarZ_;
 };
 
 }  // namespace ga_slam

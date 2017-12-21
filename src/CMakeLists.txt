@@ -6,6 +6,7 @@ rock_library(ga_slam
         DataRegistration.cpp
         DataFusion.cpp
         CloudProcessing.cpp
+        Map.cpp
     HEADERS
         GaSlam.hpp
         PoseEstimation.hpp
@@ -13,6 +14,8 @@ rock_library(ga_slam
         DataRegistration.hpp
         DataFusion.hpp
         CloudProcessing.hpp
+        Map.hpp
+        TypeDefs.hpp
     DEPS_PKGCONFIG grid_map_core)
 
 target_link_libraries(ga_slam

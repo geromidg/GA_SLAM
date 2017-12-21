@@ -15,12 +15,10 @@ void CloudProcessing::processCloud(
         std::vector<float>& cloudVariances,
         const Pose& sensorToMapTF,
         const Map& map,
-        double voxelSize,
-        double minElevation,
-        double maxElevation) {
+        double voxelSize) {
     downsampleCloud(inputCloud, outputCloud, voxelSize);
     transformCloudToMap(outputCloud, sensorToMapTF);
-    cropCloudToMap(outputCloud, map, minElevation, maxElevation);
+    cropCloudToMap(outputCloud, map);
     calculateCloudVariances(outputCloud, cloudVariances);
 }
 
@@ -40,16 +38,15 @@ void CloudProcessing::transformCloudToMap(Cloud::Ptr& cloud, const Pose& tf) {
 
 void CloudProcessing::cropCloudToMap(
         Cloud::Ptr& cloud,
-        const Map& map,
-        double minElevation,
-        double maxElevation) {
-    const auto& position = map.getPosition();
-    const auto& length = map.getLength();
+        const Map& map) {
+    const auto& gridMap = map.getGridMap();
+    const auto& position = gridMap.getPosition();
+    const auto& length = gridMap.getLength();
     const float pointX = (length.x() / 2) + position.x();
     const float pointY = (length.y() / 2) + position.y();
 
-    Eigen::Vector4f minCutoffPoint(-pointX, -pointY, minElevation, 0.);
-    Eigen::Vector4f maxCutoffPoint(pointX, pointY, maxElevation, 0.);
+    Eigen::Vector4f minCutoffPoint(-pointX, -pointY, map.getMinElevation(), 0.);
+    Eigen::Vector4f maxCutoffPoint(pointX, pointY, map.getMaxElevation(), 0.);
 
     pcl::CropBox<pcl::PointXYZ> cropBox;
     cropBox.setInputCloud(cloud);
@@ -69,18 +66,20 @@ void CloudProcessing::calculateCloudVariances(
 }
 
 void CloudProcessing::convertMapToCloud(const Map& map, Cloud::Ptr& cloud) {
+    const auto& gridMap = map.getGridMap();
+
     cloud->clear();
-    cloud->reserve(map.getSize().x() * map.getSize().y());
+    cloud->reserve(gridMap.getSize().x() * gridMap.getSize().y());
     cloud->is_dense = true;
     cloud->header.stamp = map.getTimestamp();
 
-    const auto& meanData = map.get("meanZ");
+    const auto& meanData = map.getMeanZ();
     grid_map::Position point;
 
-    for (grid_map::GridMapIterator it(map); !it.isPastEnd(); ++it) {
+    for (grid_map::GridMapIterator it(gridMap); !it.isPastEnd(); ++it) {
         const grid_map::Index index(*it);
 
-        map.getPosition(index, point);
+        gridMap.getPosition(index, point);
         cloud->push_back(pcl::PointXYZ(
                 point.x(), point.y(), meanData(index(0), index(1))));
     }

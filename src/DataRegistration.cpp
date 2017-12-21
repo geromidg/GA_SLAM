@@ -5,13 +5,7 @@
 namespace ga_slam {
 
 DataRegistration::DataRegistration(void)
-        : layerMeanZ_("meanZ"),
-          layerVarZ_("varZ") {
-    map_ = Map({layerMeanZ_, layerVarZ_});
-    map_.setBasicLayers({layerMeanZ_, layerVarZ_});
-    map_.clearBasic();
-    map_.resetTimestamp();
-
+        : map_() {
     processedCloud_.reset(new Cloud);
 }
 
@@ -20,19 +14,10 @@ bool DataRegistration::setParameters(
         double robotPositionX, double robotPositionY,
         double mapResolution, double voxelSize,
         double minElevation, double maxElevation) {
-    mapSizeX_ = mapSizeX;
-    mapSizeY_ = mapSizeY;
-    robotPositionX_ = robotPositionX;
-    robotPositionY_ = robotPositionY;
-    mapResolution_ = mapResolution;
     voxelSize_ = voxelSize;
-    minElevation_ = minElevation;
-    maxElevation_ = maxElevation;
 
-    map_.setGeometry(grid_map::Length(mapSizeX_, mapSizeY_), mapResolution_,
-            grid_map::Position(robotPositionX_, robotPositionY_));
-
-    return true;
+    return map_.setParameters(mapSizeX, mapSizeY, robotPositionX,
+            robotPositionY, mapResolution, minElevation, maxElevation);
 }
 
 void DataRegistration::registerData(
@@ -40,21 +25,16 @@ void DataRegistration::registerData(
         const Pose& sensorToMapTF,
         const Pose& estimatedPose) {
     CloudProcessing::processCloud(cloud, processedCloud_, cloudVariances_,
-            sensorToMapTF, map_, voxelSize_, minElevation_, maxElevation_);
+            sensorToMapTF, map_, voxelSize_);
 
-    translateMap(estimatedPose.translation());
+    map_.translate(estimatedPose.translation());
+
     updateMap();
 }
 
-void DataRegistration::translateMap(const Eigen::Vector3d& translation) {
-    grid_map::Position positionXY(translation.x(), translation.y());
-
-    map_.move(positionXY);
-}
-
 void DataRegistration::updateMap(void) {
-    auto& meanData = map_.get(layerMeanZ_);
-    auto& varianceData = map_.get(layerVarZ_);
+    auto& meanData = map_.getMeanZ();
+    auto& varianceData = map_.getVarianceZ();
 
     size_t cloudIndex = 0;
     grid_map::Index mapIndex;
@@ -63,7 +43,7 @@ void DataRegistration::updateMap(void) {
         cloudIndex++;
 
         grid_map::Position position(point.x, point.y);
-        if (!map_.getIndex(position, mapIndex)) continue;
+        if (!map_.getGridMap().getIndex(position, mapIndex)) continue;
 
         float& mean = meanData(mapIndex(0), mapIndex(1));
         float& variance = varianceData(mapIndex(0), mapIndex(1));
