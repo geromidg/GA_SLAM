@@ -36,14 +36,9 @@ void CloudProcessing::transformCloudToMap(Cloud::Ptr& cloud, const Pose& tf) {
     pcl::transformPointCloud(*cloud, *cloud, tf);
 }
 
-void CloudProcessing::cropCloudToMap(
-        Cloud::Ptr& cloud,
-        const Map& map) {
-    const auto& gridMap = map.getGridMap();
-    const auto& position = gridMap.getPosition();
-    const auto& length = gridMap.getLength();
-    const float pointX = (length.x() / 2) + position.x();
-    const float pointY = (length.y() / 2) + position.y();
+void CloudProcessing::cropCloudToMap(Cloud::Ptr& cloud, const Map& map) {
+    const float pointX = (map.getLengthX() / 2) + map.getPositionX();
+    const float pointY = (map.getLengthY() / 2) + map.getPositionY();
 
     Eigen::Vector4f minCutoffPoint(-pointX, -pointY, map.getMinElevation(), 0.);
     Eigen::Vector4f maxCutoffPoint(pointX, pointY, map.getMaxElevation(), 0.);
@@ -69,7 +64,7 @@ void CloudProcessing::convertMapToCloud(const Map& map, Cloud::Ptr& cloud) {
     const auto& gridMap = map.getGridMap();
 
     cloud->clear();
-    cloud->reserve(gridMap.getSize().x() * gridMap.getSize().y());
+    cloud->reserve(map.getSizeX() * map.getSizeY());
     cloud->is_dense = true;
     cloud->header.stamp = map.getTimestamp();
 

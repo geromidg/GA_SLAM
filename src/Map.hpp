@@ -10,7 +10,14 @@ using Time = uint64_t;
 
 class Map {
   public:
-    Map(void);
+    Map(void)
+            : layerMeanZ_("meanZ"),
+              layerVarianceZ_("varZ") {
+        gridMap_ = GridMap({layerMeanZ_, layerVarianceZ_});
+        gridMap_.setBasicLayers({layerMeanZ_, layerVarianceZ_});
+        gridMap_.clearBasic();
+        gridMap_.resetTimestamp();
+    }
 
     Map(const Map&) = delete;
     Map& operator=(const Map&) = delete;
@@ -23,37 +30,52 @@ class Map {
 
     double getMaxElevation(void) const { return maxElevation_; }
 
+    double getPositionX(void) const { return gridMap_.getPosition().x(); }
+
+    double getPositionY(void) const { return gridMap_.getPosition().y(); }
+
+    double getLengthX(void) const { return gridMap_.getLength().x(); }
+
+    double getLengthY(void) const { return gridMap_.getLength().y(); }
+
+    int getSizeX(void) const { return gridMap_.getSize().x(); }
+
+    int getSizeY(void) const { return gridMap_.getSize().y(); }
+
     const Matrix& getMeanZ(void) const { return gridMap_.get(layerMeanZ_); }
 
     Matrix& getMeanZ(void) { return gridMap_.get(layerMeanZ_); }
 
     const Matrix& getVarianceZ(void) const {
-            return gridMap_.get(layerVarianceZ_); }
+        return gridMap_.get(layerVarianceZ_); }
 
     Matrix& getVarianceZ(void) {
-            return gridMap_.get(layerVarianceZ_); }
+        return gridMap_.get(layerVarianceZ_); }
 
-    Time getTimestamp(void) const { return timestamp_; }
+    Time getTimestamp(void) const { return gridMap_.getTimestamp(); }
 
-    void setTimestamp(const Time& timestamp) { timestamp_ = timestamp; }
+    void setTimestamp(const Time& time) { gridMap_.setTimestamp(time); }
 
-    bool setParameters(
-            double mapSizeX, double mapSizeY,
-            double robotPositionX, double robotPositionY,
-            double mapResolution, double minElevation, double maxElevation);
+    void setParameters(
+            double sizeX, double sizeY,
+            double positionX, double positionY,
+            double resolution, double minElevation, double maxElevation) {
+        minElevation_ = minElevation;
+        maxElevation_ = maxElevation;
 
-    void translate(const Eigen::Vector3d& translation);
+        gridMap_.setGeometry(grid_map::Length(sizeX, sizeY), resolution,
+                grid_map::Position(positionX, positionY));
+    }
+
+    void translate(const Eigen::Vector3d& translation) {
+        grid_map::Position positionXY(translation.x(), translation.y());
+
+        gridMap_.move(positionXY);
+    }
 
   protected:
     GridMap gridMap_;
 
-    Time timestamp_;
-
-    double mapSizeX_;
-    double mapSizeY_;
-    double robotPositionX_;
-    double robotPositionY_;
-    double mapResolution_;
     double minElevation_;
     double maxElevation_;
 

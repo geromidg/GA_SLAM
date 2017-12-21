@@ -9,14 +9,14 @@ DataRegistration::DataRegistration(void)
     processedCloud_.reset(new Cloud);
 }
 
-bool DataRegistration::setParameters(
+void DataRegistration::setParameters(
         double mapSizeX, double mapSizeY,
         double robotPositionX, double robotPositionY,
         double mapResolution, double voxelSize,
         double minElevation, double maxElevation) {
     voxelSize_ = voxelSize;
 
-    return map_.setParameters(mapSizeX, mapSizeY, robotPositionX,
+    map_.setParameters(mapSizeX, mapSizeY, robotPositionX,
             robotPositionY, mapResolution, minElevation, maxElevation);
 }
 

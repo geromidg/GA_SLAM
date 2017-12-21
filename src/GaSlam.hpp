@@ -24,12 +24,12 @@ class GaSlam {
     const Map& getFusedMap(void) const { return dataFusion_.getFusedMap(); }
 
     const Map& getGlobalMap(void) const {
-            return poseCorrection_.getGlobalMap(); }
+        return poseCorrection_.getGlobalMap(); }
 
-    const Cloud::ConstPtr& getProcessedCloud(void) const {
-            return dataRegistration_.getProcessedCloud(); }
+    const Cloud::ConstPtr getProcessedCloud(void) const {
+        return dataRegistration_.getProcessedCloud(); }
 
-    bool setParameters(
+    void setParameters(
             double mapSizeX, double mapSizeY,
             double robotPositionX, double robotPositionY,
             double mapResolution, double voxelSize,

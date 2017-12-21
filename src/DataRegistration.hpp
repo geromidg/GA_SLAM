@@ -15,10 +15,10 @@ class DataRegistration {
 
     const Map& getMap(void) const { return map_; }
 
-    const Cloud::ConstPtr& getProcessedCloud(void) const {
+    const Cloud::ConstPtr getProcessedCloud(void) const {
             return processedCloud_; }
 
-    bool setParameters(
+    void setParameters(
             double mapSizeX, double mapSizeY,
             double robotPositionX, double robotPositionY,
             double mapResolution, double voxelSize,
