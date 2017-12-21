@@ -30,27 +30,9 @@ class DataRegistration {
             const Pose& estimatedPose);
 
   protected:
-    void processCloud(
-            const Cloud::ConstPtr& cloud,
-            const Pose& sensorToMapTF);
-
     void translateMap(const Eigen::Vector3d& translation);
 
     void updateMap(void);
-
-    void downsampleCloud(const Cloud::ConstPtr& cloud);
-
-    void transformCloudToMap(const Pose& sensorToMapTF);
-
-    void cropCloudToMap(void);
-
-    void calculateCloudVariances(void);
-
-    void convertMapToCloud(Cloud::Ptr& cloud) const;
-
-    static double measureCloudAlignment(
-            const Cloud::ConstPtr& cloud1,
-            const Cloud::ConstPtr& cloud2);
 
     static void fuseGaussians(
             float& mean1, float& variance1,
