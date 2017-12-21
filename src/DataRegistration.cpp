@@ -10,14 +10,12 @@ DataRegistration::DataRegistration(void)
 }
 
 void DataRegistration::setParameters(
-        double mapSizeX, double mapSizeY,
-        double robotPositionX, double robotPositionY,
-        double mapResolution, double voxelSize,
-        double minElevation, double maxElevation) {
-    voxelSize_ = voxelSize;
+        double mapLengthX, double mapLengthY, double mapResolution,
+        double minElevation, double maxElevation, double voxelSize) {
+    map_.setMapParameters(mapLengthX, mapLengthY, mapResolution,
+            minElevation, maxElevation);
 
-    map_.setParameters(mapSizeX, mapSizeY, robotPositionX,
-            robotPositionY, mapResolution, minElevation, maxElevation);
+    voxelSize_ = voxelSize;
 }
 
 void DataRegistration::registerData(

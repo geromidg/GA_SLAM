@@ -30,10 +30,8 @@ class GaSlam {
         return dataRegistration_.getProcessedCloud(); }
 
     void setParameters(
-            double mapSizeX, double mapSizeY,
-            double robotPositionX, double robotPositionY,
-            double mapResolution, double voxelSize,
-            double minElevation, double maxElevation);
+            double mapLengthX, double mapLengthY, double mapResolution,
+            double minElevation, double maxElevation, double voxelSize);
 
     void cloudCallback(
             const Cloud::ConstPtr& cloud,

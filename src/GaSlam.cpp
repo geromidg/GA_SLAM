@@ -9,13 +9,10 @@ GaSlam::GaSlam(void)
           dataFusion_() {}
 
 void GaSlam::setParameters(
-        double mapSizeX, double mapSizeY,
-        double robotPositionX, double robotPositionY,
-        double mapResolution, double voxelSize,
-        double minElevation, double maxElevation) {
-    dataRegistration_.setParameters(mapSizeX, mapSizeY,
-            robotPositionX, robotPositionY, mapResolution, voxelSize,
-            minElevation, maxElevation);
+        double mapLengthX, double mapLengthY, double mapResolution,
+        double minElevation, double maxElevation, double voxelSize) {
+    dataRegistration_.setParameters(mapLengthX, mapLengthY, mapResolution,
+            minElevation, maxElevation, voxelSize);
 }
 
 void GaSlam::cloudCallback(

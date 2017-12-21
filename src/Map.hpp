@@ -56,21 +56,18 @@ class Map {
 
     void setTimestamp(const Time& time) { gridMap_.setTimestamp(time); }
 
-    void setParameters(
-            double sizeX, double sizeY,
-            double positionX, double positionY,
-            double resolution, double minElevation, double maxElevation) {
+    void setMapParameters(
+            double sizeX, double sizeY, double resolution,
+            double minElevation, double maxElevation) {
         minElevation_ = minElevation;
         maxElevation_ = maxElevation;
 
         gridMap_.setGeometry(grid_map::Length(sizeX, sizeY), resolution,
-                grid_map::Position(positionX, positionY));
+                grid_map::Position::Zero());
     }
 
     void translate(const Eigen::Vector3d& translation) {
-        grid_map::Position positionXY(translation.x(), translation.y());
-
-        gridMap_.move(positionXY);
+        gridMap_.move(grid_map::Position(translation.x(), translation.y()));
     }
 
   protected:
