@@ -1,109 +1,59 @@
-#ifndef _GASLAM_HPP_
-#define _GASLAM_HPP_
+#pragma once
 
-#include <Eigen/Geometry>
-#include <Eigen/Core>
-
-#include <pcl/point_types.h>
-#include <pcl/point_cloud.h>
-
-#include "grid_map_core/grid_map_core.hpp"
-
-using Pose = Eigen::Affine3d;
-using Map = grid_map::GridMap;
-using PointCloud = pcl::PointCloud<pcl::PointXYZ>;
+#include "ga_slam/TypeDefs.hpp"
+#include "ga_slam/PoseEstimation.hpp"
+#include "ga_slam/PoseCorrection.hpp"
+#include "ga_slam/DataRegistration.hpp"
+#include "ga_slam/DataFusion.hpp"
 
 namespace ga_slam {
 
 class GaSlam {
   public:
-    GaSlam(void) : GaSlam(Map()) {}
-
-    explicit GaSlam(const Map& globalMap);
+    GaSlam(void);
 
     GaSlam(const GaSlam&) = delete;
     GaSlam& operator=(const GaSlam&) = delete;
     GaSlam(GaSlam&&) = delete;
     GaSlam& operator=(GaSlam&&) = delete;
 
-    const Map& getRawMap(void) const { return rawMap_; }
+    const Pose& getPose(void) const { return poseEstimation_.getPose(); }
 
-    const Map& getFusedMap(void) const { return fusedMap_; }
+    const Map& getRawMap(void) const { return dataRegistration_.getMap(); }
 
-    const Map& getGlobalMap(void) const { return globalMap_; }
+    const Map& getFusedMap(void) const { return dataFusion_.getFusedMap(); }
 
-    const Pose& getCorrectedPose(void) const { return correctedPose_; }
+    const Map& getGlobalMap(void) const {
+        return poseCorrection_.getGlobalMap(); }
 
-    const PointCloud::ConstPtr getFilteredPointCloud(void) const {
-        return filteredCloud_; }
+    const Cloud::ConstPtr getProcessedCloud(void) const {
+        return dataRegistration_.getProcessedCloud(); }
 
-    bool setParameters(
-            double mapSizeX, double mapSizeY,
-            double robotPositionX, double robotPositionY,
-            double mapResolution, double voxelSize,
-            double minElevation, double maxElevation);
+    void setParameters(
+            double mapLengthX, double mapLengthY, double mapResolution,
+            double minElevation, double maxElevation, double voxelSize);
 
-    void registerData(
-            const PointCloud::ConstPtr& inputCloud,
-            const Pose& inputPose,
+    void cloudCallback(
+            const Cloud::ConstPtr& cloud,
             const Pose& sensorToBodyTF,
-            const Pose& bodyToGroundTF = Pose::Identity());
-
-    void fuseMap(void);
-
-    void correctPose(void);
+            const Pose& bodyToGroundTF = Pose::Identity(),
+            const Pose& poseGuess = Pose::Identity());
 
   protected:
-    void processPointCloud(
-            const PointCloud::ConstPtr& inputCloud,
-            const Pose& sensorToMapTF);
+    void runPoseEstimation(void) {}
 
-    void translateMap(const Eigen::Vector3d& translation);
+    void runPoseCorrection(void) {}
 
-    void updateMap(void);
+    void runDataRegistration(void) {}
 
-    void downsamplePointCloud(const PointCloud::ConstPtr& inputCloud);
-
-    void transformPointCloudToMap(const Pose& sensorToMapTF);
-
-    void cropPointCloudToMap(void);
-
-    void calculatePointCloudVariances(void);
-
-    void convertMapToPointCloud(PointCloud::Ptr& cloud) const;
-
-    static double measurePointCloudAlignment(
-            const PointCloud::ConstPtr& cloud1,
-            const PointCloud::ConstPtr& cloud2);
-
-    static void fuseGaussians(
-            float& mean1, float& variance1,
-            const float& mean2, const float& variance2);
+    void runDataFusion(void) {}
 
   protected:
-    Map rawMap_;
-    Map fusedMap_;
-    Map globalMap_;
-
-    Pose correctedPose_;
-
-    PointCloud::Ptr filteredCloud_;
-    std::vector<float> cloudVariances_;
-
-    double mapSizeX_;
-    double mapSizeY_;
-    double robotPositionX_;
-    double robotPositionY_;
-    double mapResolution_;
-    double voxelSize_;
-    double minElevation_;
-    double maxElevation_;
-
-    const std::string layerMeanZ_;
-    const std::string layerVarZ_;
+    PoseEstimation poseEstimation_;
+    PoseCorrection poseCorrection_;
+    DataRegistration dataRegistration_;
+    DataFusion dataFusion_;
 };
 
 }  // namespace ga_slam
-
-#endif  // _GASLAM_HPP_
 
