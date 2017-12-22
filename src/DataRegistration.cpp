@@ -35,16 +35,15 @@ void DataRegistration::updateMap(void) {
     auto& varianceData = map_.getVarianceZ();
 
     size_t cloudIndex = 0;
-    grid_map::Index mapIndex;
+    size_t mapIndex;
 
     for (const auto& point : processedCloud_->points) {
         cloudIndex++;
 
-        grid_map::Position position(point.x, point.y);
-        if (!map_.getGridMap().getIndex(position, mapIndex)) continue;
+        if (!map_.getIndexFromPosition(point.x, point.y, mapIndex)) continue;
 
-        float& mean = meanData(mapIndex(0), mapIndex(1));
-        float& variance = varianceData(mapIndex(0), mapIndex(1));
+        float& mean = meanData(mapIndex);
+        float& variance = varianceData(mapIndex);
         const float& pointVariance = cloudVariances_[cloudIndex - 1];
 
         if (!std::isfinite(mean)) {

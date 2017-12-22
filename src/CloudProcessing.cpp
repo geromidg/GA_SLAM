@@ -5,8 +5,6 @@
 #include <pcl/filters/crop_box.h>
 #include <pcl/registration/icp.h>
 
-#include "grid_map_core/iterators/GridMapIterator.hpp"
-
 namespace ga_slam {
 
 void CloudProcessing::processCloud(
@@ -61,22 +59,17 @@ void CloudProcessing::calculateCloudVariances(
 }
 
 void CloudProcessing::convertMapToCloud(const Map& map, Cloud::Ptr& cloud) {
-    const auto& gridMap = map.getGridMap();
-
     cloud->clear();
     cloud->reserve(map.getSizeX() * map.getSizeY());
     cloud->is_dense = true;
     cloud->header.stamp = map.getTimestamp();
 
     const auto& meanData = map.getMeanZ();
-    grid_map::Position point;
+    Eigen::Vector3d point;
 
-    for (grid_map::GridMapIterator it(gridMap); !it.isPastEnd(); ++it) {
-        const grid_map::Index index(*it);
-
-        gridMap.getPosition(index, point);
-        cloud->push_back(pcl::PointXYZ(
-                point.x(), point.y(), meanData(index(0), index(1))));
+    for (auto&& it = map.begin(); !it.isPastEnd(); ++it) {
+        map.getPointFromArrayIndex(*it, meanData, point);
+        cloud->push_back(pcl::PointXYZ(point.x(), point.y(), point.z()));
     }
 }
 

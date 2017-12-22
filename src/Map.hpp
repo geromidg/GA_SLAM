@@ -1,6 +1,7 @@
 #pragma once
 
 #include "grid_map_core/GridMap.hpp"
+#include "grid_map_core/iterators/GridMapIterator.hpp"
 
 namespace ga_slam {
 
@@ -10,19 +11,15 @@ using Time = uint64_t;
 
 class Map {
   public:
-    Map(void)
-            : layerMeanZ_("meanZ"),
-              layerVarianceZ_("varZ") {
-        gridMap_ = GridMap({layerMeanZ_, layerVarianceZ_});
-        gridMap_.setBasicLayers({layerMeanZ_, layerVarianceZ_});
-        gridMap_.clearBasic();
-        gridMap_.resetTimestamp();
-    }
+    Map(void);
 
     Map(const Map&) = delete;
     Map& operator=(const Map&) = delete;
     Map(Map&&) = delete;
     Map& operator=(Map&&) = delete;
+
+    grid_map::GridMapIterator begin(void) const {
+        return grid_map::GridMapIterator(gridMap_); }
 
     const GridMap& getGridMap(void) const { return gridMap_; }
 
@@ -58,17 +55,19 @@ class Map {
 
     void setMapParameters(
             double sizeX, double sizeY, double resolution,
-            double minElevation, double maxElevation) {
-        minElevation_ = minElevation;
-        maxElevation_ = maxElevation;
+            double minElevation, double maxElevation);
 
-        gridMap_.setGeometry(grid_map::Length(sizeX, sizeY), resolution,
-                grid_map::Position::Zero());
-    }
+    bool getIndexFromPosition(
+            double positionX,
+            double positionY,
+            size_t& index) const;
 
-    void translate(const Eigen::Vector3d& translation) {
-        gridMap_.move(grid_map::Position(translation.x(), translation.y()));
-    }
+    void getPointFromArrayIndex(
+            const grid_map::Index& arrayIndex,
+            const Matrix& layerData,
+            Eigen::Vector3d& point) const;
+
+    void translate(const Eigen::Vector3d& translation);
 
   protected:
     GridMap gridMap_;
