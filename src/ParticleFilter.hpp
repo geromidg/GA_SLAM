@@ -7,42 +7,40 @@
 namespace ga_slam {
 
 struct Particle {
-    int id;
-
     double x;
     double y;
     double yaw;
 
-    double weight;
+    double weight = 0.;
 };
 
 class ParticleFilter {
   public:
-    explicit ParticleFilter(int numParticles)
-            : numParticles_(numParticles) {}
+    ParticleFilter(void) : numParticles_(0) {}
 
-    ~ParticleFilter(void) = delete;
     ParticleFilter(const ParticleFilter&) = delete;
     ParticleFilter& operator=(const ParticleFilter&) = delete;
     ParticleFilter(ParticleFilter&&) = delete;
     ParticleFilter& operator=(ParticleFilter&&) = delete;
 
-    void initialize(const Pose& initialPose);
+    void setParameters(int numParticles);
 
-    void predict(const Pose& deltaPose);
+    void initialize(const Pose& initialPose = Pose::Identity()) {}
+
+    void predict(const Pose& deltaPose) {}
 
     void update(
             const Cloud::ConstPtr& rawCloud,
-            const Cloud::ConstPtr& mapCloud);
+            const Cloud::ConstPtr& mapCloud) {}
 
-    void resample(void);
+    void resample(void) {}
 
-    Pose getEstimate(void) const;
+    Pose getEstimate(void) const { return pose_; }
 
   protected:
-      int numParticles_;
+    std::vector<Particle> particles_;
 
-      std::vector<Particle> particles_;
+    int numParticles_;
 };
 
 }  // namespace ga_slam

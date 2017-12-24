@@ -15,6 +15,8 @@ GaSlam::GaSlam(void)
 void GaSlam::setParameters(
         double mapLengthX, double mapLengthY, double mapResolution,
         double minElevation, double maxElevation, double voxelSize) {
+    poseEstimation_.setParameters(10);
+
     dataRegistration_.setParameters(mapLengthX, mapLengthY, mapResolution,
             minElevation, maxElevation);
 
@@ -33,7 +35,8 @@ void GaSlam::cloudCallback(
     CloudProcessing::processCloud(cloud, processedCloud_, cloudVariances,
             sensorToMapTF, map, voxelSize_);
 
-    poseEstimation_.estimatePose(poseGuess * bodyToGroundTF);
+    poseEstimation_.estimatePose(map, processedCloud_,
+            poseGuess * bodyToGroundTF);
 
     dataRegistration_.registerData(processedCloud_, cloudVariances,
             poseEstimation_.getPose());
