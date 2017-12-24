@@ -18,7 +18,10 @@ class PoseEstimation {
 
     const Pose& getPose(void) const { return pose_; }
 
-    void setParameters(int numParticles);
+    void setParameters(
+            int numParticles,
+            double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
+            double predictSigmaX, double predictSigmaY, double predictSigmaYaw);
 
     void estimatePose(
             const Map& map,

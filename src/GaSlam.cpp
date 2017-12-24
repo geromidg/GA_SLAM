@@ -15,7 +15,7 @@ GaSlam::GaSlam(void)
 void GaSlam::setParameters(
         double mapLengthX, double mapLengthY, double mapResolution,
         double minElevation, double maxElevation, double voxelSize) {
-    poseEstimation_.setParameters(10);
+    poseEstimation_.setParameters(20, 0., 0., 0., 0.5, 0.5, M_PI/8);
 
     dataRegistration_.setParameters(mapLengthX, mapLengthY, mapResolution,
             minElevation, maxElevation);

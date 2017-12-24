@@ -3,6 +3,7 @@
 #include "ga_slam/TypeDefs.hpp"
 
 #include <vector>
+#include <random>
 
 namespace ga_slam {
 
@@ -16,18 +17,21 @@ struct Particle {
 
 class ParticleFilter {
   public:
-    ParticleFilter(void) : numParticles_(0) {}
+    ParticleFilter(void) {}
 
     ParticleFilter(const ParticleFilter&) = delete;
     ParticleFilter& operator=(const ParticleFilter&) = delete;
     ParticleFilter(ParticleFilter&&) = delete;
     ParticleFilter& operator=(ParticleFilter&&) = delete;
 
-    void setParameters(int numParticles);
+    void setParameters(
+            int numParticles,
+            double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
+            double predictSigmaX, double predictSigmaY, double predictSigmaYaw);
 
-    void initialize(const Pose& initialPose = Pose::Identity()) {}
+    void initialize(const Pose& initialPose = Pose::Identity());
 
-    void predict(const Pose& deltaPose) {}
+    void predict(const Pose& deltaPose);
 
     void update(
             const Cloud::ConstPtr& rawCloud,
@@ -35,12 +39,23 @@ class ParticleFilter {
 
     void resample(void) {}
 
-    Pose getEstimate(void) const { return pose_; }
+    Pose getEstimate(void) const {}
+
+  protected:
+    double sampleGaussian(double mean, double sigma);
 
   protected:
     std::vector<Particle> particles_;
 
+    std::default_random_engine generator_;
+
     int numParticles_;
+    double initialSigmaX_;
+    double initialSigmaY_;
+    double initialSigmaYaw_;
+    double predictSigmaX_;
+    double predictSigmaY_;
+    double predictSigmaYaw_;
 };
 
 }  // namespace ga_slam
