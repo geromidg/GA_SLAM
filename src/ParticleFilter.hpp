@@ -17,7 +17,7 @@ struct Particle {
 
 class ParticleFilter {
   public:
-    ParticleFilter(void) {}
+    ParticleFilter(void) : firstIteration_(true) {}
 
     ParticleFilter(const ParticleFilter&) = delete;
     ParticleFilter& operator=(const ParticleFilter&) = delete;
@@ -35,17 +35,21 @@ class ParticleFilter {
 
     void update(
             const Cloud::ConstPtr& rawCloud,
-            const Cloud::ConstPtr& mapCloud) {}
+            const Cloud::ConstPtr& mapCloud);
 
     void resample(void) {}
 
-    Pose getEstimate(void) const {}
+    Pose getEstimate(void) const;
 
   protected:
     double sampleGaussian(double mean, double sigma);
 
+    Particle getBestParticle(void) const;
+
   protected:
     std::vector<Particle> particles_;
+
+    bool firstIteration_;
 
     std::default_random_engine generator_;
 

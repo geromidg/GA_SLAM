@@ -24,6 +24,11 @@ void PoseEstimation::estimatePose(
     particleFilter_.update(cloud, mapCloud);
     particleFilter_.resample();
     pose_ = particleFilter_.getEstimate();
+
+    pose_.rotate(Eigen::AngleAxisd(poseGuess.linear().eulerAngles(2, 1, 0)[2],
+                Eigen::Vector3d::UnitX()));
+    pose_.rotate(Eigen::AngleAxisd(poseGuess.linear().eulerAngles(2, 1, 0)[1],
+                Eigen::Vector3d::UnitY()));
 }
 
 Pose PoseEstimation::calculateDeltaPose(const Pose& pose1, const Pose& pose2) {

@@ -1,6 +1,9 @@
 #include "ga_slam/ParticleFilter.hpp"
 
+#include "ga_slam/CloudProcessing.hpp"
+
 #include <random>
+#include <limits>
 
 namespace ga_slam {
 
@@ -43,6 +46,45 @@ void ParticleFilter::predict(const Pose& deltaPose) {
         particle.yaw = sampleGaussian(particle.yaw + deltaYaw,
                 predictSigmaYaw_);
     }
+}
+
+void ParticleFilter::update(
+            const Cloud::ConstPtr& rawCloud,
+            const Cloud::ConstPtr& mapCloud) {
+    if (firstIteration_) {
+        firstIteration_ = false;
+        return;
+    }
+
+    for (auto& particle : particles_) {
+        double score = CloudProcessing::measureCloudAlignment(
+                rawCloud, mapCloud);
+
+        if (score == 0.) score = std::numeric_limits<double>::min();
+
+        particle.weight = 1. / score;
+    }
+}
+
+Pose ParticleFilter::getEstimate(void) const {
+    Pose estimate = Pose::Identity();
+    Particle bestParticle = getBestParticle();
+
+    estimate.translation().x() = bestParticle.x;
+    estimate.translation().y() = bestParticle.y;
+    estimate.rotate(Eigen::AngleAxisd(bestParticle.yaw,
+                Eigen::Vector3d::UnitZ()));
+
+    return estimate;
+}
+
+Particle ParticleFilter::getBestParticle(void) const {
+    Particle bestParticle = particles_[0];
+
+    for (const auto& particle : particles_)
+        if (particle.weight > bestParticle.weight) bestParticle = particle;
+
+    return bestParticle;
 }
 
 double ParticleFilter::sampleGaussian(double mean, double sigma) {
