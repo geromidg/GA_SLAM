@@ -1,18 +1,24 @@
 #include "ga_slam/GaSlam.hpp"
 
+#include "ga_slam/CloudProcessing.hpp"
+
 namespace ga_slam {
 
 GaSlam::GaSlam(void)
         : poseEstimation_(),
           poseCorrection_(),
           dataRegistration_(),
-          dataFusion_() {}
+          dataFusion_() {
+    processedCloud_.reset(new Cloud);
+}
 
 void GaSlam::setParameters(
         double mapLengthX, double mapLengthY, double mapResolution,
         double minElevation, double maxElevation, double voxelSize) {
     dataRegistration_.setParameters(mapLengthX, mapLengthY, mapResolution,
-            minElevation, maxElevation, voxelSize);
+            minElevation, maxElevation);
+
+    voxelSize_ = voxelSize;
 }
 
 void GaSlam::cloudCallback(
@@ -20,11 +26,17 @@ void GaSlam::cloudCallback(
             const Pose& sensorToBodyTF,
             const Pose& bodyToGroundTF,
             const Pose& poseGuess) {
+    const Map& map = dataRegistration_.getMap();
+    std::vector<float> cloudVariances;
+    const auto& sensorToMapTF = poseGuess * bodyToGroundTF * sensorToBodyTF;
+
+    CloudProcessing::processCloud(cloud, processedCloud_, cloudVariances,
+            sensorToMapTF, map, voxelSize_);
+
     poseEstimation_.estimatePose(poseGuess * bodyToGroundTF);
 
-    const auto& estimatedPose = poseEstimation_.getPose();
-    const auto& sensorToMapTF = estimatedPose * sensorToBodyTF;
-    dataRegistration_.registerData(cloud, sensorToMapTF, estimatedPose);
+    dataRegistration_.registerData(processedCloud_, cloudVariances,
+            poseEstimation_.getPose());
 }
 
 }  // namespace ga_slam

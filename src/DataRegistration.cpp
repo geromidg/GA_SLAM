@@ -1,50 +1,40 @@
 #include "ga_slam/DataRegistration.hpp"
 
-#include "ga_slam/CloudProcessing.hpp"
-
 namespace ga_slam {
-
-DataRegistration::DataRegistration(void)
-        : map_() {
-    processedCloud_.reset(new Cloud);
-}
 
 void DataRegistration::setParameters(
         double mapLengthX, double mapLengthY, double mapResolution,
-        double minElevation, double maxElevation, double voxelSize) {
+        double minElevation, double maxElevation) {
     map_.setMapParameters(mapLengthX, mapLengthY, mapResolution,
             minElevation, maxElevation);
-
-    voxelSize_ = voxelSize;
 }
 
 void DataRegistration::registerData(
         const Cloud::ConstPtr& cloud,
-        const Pose& sensorToMapTF,
+        const std::vector<float>& cloudVariances,
         const Pose& estimatedPose) {
-    CloudProcessing::processCloud(cloud, processedCloud_, cloudVariances_,
-            sensorToMapTF, map_, voxelSize_);
-
     map_.translate(estimatedPose.translation());
 
-    updateMap();
+    updateMap(cloud, cloudVariances);
 }
 
-void DataRegistration::updateMap(void) {
+void DataRegistration::updateMap(
+        const Cloud::ConstPtr& cloud,
+        const std::vector<float>& cloudVariances) {
     auto& meanData = map_.getMeanZ();
     auto& varianceData = map_.getVarianceZ();
 
     size_t cloudIndex = 0;
     size_t mapIndex;
 
-    for (const auto& point : processedCloud_->points) {
+    for (const auto& point : cloud->points) {
         cloudIndex++;
 
         if (!map_.getIndexFromPosition(point.x, point.y, mapIndex)) continue;
 
         float& mean = meanData(mapIndex);
         float& variance = varianceData(mapIndex);
-        const float& pointVariance = cloudVariances_[cloudIndex - 1];
+        const float& pointVariance = cloudVariances[cloudIndex - 1];
 
         if (!std::isfinite(mean)) {
             mean = point.z;
@@ -54,7 +44,7 @@ void DataRegistration::updateMap(void) {
         }
     }
 
-    map_.setTimestamp(processedCloud_->header.stamp);
+    map_.setTimestamp(cloud->header.stamp);
 }
 
 void DataRegistration::fuseGaussians(
