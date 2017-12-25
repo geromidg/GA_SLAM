@@ -17,40 +17,45 @@ void PoseEstimation::estimatePose(
         const Map& map,
         const Cloud::ConstPtr& cloud,
         const Pose& poseGuess) {
-    double estimateX, estimateY, estimateYaw;
     Cloud::Ptr mapCloud(new Cloud);
-
-    double deltaX = poseGuess.translation().x() - pose_.translation().x();
-    double deltaY = poseGuess.translation().y() - pose_.translation().y();
-    double deltaYaw = poseGuess.linear().eulerAngles(2, 1, 0)[0] -
-            pose_.linear().eulerAngles(2, 1, 0)[0];
-
-    double guessZ = poseGuess.translation().z();
-    double guessRoll = poseGuess.linear().eulerAngles(2, 1, 0)[2];
-    double guessPitch = poseGuess.linear().eulerAngles(2, 1, 0)[1];
-
     CloudProcessing::convertMapToCloud(map, mapCloud);
 
-    particleFilter_.predict(deltaX, deltaY, deltaYaw);
+    Eigen::Vector3d estimateTranslation = poseGuess.translation();
+    Eigen::Vector3d estimateAngles = getAnglesFromPose(poseGuess);
+    const auto deltaAngles = estimateAngles - getAnglesFromPose(pose_);
+    const auto deltaTranslation = estimateTranslation - pose_.translation();
+
+    particleFilter_.predict(deltaTranslation(0), deltaTranslation(1),
+            deltaAngles(2));
     particleFilter_.update(cloud, mapCloud);
     particleFilter_.resample();
-    particleFilter_.getEstimate(estimateX, estimateY, estimateYaw);
+    particleFilter_.getEstimate(estimateTranslation(0), estimateTranslation(1),
+            estimateAngles(2));
 
-    pose_.translation() = Eigen::Vector3d(estimateX, estimateY, guessZ);
-    pose_.linear() = Eigen::Quaterniond(
-            Eigen::AngleAxisd(estimateYaw, Eigen::Vector3d::UnitZ()) *
-            Eigen::AngleAxisd(guessPitch, Eigen::Vector3d::UnitY()) *
-            Eigen::AngleAxisd(guessRoll, Eigen::Vector3d::UnitX())
-            ).toRotationMatrix();
+    pose_ = createPose(estimateTranslation, estimateAngles);
 }
 
-Pose PoseEstimation::calculateDeltaPose(const Pose& pose1, const Pose& pose2) {
-    Pose deltaPose;
+Pose PoseEstimation::createPose(
+        const Eigen::Vector3d& translation,
+        const Eigen::Vector3d& angles) {
+    const auto rotation = Eigen::Quaterniond(
+            Eigen::AngleAxisd(angles(2), Eigen::Vector3d::UnitZ()) *
+            Eigen::AngleAxisd(angles(1), Eigen::Vector3d::UnitY()) *
+            Eigen::AngleAxisd(angles(0), Eigen::Vector3d::UnitX()));
 
-    deltaPose.translation() = pose1.translation() - pose2.translation();
-    deltaPose.linear() = pose1.linear() - pose2.linear();
+    Pose pose = Pose::Identity();
+    pose.translation() = translation;
+    pose.linear() = rotation.toRotationMatrix();
 
-    return deltaPose;
+    return pose;
+}
+
+Eigen::Vector3d PoseEstimation::getAnglesFromPose(const Pose& pose) {
+    double roll = pose.linear().eulerAngles(2, 1, 0)[2];
+    double pitch = pose.linear().eulerAngles(2, 1, 0)[1];
+    double yaw = pose.linear().eulerAngles(2, 1, 0)[0];
+
+    return Eigen::Vector3d(roll, pitch, yaw);
 }
 
 }  // namespace ga_slam

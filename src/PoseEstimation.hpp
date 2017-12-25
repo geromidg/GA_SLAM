@@ -29,7 +29,11 @@ class PoseEstimation {
             const Pose& poseGuess = Pose::Identity());
 
   protected:
-    static Pose calculateDeltaPose(const Pose& pose1, const Pose& pose2);
+    static Pose createPose(
+            const Eigen::Vector3d& translation,
+            const Eigen::Vector3d& angles);
+
+    static Eigen::Vector3d getAnglesFromPose(const Pose& pose);
 
   protected:
     Pose pose_;

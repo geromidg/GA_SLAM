@@ -68,7 +68,7 @@ void ParticleFilter::getEstimate(
         double& estimateX,
         double& estimateY,
         double& estimateYaw) const {
-    Particle bestParticle = getBestParticle();
+    const auto& bestParticle = getBestParticle();
 
     estimateX = bestParticle.x;
     estimateY = bestParticle.y;
@@ -76,7 +76,7 @@ void ParticleFilter::getEstimate(
 }
 
 Particle ParticleFilter::getBestParticle(void) const {
-    Particle bestParticle = particles_[0];
+    auto bestParticle = particles_[0];
 
     for (const auto& particle : particles_)
         if (particle.weight > bestParticle.weight) bestParticle = particle;
