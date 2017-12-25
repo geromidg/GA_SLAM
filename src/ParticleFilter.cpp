@@ -17,17 +17,16 @@ void ParticleFilter::setParameters(
     initialSigmaYaw_ = initialSigmaYaw;
     predictSigmaX_ = predictSigmaX;
     predictSigmaY_ = predictSigmaY;
-    predictSigmaYaw_ = initialSigmaYaw;
+    predictSigmaYaw_ = predictSigmaYaw;
 
     particles_.clear();
     particles_.resize(numParticles_);
 }
 
-void ParticleFilter::initialize(const Pose& initialPose) {
-    double initialX = initialPose.translation().x();
-    double initialY = initialPose.translation().y();
-    double initialYaw = initialPose.linear().eulerAngles(2, 1, 0)[0];
-
+void ParticleFilter::initialize(
+        double initialX,
+        double initialY,
+        double initialYaw) {
     for (auto& particle : particles_) {
         particle.x = sampleGaussian(initialX, initialSigmaX_);
         particle.y = sampleGaussian(initialY, initialSigmaY_);
@@ -35,11 +34,10 @@ void ParticleFilter::initialize(const Pose& initialPose) {
     }
 }
 
-void ParticleFilter::predict(const Pose& deltaPose) {
-    double deltaX = deltaPose.translation().x();
-    double deltaY = deltaPose.translation().y();
-    double deltaYaw = deltaPose.linear().eulerAngles(2, 1, 0)[0];
-
+void ParticleFilter::predict(
+        double deltaX,
+        double deltaY,
+        double deltaYaw) {
     for (auto& particle : particles_) {
         particle.x = sampleGaussian(particle.x + deltaX, predictSigmaX_);
         particle.y = sampleGaussian(particle.y + deltaY, predictSigmaY_);
@@ -49,8 +47,8 @@ void ParticleFilter::predict(const Pose& deltaPose) {
 }
 
 void ParticleFilter::update(
-            const Cloud::ConstPtr& rawCloud,
-            const Cloud::ConstPtr& mapCloud) {
+        const Cloud::ConstPtr& rawCloud,
+        const Cloud::ConstPtr& mapCloud) {
     if (firstIteration_) {
         firstIteration_ = false;
         return;
@@ -66,16 +64,15 @@ void ParticleFilter::update(
     }
 }
 
-Pose ParticleFilter::getEstimate(void) const {
-    Pose estimate = Pose::Identity();
+void ParticleFilter::getEstimate(
+        double& estimateX,
+        double& estimateY,
+        double& estimateYaw) const {
     Particle bestParticle = getBestParticle();
 
-    estimate.translation().x() = bestParticle.x;
-    estimate.translation().y() = bestParticle.y;
-    estimate.rotate(Eigen::AngleAxisd(bestParticle.yaw,
-                Eigen::Vector3d::UnitZ()));
-
-    return estimate;
+    estimateX = bestParticle.x;
+    estimateY = bestParticle.y;
+    estimateYaw = bestParticle.yaw;
 }
 
 Particle ParticleFilter::getBestParticle(void) const {

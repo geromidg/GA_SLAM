@@ -15,7 +15,9 @@ GaSlam::GaSlam(void)
 void GaSlam::setParameters(
         double mapLengthX, double mapLengthY, double mapResolution,
         double minElevation, double maxElevation, double voxelSize) {
-    poseEstimation_.setParameters(20, 0., 0., 0., 0.5, 0.5, M_PI/8);
+    // poseEstimation_.setParameters(20, 0., 0., 0., 0.5, 0.5, M_PI/8);
+    poseEstimation_.setParameters(20, 0., 0., 0., 0., 0., 0.);
+    // poseEstimation_.setParameters(20, 0., 0., 0., 0.1, 0.1, M_PI/20);
 
     dataRegistration_.setParameters(mapLengthX, mapLengthY, mapResolution,
             minElevation, maxElevation);
@@ -24,10 +26,10 @@ void GaSlam::setParameters(
 }
 
 void GaSlam::cloudCallback(
-            const Cloud::ConstPtr& cloud,
-            const Pose& sensorToBodyTF,
-            const Pose& bodyToGroundTF,
-            const Pose& poseGuess) {
+        const Cloud::ConstPtr& cloud,
+        const Pose& sensorToBodyTF,
+        const Pose& bodyToGroundTF,
+        const Pose& poseGuess) {
     const Map& map = dataRegistration_.getMap();
     std::vector<float> cloudVariances;
     const auto& sensorToMapTF = poseGuess * bodyToGroundTF * sensorToBodyTF;

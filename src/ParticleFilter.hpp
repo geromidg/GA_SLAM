@@ -29,9 +29,15 @@ class ParticleFilter {
             double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
             double predictSigmaX, double predictSigmaY, double predictSigmaYaw);
 
-    void initialize(const Pose& initialPose = Pose::Identity());
+    void initialize(
+            double initialX = 0.,
+            double initialY = 0.,
+            double initialYaw = 0.);
 
-    void predict(const Pose& deltaPose);
+    void predict(
+            double deltaX,
+            double deltaY,
+            double deltaYaw);
 
     void update(
             const Cloud::ConstPtr& rawCloud,
@@ -39,7 +45,10 @@ class ParticleFilter {
 
     void resample(void) {}
 
-    Pose getEstimate(void) const;
+    void getEstimate(
+            double& estimateX,
+            double& estimateY,
+            double& estimateYaw) const;
 
   protected:
     double sampleGaussian(double mean, double sigma);

@@ -74,8 +74,8 @@ void CloudProcessing::convertMapToCloud(const Map& map, Cloud::Ptr& cloud) {
 }
 
 double CloudProcessing::measureCloudAlignment(
-            const Cloud::ConstPtr& cloud1,
-            const Cloud::ConstPtr& cloud2) {
+        const Cloud::ConstPtr& cloud1,
+        const Cloud::ConstPtr& cloud2) {
     pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ> icp;
     icp.setMaximumIterations(1);
     icp.setInputSource(cloud1);
