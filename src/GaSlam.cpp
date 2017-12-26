@@ -1,30 +1,49 @@
 #include "ga_slam/GaSlam.hpp"
 
+#include "ga_slam/CloudProcessing.hpp"
+
 namespace ga_slam {
 
 GaSlam::GaSlam(void)
         : poseEstimation_(),
           poseCorrection_(),
           dataRegistration_(),
-          dataFusion_() {}
+          dataFusion_() {
+    processedCloud_.reset(new Cloud);
+}
 
 void GaSlam::setParameters(
         double mapLengthX, double mapLengthY, double mapResolution,
-        double minElevation, double maxElevation, double voxelSize) {
+        double minElevation, double maxElevation,
+        double voxelSize, int numParticles,
+        double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
+        double predictSigmaX, double predictSigmaY, double predictSigmaYaw) {
+    voxelSize_ = voxelSize;
+
+    poseEstimation_.setParameters(numParticles, initialSigmaX, initialSigmaY,
+            initialSigmaYaw, predictSigmaX, predictSigmaY, predictSigmaYaw);
+
     dataRegistration_.setParameters(mapLengthX, mapLengthY, mapResolution,
-            minElevation, maxElevation, voxelSize);
+            minElevation, maxElevation);
 }
 
 void GaSlam::cloudCallback(
-            const Cloud::ConstPtr& cloud,
-            const Pose& sensorToBodyTF,
-            const Pose& bodyToGroundTF,
-            const Pose& poseGuess) {
-    poseEstimation_.estimatePose(poseGuess * bodyToGroundTF);
+        const Cloud::ConstPtr& cloud,
+        const Pose& sensorToBodyTF,
+        const Pose& bodyToGroundTF,
+        const Pose& poseGuess) {
+    const Map& map = dataRegistration_.getMap();
+    std::vector<float> cloudVariances;
+    const auto sensorToMapTF = poseGuess * bodyToGroundTF * sensorToBodyTF;
 
-    const auto& estimatedPose = poseEstimation_.getPose();
-    const auto& sensorToMapTF = estimatedPose * sensorToBodyTF;
-    dataRegistration_.registerData(cloud, sensorToMapTF, estimatedPose);
+    CloudProcessing::processCloud(cloud, processedCloud_, cloudVariances,
+            sensorToMapTF, map, voxelSize_);
+
+    poseEstimation_.estimatePose(map, processedCloud_,
+            poseGuess * bodyToGroundTF);
+
+    dataRegistration_.registerData(processedCloud_, cloudVariances,
+            poseEstimation_.getPose());
 }
 
 }  // namespace ga_slam

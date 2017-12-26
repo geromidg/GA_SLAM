@@ -23,6 +23,10 @@ class Map {
 
     const GridMap& getGridMap(void) const { return gridMap_; }
 
+    void setValid(bool valid) { valid_ = valid; }
+
+    bool isValid(void) const { return valid_; }
+
     double getMinElevation(void) const { return minElevation_; }
 
     double getMaxElevation(void) const { return maxElevation_; }
@@ -54,7 +58,7 @@ class Map {
     void setTimestamp(const Time& time) { gridMap_.setTimestamp(time); }
 
     void setMapParameters(
-            double sizeX, double sizeY, double resolution,
+            double lengthX, double lengthY, double resolution,
             double minElevation, double maxElevation);
 
     bool getIndexFromPosition(
@@ -71,6 +75,8 @@ class Map {
 
   protected:
     GridMap gridMap_;
+
+    bool valid_;
 
     double minElevation_;
     double maxElevation_;

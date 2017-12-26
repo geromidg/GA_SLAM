@@ -3,7 +3,8 @@
 namespace ga_slam {
 
 Map::Map(void)
-        : layerMeanZ_("meanZ"),
+        : valid_(false),
+          layerMeanZ_("meanZ"),
           layerVarianceZ_("varZ") {
     gridMap_ = GridMap({layerMeanZ_, layerVarianceZ_});
     gridMap_.setBasicLayers({layerMeanZ_, layerVarianceZ_});
@@ -12,12 +13,12 @@ Map::Map(void)
 }
 
 void Map::setMapParameters(
-        double sizeX, double sizeY, double resolution,
+        double lengthX, double lengthY, double resolution,
         double minElevation, double maxElevation) {
     minElevation_ = minElevation;
     maxElevation_ = maxElevation;
 
-    gridMap_.setGeometry(grid_map::Length(sizeX, sizeY), resolution,
+    gridMap_.setGeometry(grid_map::Length(lengthX, lengthY), resolution,
             grid_map::Position::Zero());
 }
 

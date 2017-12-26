@@ -60,6 +60,9 @@ void CloudProcessing::calculateCloudVariances(
 
 void CloudProcessing::convertMapToCloud(const Map& map, Cloud::Ptr& cloud) {
     cloud->clear();
+
+    if (!map.isValid()) return;
+
     cloud->reserve(map.getSizeX() * map.getSizeY());
     cloud->is_dense = true;
     cloud->header.stamp = map.getTimestamp();
@@ -73,9 +76,9 @@ void CloudProcessing::convertMapToCloud(const Map& map, Cloud::Ptr& cloud) {
     }
 }
 
-double CloudProcessing::measureCloudAlignment(
-            const Cloud::ConstPtr& cloud1,
-            const Cloud::ConstPtr& cloud2) {
+double CloudProcessing::matchClouds(
+        const Cloud::ConstPtr& cloud1,
+        const Cloud::ConstPtr& cloud2) {
     pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ> icp;
     icp.setMaximumIterations(1);
     icp.setInputSource(cloud1);

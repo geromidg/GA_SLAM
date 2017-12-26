@@ -7,6 +7,7 @@ rock_library(ga_slam
         DataFusion.cpp
         CloudProcessing.cpp
         Map.cpp
+        ParticleFilter.cpp
     HEADERS
         GaSlam.hpp
         PoseEstimation.hpp
@@ -15,6 +16,7 @@ rock_library(ga_slam
         DataFusion.hpp
         CloudProcessing.hpp
         Map.hpp
+        ParticleFilter.hpp
         TypeDefs.hpp
     DEPS_PKGCONFIG grid_map_core)
 

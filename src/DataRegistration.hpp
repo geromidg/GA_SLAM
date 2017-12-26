@@ -6,7 +6,7 @@ namespace ga_slam {
 
 class DataRegistration {
   public:
-    DataRegistration(void);
+    DataRegistration(void) : map_() {}
 
     DataRegistration(const DataRegistration&) = delete;
     DataRegistration& operator=(const DataRegistration&) = delete;
@@ -15,20 +15,19 @@ class DataRegistration {
 
     const Map& getMap(void) const { return map_; }
 
-    const Cloud::ConstPtr getProcessedCloud(void) const {
-        return processedCloud_; }
-
     void setParameters(
             double mapLengthX, double mapLengthY, double mapResolution,
-            double minElevation, double maxElevation, double voxelSize);
+            double minElevation, double maxElevation);
 
     void registerData(
             const Cloud::ConstPtr& cloud,
-            const Pose& sensorToMapTF,
+            const std::vector<float>& cloudVariances,
             const Pose& estimatedPose);
 
   protected:
-    void updateMap(void);
+    void updateMap(
+            const Cloud::ConstPtr& cloud,
+            const std::vector<float>& cloudVariances);
 
     static void fuseGaussians(
             float& mean1, float& variance1,
@@ -36,11 +35,6 @@ class DataRegistration {
 
   protected:
     Map map_;
-
-    Cloud::Ptr processedCloud_;
-    std::vector<float> cloudVariances_;
-
-    double voxelSize_;
 };
 
 }  // namespace ga_slam

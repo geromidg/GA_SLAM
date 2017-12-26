@@ -27,11 +27,14 @@ class GaSlam {
         return poseCorrection_.getGlobalMap(); }
 
     const Cloud::ConstPtr getProcessedCloud(void) const {
-        return dataRegistration_.getProcessedCloud(); }
+        return processedCloud_; }
 
     void setParameters(
             double mapLengthX, double mapLengthY, double mapResolution,
-            double minElevation, double maxElevation, double voxelSize);
+            double minElevation, double maxElevation,
+            double voxelSize, int numParticles,
+            double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
+            double predictSigmaX, double predictSigmaY, double predictSigmaYaw);
 
     void cloudCallback(
             const Cloud::ConstPtr& cloud,
@@ -53,6 +56,10 @@ class GaSlam {
     PoseCorrection poseCorrection_;
     DataRegistration dataRegistration_;
     DataFusion dataFusion_;
+
+    Cloud::Ptr processedCloud_;
+
+    double voxelSize_;
 };
 
 }  // namespace ga_slam
