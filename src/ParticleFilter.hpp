@@ -44,7 +44,7 @@ class ParticleFilter {
             const Cloud::ConstPtr& rawCloud,
             const Cloud::ConstPtr& mapCloud);
 
-    void resample(void) {}
+    void resample(void);
 
     void getEstimate(
             double& estimateX,

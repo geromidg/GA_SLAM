@@ -65,6 +65,24 @@ void ParticleFilter::update(
     }
 }
 
+void ParticleFilter::resample(void) {
+    std::vector<Particle> newParticles;
+    std::vector<double> weights;
+
+    std::transform(
+            particles_.begin(), particles_.end(), std::back_inserter(weights),
+            [] (Particle particle) -> double { return particle.weight; });
+
+    std::discrete_distribution<> distribution(weights.begin(), weights.end());
+
+    for (auto i = 0; i < numParticles_; i++) {
+        const auto& newParticle = particles_[distribution(generator_)];
+        newParticles.push_back(newParticle);
+    }
+
+    particles_ = newParticles;
+}
+
 void ParticleFilter::getEstimate(
         double& estimateX,
         double& estimateY,
@@ -86,7 +104,7 @@ Particle ParticleFilter::getBestParticle(void) const {
 }
 
 double ParticleFilter::sampleGaussian(double mean, double sigma) {
-    std::normal_distribution<double> distribution(mean, sigma);
+    std::normal_distribution<> distribution(mean, sigma);
 
     return distribution(generator_);
 }
