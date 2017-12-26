@@ -13,12 +13,12 @@ Map::Map(void)
 }
 
 void Map::setMapParameters(
-        double sizeX, double sizeY, double resolution,
+        double lengthX, double lengthY, double resolution,
         double minElevation, double maxElevation) {
     minElevation_ = minElevation;
     maxElevation_ = maxElevation;
 
-    gridMap_.setGeometry(grid_map::Length(sizeX, sizeY), resolution,
+    gridMap_.setGeometry(grid_map::Length(lengthX, lengthY), resolution,
             grid_map::Position::Zero());
 }
 

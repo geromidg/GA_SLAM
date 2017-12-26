@@ -58,7 +58,7 @@ class Map {
     void setTimestamp(const Time& time) { gridMap_.setTimestamp(time); }
 
     void setMapParameters(
-            double sizeX, double sizeY, double resolution,
+            double lengthX, double lengthY, double resolution,
             double minElevation, double maxElevation);
 
     bool getIndexFromPosition(

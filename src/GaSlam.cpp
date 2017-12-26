@@ -14,14 +14,17 @@ GaSlam::GaSlam(void)
 
 void GaSlam::setParameters(
         double mapLengthX, double mapLengthY, double mapResolution,
-        double minElevation, double maxElevation, double voxelSize) {
-    // poseEstimation_.setParameters(20, 0., 0., 0., 0., 0., 0.);
-    poseEstimation_.setParameters(20, 0., 0., 0., 0.05, 0.05, M_PI/36);
+        double minElevation, double maxElevation,
+        double voxelSize, int numParticles,
+        double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
+        double predictSigmaX, double predictSigmaY, double predictSigmaYaw) {
+    voxelSize_ = voxelSize;
+
+    poseEstimation_.setParameters(numParticles, initialSigmaX, initialSigmaY,
+            initialSigmaYaw, predictSigmaX, predictSigmaY, predictSigmaYaw);
 
     dataRegistration_.setParameters(mapLengthX, mapLengthY, mapResolution,
             minElevation, maxElevation);
-
-    voxelSize_ = voxelSize;
 }
 
 void GaSlam::cloudCallback(

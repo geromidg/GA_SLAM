@@ -31,7 +31,10 @@ class GaSlam {
 
     void setParameters(
             double mapLengthX, double mapLengthY, double mapResolution,
-            double minElevation, double maxElevation, double voxelSize);
+            double minElevation, double maxElevation,
+            double voxelSize, int numParticles,
+            double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
+            double predictSigmaX, double predictSigmaY, double predictSigmaYaw);
 
     void cloudCallback(
             const Cloud::ConstPtr& cloud,
