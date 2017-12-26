@@ -44,6 +44,7 @@ void DataRegistration::updateMap(
         }
     }
 
+    map_.setValid(true);
     map_.setTimestamp(cloud->header.stamp);
 }
 

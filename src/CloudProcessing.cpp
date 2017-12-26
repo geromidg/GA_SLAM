@@ -60,6 +60,9 @@ void CloudProcessing::calculateCloudVariances(
 
 void CloudProcessing::convertMapToCloud(const Map& map, Cloud::Ptr& cloud) {
     cloud->clear();
+
+    if (!map.isValid()) return;
+
     cloud->reserve(map.getSizeX() * map.getSizeY());
     cloud->is_dense = true;
     cloud->header.stamp = map.getTimestamp();

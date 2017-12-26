@@ -40,8 +40,6 @@ void ParticleFilter::predict(
         double deltaX,
         double deltaY,
         double deltaYaw) {
-    if (firstIteration_) firstIteration_ = false;
-
     for (auto& particle : particles_) {
         particle.x = sampleGaussian(particle.x + deltaX, predictSigmaX_);
         particle.y = sampleGaussian(particle.y + deltaY, predictSigmaY_);
@@ -54,11 +52,10 @@ void ParticleFilter::update(
         const Pose& lastPose,
         const Cloud::ConstPtr& rawCloud,
         const Cloud::ConstPtr& mapCloud) {
-    if (firstIteration_) return;
-
-    Cloud::Ptr particleCloud(new Cloud);
+    if (mapCloud->empty()) return;
 
     for (auto& particle : particles_) {
+        Cloud::Ptr particleCloud(new Cloud);
         const auto& deltaPose = getDeltaPoseFromParticle(particle, lastPose);
         pcl::transformPointCloud(*mapCloud, *particleCloud, deltaPose);
         double score = CloudProcessing::matchClouds(rawCloud, particleCloud);
@@ -95,8 +92,8 @@ double ParticleFilter::sampleGaussian(double mean, double sigma) {
 }
 
 Pose ParticleFilter::getDeltaPoseFromParticle(
-            const Particle& particle,
-            const Pose& pose) {
+        const Particle& particle,
+        const Pose& pose) {
     Pose deltaPose;
 
     deltaPose = Eigen::Translation3d(

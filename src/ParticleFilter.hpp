@@ -17,7 +17,7 @@ struct Particle {
 
 class ParticleFilter {
   public:
-    ParticleFilter(void) : firstIteration_(true) {}
+    ParticleFilter(void) {}
 
     ParticleFilter(const ParticleFilter&) = delete;
     ParticleFilter& operator=(const ParticleFilter&) = delete;
@@ -62,8 +62,6 @@ class ParticleFilter {
 
   protected:
     std::vector<Particle> particles_;
-
-    bool firstIteration_;
 
     std::default_random_engine generator_;
 
