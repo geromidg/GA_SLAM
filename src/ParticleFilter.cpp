@@ -40,6 +40,8 @@ void ParticleFilter::predict(
         double deltaX,
         double deltaY,
         double deltaYaw) {
+    if (firstIteration_) firstIteration_ = false;
+
     for (auto& particle : particles_) {
         particle.x = sampleGaussian(particle.x + deltaX, predictSigmaX_);
         particle.y = sampleGaussian(particle.y + deltaY, predictSigmaY_);
@@ -52,29 +54,16 @@ void ParticleFilter::update(
         const Pose& lastPose,
         const Cloud::ConstPtr& rawCloud,
         const Cloud::ConstPtr& mapCloud) {
-    if (firstIteration_) {
-        firstIteration_ = false;
-        return;
-    }
+    if (firstIteration_) return;
 
     Cloud::Ptr particleCloud(new Cloud);
-    double lastX = lastPose.translation().x();
-    double lastY = lastPose.translation().y();
-    double lastYaw = lastPose.linear().eulerAngles(2, 1, 0)[0];
-    Pose deltaPose;
-    double score;
 
     for (auto& particle : particles_) {
-        deltaPose = Eigen::Translation3d(particle.x - lastX,
-                particle.y - lastY, 0.);
-        deltaPose.rotate(Eigen::AngleAxisd(particle.yaw - lastYaw,
-                Eigen::Vector3d::UnitZ()));
+        const auto& deltaPose = getDeltaPoseFromParticle(particle, lastPose);
         pcl::transformPointCloud(*mapCloud, *particleCloud, deltaPose);
-
-        score = CloudProcessing::measureCloudAlignment(rawCloud, particleCloud);
+        double score = CloudProcessing::matchClouds(rawCloud, particleCloud);
 
         if (score == 0.) score = std::numeric_limits<double>::min();
-
         particle.weight = 1. / score;
     }
 }
@@ -103,6 +92,23 @@ double ParticleFilter::sampleGaussian(double mean, double sigma) {
     std::normal_distribution<double> distribution(mean, sigma);
 
     return distribution(generator_);
+}
+
+Pose ParticleFilter::getDeltaPoseFromParticle(
+            const Particle& particle,
+            const Pose& pose) {
+    Pose deltaPose;
+
+    deltaPose = Eigen::Translation3d(
+            particle.x - pose.translation().x(),
+            particle.y - pose.translation().y(),
+            0.);
+
+    deltaPose.rotate(Eigen::AngleAxisd(
+            particle.yaw - pose.linear().eulerAngles(2, 1, 0)[0],
+            Eigen::Vector3d::UnitZ()));
+
+    return deltaPose;
 }
 
 }  // namespace ga_slam

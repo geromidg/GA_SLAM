@@ -56,6 +56,10 @@ class ParticleFilter {
 
     Particle getBestParticle(void) const;
 
+    static Pose getDeltaPoseFromParticle(
+            const Particle& particle,
+            const Pose& pose);
+
   protected:
     std::vector<Particle> particles_;
 

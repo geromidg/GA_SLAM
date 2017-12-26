@@ -33,7 +33,7 @@ class CloudProcessing {
 
     static void convertMapToCloud(const Map& map, Cloud::Ptr& cloud);
 
-    static double measureCloudAlignment(
+    static double matchClouds(
             const Cloud::ConstPtr& cloud1,
             const Cloud::ConstPtr& cloud2);
 };
