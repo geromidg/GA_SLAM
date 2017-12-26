@@ -40,6 +40,7 @@ class ParticleFilter {
             double deltaYaw);
 
     void update(
+            const Pose& lastPose,
             const Cloud::ConstPtr& rawCloud,
             const Cloud::ConstPtr& mapCloud);
 

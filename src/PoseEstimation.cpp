@@ -27,7 +27,7 @@ void PoseEstimation::estimatePose(
 
     particleFilter_.predict(deltaTranslation(0), deltaTranslation(1),
             deltaAngles(2));
-    particleFilter_.update(cloud, mapCloud);
+    particleFilter_.update(pose_, cloud, mapCloud);
     particleFilter_.resample();
     particleFilter_.getEstimate(estimateTranslation(0), estimateTranslation(1),
             estimateAngles(2));

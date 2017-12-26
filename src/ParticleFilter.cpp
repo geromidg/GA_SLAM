@@ -2,6 +2,8 @@
 
 #include "ga_slam/CloudProcessing.hpp"
 
+#include <pcl/common/transforms.h>
+
 #include <random>
 #include <limits>
 
@@ -47,6 +49,7 @@ void ParticleFilter::predict(
 }
 
 void ParticleFilter::update(
+        const Pose& lastPose,
         const Cloud::ConstPtr& rawCloud,
         const Cloud::ConstPtr& mapCloud) {
     if (firstIteration_) {
@@ -54,9 +57,21 @@ void ParticleFilter::update(
         return;
     }
 
+    Cloud::Ptr particleCloud(new Cloud);
+    double lastX = lastPose.translation().x();
+    double lastY = lastPose.translation().y();
+    double lastYaw = lastPose.linear().eulerAngles(2, 1, 0)[0];
+    Pose deltaPose;
+    double score;
+
     for (auto& particle : particles_) {
-        double score = CloudProcessing::measureCloudAlignment(
-                rawCloud, mapCloud);
+        deltaPose = Eigen::Translation3d(particle.x - lastX,
+                particle.y - lastY, 0.);
+        deltaPose.rotate(Eigen::AngleAxisd(particle.yaw - lastYaw,
+                Eigen::Vector3d::UnitZ()));
+        pcl::transformPointCloud(*mapCloud, *particleCloud, deltaPose);
+
+        score = CloudProcessing::measureCloudAlignment(rawCloud, particleCloud);
 
         if (score == 0.) score = std::numeric_limits<double>::min();
 
