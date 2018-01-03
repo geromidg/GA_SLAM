@@ -9,13 +9,8 @@ void DataRegistration::setParameters(
             minElevation, maxElevation);
 }
 
-void DataRegistration::registerData(
-        const Cloud::ConstPtr& cloud,
-        const std::vector<float>& cloudVariances,
-        const Pose& estimatedPose) {
+void DataRegistration::translateMap(const Pose& estimatedPose) {
     map_.translate(estimatedPose.translation());
-
-    updateMap(cloud, cloudVariances);
 }
 
 void DataRegistration::updateMap(

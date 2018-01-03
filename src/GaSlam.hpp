@@ -36,11 +36,11 @@ class GaSlam {
             double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
             double predictSigmaX, double predictSigmaY, double predictSigmaYaw);
 
+    void poseCallback(const Pose& poseGuess, const Pose& bodyToGroundTF);
+
     void cloudCallback(
             const Cloud::ConstPtr& cloud,
-            const Pose& sensorToBodyTF,
-            const Pose& bodyToGroundTF = Pose::Identity(),
-            const Pose& poseGuess = Pose::Identity());
+            const Pose& sensorToBodyTF);
 
   protected:
     void runPoseEstimation(void) {}

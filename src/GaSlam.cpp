@@ -27,23 +27,26 @@ void GaSlam::setParameters(
             minElevation, maxElevation);
 }
 
+void GaSlam::poseCallback(const Pose& poseGuess, const Pose& bodyToGroundTF) {
+    const auto transformedPoseGuess = poseGuess * bodyToGroundTF;
+
+    poseEstimation_.predictPose(transformedPoseGuess);
+
+    dataRegistration_.translateMap(poseEstimation_.getPose());
+}
+
 void GaSlam::cloudCallback(
         const Cloud::ConstPtr& cloud,
-        const Pose& sensorToBodyTF,
-        const Pose& bodyToGroundTF,
-        const Pose& poseGuess) {
-    const Map& map = dataRegistration_.getMap();
+        const Pose& sensorToBodyTF) {
     std::vector<float> cloudVariances;
-    const auto sensorToMapTF = poseGuess * bodyToGroundTF * sensorToBodyTF;
+    const auto sensorToMapTF = poseEstimation_.getPose() * sensorToBodyTF;
 
     CloudProcessing::processCloud(cloud, processedCloud_, cloudVariances,
-            sensorToMapTF, map, voxelSize_);
+            sensorToMapTF, dataRegistration_.getMap(), voxelSize_);
 
-    poseEstimation_.estimatePose(map, processedCloud_,
-            poseGuess * bodyToGroundTF);
+    poseEstimation_.filterPose(dataRegistration_.getMap(), processedCloud_);
 
-    dataRegistration_.registerData(processedCloud_, cloudVariances,
-            poseEstimation_.getPose());
+    dataRegistration_.updateMap(processedCloud_, cloudVariances);
 }
 
 }  // namespace ga_slam

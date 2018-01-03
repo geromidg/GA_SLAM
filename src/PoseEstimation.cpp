@@ -13,13 +13,7 @@ void PoseEstimation::setParameters(
     particleFilter_.initialize();
 }
 
-void PoseEstimation::estimatePose(
-        const Map& map,
-        const Cloud::ConstPtr& cloud,
-        const Pose& poseGuess) {
-    Cloud::Ptr mapCloud(new Cloud);
-    CloudProcessing::convertMapToCloud(map, mapCloud);
-
+void PoseEstimation::predictPose(const Pose& poseGuess) {
     Eigen::Vector3d estimateTranslation = poseGuess.translation();
     Eigen::Vector3d estimateAngles = getAnglesFromPose(poseGuess);
     const auto deltaAngles = estimateAngles - getAnglesFromPose(pose_);
@@ -27,12 +21,20 @@ void PoseEstimation::estimatePose(
 
     particleFilter_.predict(deltaTranslation(0), deltaTranslation(1),
             deltaAngles(2));
-    particleFilter_.update(pose_, cloud, mapCloud);
-    particleFilter_.resample();
+
     particleFilter_.getEstimate(estimateTranslation(0), estimateTranslation(1),
             estimateAngles(2));
 
     pose_ = createPose(estimateTranslation, estimateAngles);
+}
+
+void PoseEstimation::filterPose(const Map& map, const Cloud::ConstPtr& cloud) {
+    Cloud::Ptr mapCloud(new Cloud);
+    CloudProcessing::convertMapToCloud(map, mapCloud);
+
+    particleFilter_.update(pose_, cloud, mapCloud);
+
+    particleFilter_.resample();
 }
 
 Pose PoseEstimation::createPose(

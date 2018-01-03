@@ -23,10 +23,9 @@ class PoseEstimation {
             double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
             double predictSigmaX, double predictSigmaY, double predictSigmaYaw);
 
-    void estimatePose(
-            const Map& map,
-            const Cloud::ConstPtr& cloud,
-            const Pose& poseGuess = Pose::Identity());
+    void predictPose(const Pose& poseGuess = Pose::Identity());
+
+    void filterPose(const Map& map, const Cloud::ConstPtr& cloud);
 
   protected:
     static Pose createPose(

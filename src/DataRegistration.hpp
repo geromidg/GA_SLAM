@@ -19,16 +19,13 @@ class DataRegistration {
             double mapLengthX, double mapLengthY, double mapResolution,
             double minElevation, double maxElevation);
 
-    void registerData(
-            const Cloud::ConstPtr& cloud,
-            const std::vector<float>& cloudVariances,
-            const Pose& estimatedPose);
+    void translateMap(const Pose& estimatedPose);
 
-  protected:
     void updateMap(
             const Cloud::ConstPtr& cloud,
             const std::vector<float>& cloudVariances);
 
+  protected:
     static void fuseGaussians(
             float& mean1, float& variance1,
             const float& mean2, const float& variance2);
