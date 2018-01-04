@@ -57,6 +57,8 @@ class GaSlam {
     DataRegistration dataRegistration_;
     DataFusion dataFusion_;
 
+    bool poseInitialized_;
+
     Cloud::Ptr processedCloud_;
 
     double voxelSize_;
