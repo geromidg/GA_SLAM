@@ -2,10 +2,7 @@
 
 namespace ga_slam {
 
-Map::Map(void)
-        : valid_(false),
-          layerMeanZ_("meanZ"),
-          layerVarianceZ_("varZ") {
+Map::Map(void) : valid_(false) {
     gridMap_ = GridMap({layerMeanZ_, layerVarianceZ_});
     gridMap_.setBasicLayers({layerMeanZ_, layerVarianceZ_});
     gridMap_.clearBasic();

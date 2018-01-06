@@ -81,8 +81,8 @@ class Map {
     double minElevation_;
     double maxElevation_;
 
-    const std::string layerMeanZ_;
-    const std::string layerVarianceZ_;
+    static constexpr const char* layerMeanZ_ = "meanZ";
+    static constexpr const char* layerVarianceZ_ = "varZ";
 };
 
 }  // namespace ga_slam
