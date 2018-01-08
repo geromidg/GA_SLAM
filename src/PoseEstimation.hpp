@@ -4,6 +4,7 @@
 #include "ga_slam/ParticleFilter.hpp"
 
 #include <mutex>
+#include <atomic>
 
 namespace ga_slam {
 
@@ -11,6 +12,7 @@ class PoseEstimation {
   public:
     PoseEstimation(void)
             : pose_(Pose::Identity()),
+              resampleCounter_(0),
               particleFilter_() {}
 
     PoseEstimation(const PoseEstimation&) = delete;
@@ -26,7 +28,7 @@ class PoseEstimation {
     std::mutex& getPoseMutex(void) { return poseMutex_; }
 
     void setParameters(
-            int numParticles,
+            int numParticles, int resampleFrequency,
             double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
             double predictSigmaX, double predictSigmaY, double predictSigmaYaw);
 
@@ -46,6 +48,9 @@ class PoseEstimation {
   protected:
     Pose pose_;
     mutable std::mutex poseMutex_;
+
+    std::atomic<int> resampleCounter_;
+    int resampleFrequency_;
 
     ParticleFilter particleFilter_;
 };

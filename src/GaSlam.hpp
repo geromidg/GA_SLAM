@@ -37,8 +37,8 @@ class GaSlam {
 
     void setParameters(
             double mapLengthX, double mapLengthY, double mapResolution,
-            double minElevation, double maxElevation,
-            double voxelSize, int numParticles,
+            double minElevation, double maxElevation, double voxelSize,
+            int numParticles, int resampleFrequency,
             double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
             double predictSigmaX, double predictSigmaY, double predictSigmaYaw);
 

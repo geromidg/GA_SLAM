@@ -5,12 +5,14 @@
 namespace ga_slam {
 
 void PoseEstimation::setParameters(
-        int numParticles,
+        int numParticles, int resampleFrequency,
         double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
         double predictSigmaX, double predictSigmaY, double predictSigmaYaw) {
     particleFilter_.setParameters(numParticles, initialSigmaX, initialSigmaY,
             initialSigmaYaw, predictSigmaX, predictSigmaY, predictSigmaYaw);
     particleFilter_.initialize();
+
+    resampleFrequency_ = resampleFrequency;
 }
 
 void PoseEstimation::predictPose(const Pose& poseGuess) {
@@ -44,7 +46,11 @@ void PoseEstimation::filterPose(
 
     particleFilter_.update(lastPose, rawCloud, mapCloud);
 
+    resampleCounter_++;
+    if (resampleCounter_ != resampleFrequency_) return;
+
     particleFilter_.resample();
+    resampleCounter_ = 0;
 }
 
 Pose PoseEstimation::createPose(
