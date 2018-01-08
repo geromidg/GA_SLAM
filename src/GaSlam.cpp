@@ -33,11 +33,7 @@ void GaSlam::poseCallback(const Pose& poseGuess, const Pose& bodyToGroundTF) {
     const auto transformedPoseGuess = poseGuess * bodyToGroundTF;
     poseEstimation_.predictPose(transformedPoseGuess);
 
-    std::unique_lock<std::mutex> guard(poseEstimation_.getPoseMutex());
-    Pose estimatedPose = poseEstimation_.getPose();
-    guard.unlock();
-
-    dataRegistration_.translateMap(estimatedPose);
+    dataRegistration_.translateMap(poseEstimation_.getPose());
 }
 
 void GaSlam::cloudCallback(
@@ -45,16 +41,20 @@ void GaSlam::cloudCallback(
         const Pose& sensorToBodyTF) {
     if (!poseInitialized_) return;
 
-    std::unique_lock<std::mutex> guard(poseEstimation_.getPoseMutex());
     const auto sensorToMapTF = poseEstimation_.getPose() * sensorToBodyTF;
-    guard.unlock();
-
+    const auto mapParameters = dataRegistration_.getMap().getParameters();
     Cloud::Ptr processedCloud(new Cloud);
+    Cloud::Ptr mapCloud(new Cloud);
     std::vector<float> cloudVariances;
-    CloudProcessing::processCloud(cloud, processedCloud, cloudVariances,
-            sensorToMapTF, dataRegistration_.getMap(), voxelSize_);
 
-    poseEstimation_.filterPose(dataRegistration_.getMap(), processedCloud);
+    CloudProcessing::processCloud(cloud, processedCloud, cloudVariances,
+            sensorToMapTF, mapParameters, voxelSize_);
+
+    std::unique_lock<std::mutex> mapGuard(dataRegistration_.getMapMutex());
+    CloudProcessing::convertMapToCloud(dataRegistration_.getMap(), mapCloud);
+    mapGuard.unlock();
+
+    poseEstimation_.filterPose(processedCloud, mapCloud);
 
     dataRegistration_.updateMap(processedCloud, cloudVariances);
 }

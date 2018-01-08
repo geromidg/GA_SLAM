@@ -20,12 +20,13 @@ class GaSlam {
     GaSlam(GaSlam&&) = delete;
     GaSlam& operator=(GaSlam&&) = delete;
 
-    const Pose& getPose(void) const { return poseEstimation_.getPose(); }
+    Pose getPose(void) const { return poseEstimation_.getPose(); }
 
-    std::mutex& getPoseMutex(void) {
-        return poseEstimation_.getPoseMutex(); }
+    std::mutex& getPoseMutex(void) { return poseEstimation_.getPoseMutex(); }
 
     const Map& getRawMap(void) const { return dataRegistration_.getMap(); }
+
+    std::mutex& getRawMapMutex(void) { return dataRegistration_.getMapMutex(); }
 
     const Map& getFusedMap(void) const { return dataFusion_.getFusedMap(); }
 

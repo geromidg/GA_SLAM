@@ -28,22 +28,21 @@ void PoseEstimation::predictPose(const Pose& poseGuess) {
     particleFilter_.getEstimate(estimateTranslation(0), estimateTranslation(1),
             estimateAngles(2));
 
-    Pose newPose = createPose(estimateTranslation, estimateAngles);
+    const Pose newPose = createPose(estimateTranslation, estimateAngles);
 
     guard.lock();
     pose_ = newPose;
     guard.unlock();
 }
 
-void PoseEstimation::filterPose(const Map& map, const Cloud::ConstPtr& cloud) {
-    Cloud::Ptr mapCloud(new Cloud);
-    CloudProcessing::convertMapToCloud(map, mapCloud);
-
+void PoseEstimation::filterPose(
+        const Cloud::ConstPtr& rawCloud,
+        const Cloud::ConstPtr& mapCloud) {
     std::unique_lock<std::mutex> guard(poseMutex_);
-    Pose pose = pose_;
+    const Pose lastPose = pose_;
     guard.unlock();
 
-    particleFilter_.update(pose, cloud, mapCloud);
+    particleFilter_.update(lastPose, rawCloud, mapCloud);
 
     particleFilter_.resample();
 }

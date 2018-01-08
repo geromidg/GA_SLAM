@@ -13,7 +13,7 @@ class CloudProcessing {
             Cloud::Ptr& outputCloud,
             std::vector<float>& cloudVariances,
             const Pose& sensorToMapTF,
-            const Map& map,
+            const MapParameters& mapParameters,
             double voxelSize);
 
     static void downsampleCloud(
@@ -25,7 +25,7 @@ class CloudProcessing {
 
     static void cropCloudToMap(
             Cloud::Ptr& cloud,
-            const Map& map);
+            const MapParameters& mapParameters);
 
     static void calculateCloudVariances(
             const Cloud::ConstPtr& cloud,

@@ -2,6 +2,8 @@
 
 #include "ga_slam/TypeDefs.hpp"
 
+#include <mutex>
+
 namespace ga_slam {
 
 class DataRegistration {
@@ -15,9 +17,16 @@ class DataRegistration {
 
     const Map& getMap(void) const { return map_; }
 
+    std::mutex& getMapMutex(void) { return mapMutex_; }
+
     void setParameters(
             double mapLengthX, double mapLengthY, double mapResolution,
             double minElevation, double maxElevation);
+
+    MapParameters getMapParameters(void) const {
+        std::lock_guard<std::mutex> guard(mapMutex_);
+        return map_.getParameters();
+    }
 
     void translateMap(const Pose& estimatedPose);
 
@@ -32,6 +41,7 @@ class DataRegistration {
 
   protected:
     Map map_;
+    mutable std::mutex mapMutex_;
 };
 
 }  // namespace ga_slam

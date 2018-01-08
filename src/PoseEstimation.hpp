@@ -18,7 +18,10 @@ class PoseEstimation {
     PoseEstimation(PoseEstimation&&) = delete;
     PoseEstimation& operator=(PoseEstimation&&) = delete;
 
-    const Pose& getPose(void) const { return pose_; }
+    Pose getPose(void) const {
+        std::lock_guard<std::mutex> guard(poseMutex_);
+        return pose_;
+    }
 
     std::mutex& getPoseMutex(void) { return poseMutex_; }
 
@@ -29,7 +32,9 @@ class PoseEstimation {
 
     void predictPose(const Pose& poseGuess = Pose::Identity());
 
-    void filterPose(const Map& map, const Cloud::ConstPtr& cloud);
+    void filterPose(
+            const Cloud::ConstPtr& rawCloud,
+            const Cloud::ConstPtr& mapCloud);
 
   protected:
     static Pose createPose(
@@ -40,7 +45,7 @@ class PoseEstimation {
 
   protected:
     Pose pose_;
-    std::mutex poseMutex_;
+    mutable std::mutex poseMutex_;
 
     ParticleFilter particleFilter_;
 };
