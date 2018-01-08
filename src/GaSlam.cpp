@@ -54,7 +54,10 @@ void GaSlam::cloudCallback(
     CloudProcessing::convertMapToCloud(dataRegistration_.getMap(), mapCloud);
     mapGuard.unlock();
 
-    poseEstimation_.filterPose(processedCloud, mapCloud);
+    if (isFutureReady(filterPoseFuture_))
+        filterPoseFuture_ = std::async(std::launch::async,
+                &PoseEstimation::filterPose, &poseEstimation_,
+                processedCloud, mapCloud);
 
     dataRegistration_.updateMap(processedCloud, cloudVariances);
 }

@@ -8,6 +8,8 @@
 
 #include <atomic>
 #include <mutex>
+#include <chrono>
+#include <future>
 
 namespace ga_slam {
 
@@ -46,11 +48,20 @@ class GaSlam {
             const Cloud::ConstPtr& cloud,
             const Pose& sensorToBodyTF);
 
+    template<typename T>
+    bool isFutureReady(const std::future<T>& future) const {
+        if (!future.valid()) return true;
+        return (future.wait_for(std::chrono::milliseconds(0)) ==
+                std::future_status::ready);
+    }
+
   protected:
     PoseEstimation poseEstimation_;
     PoseCorrection poseCorrection_;
     DataRegistration dataRegistration_;
     DataFusion dataFusion_;
+
+    std::future<void> filterPoseFuture_;
 
     std::atomic<bool> poseInitialized_;
 
