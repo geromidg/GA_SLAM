@@ -5,22 +5,21 @@ namespace ga_slam {
 void DataRegistration::setParameters(
         double mapLengthX, double mapLengthY, double mapResolution,
         double minElevation, double maxElevation) {
-    map_.setMapParameters(mapLengthX, mapLengthY, mapResolution,
+    std::lock_guard<std::mutex> guard(mapMutex_);
+    map_.setParameters(mapLengthX, mapLengthY, mapResolution,
             minElevation, maxElevation);
 }
 
-void DataRegistration::registerData(
-        const Cloud::ConstPtr& cloud,
-        const std::vector<float>& cloudVariances,
-        const Pose& estimatedPose) {
+void DataRegistration::translateMap(const Pose& estimatedPose) {
+    std::lock_guard<std::mutex> guard(mapMutex_);
     map_.translate(estimatedPose.translation());
-
-    updateMap(cloud, cloudVariances);
 }
 
 void DataRegistration::updateMap(
         const Cloud::ConstPtr& cloud,
         const std::vector<float>& cloudVariances) {
+    std::lock_guard<std::mutex> guard(mapMutex_);
+
     auto& meanData = map_.getMeanZ();
     auto& varianceData = map_.getVarianceZ();
 

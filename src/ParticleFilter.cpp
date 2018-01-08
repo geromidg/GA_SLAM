@@ -21,6 +21,7 @@ void ParticleFilter::setParameters(
     predictSigmaY_ = predictSigmaY;
     predictSigmaYaw_ = predictSigmaYaw;
 
+    std::lock_guard<std::mutex> guard(particlesMutex_);
     particles_.clear();
     particles_.resize(numParticles_);
 }
@@ -29,6 +30,8 @@ void ParticleFilter::initialize(
         double initialX,
         double initialY,
         double initialYaw) {
+    std::lock_guard<std::mutex> guard(particlesMutex_);
+
     for (auto& particle : particles_) {
         particle.x = sampleGaussian(initialX, initialSigmaX_);
         particle.y = sampleGaussian(initialY, initialSigmaY_);
@@ -40,6 +43,8 @@ void ParticleFilter::predict(
         double deltaX,
         double deltaY,
         double deltaYaw) {
+    std::lock_guard<std::mutex> guard(particlesMutex_);
+
     for (auto& particle : particles_) {
         particle.x = sampleGaussian(particle.x + deltaX, predictSigmaX_);
         particle.y = sampleGaussian(particle.y + deltaY, predictSigmaY_);
@@ -54,18 +59,30 @@ void ParticleFilter::update(
         const Cloud::ConstPtr& mapCloud) {
     if (mapCloud->empty()) return;
 
-    for (auto& particle : particles_) {
+    std::unique_lock<std::mutex> guard(particlesMutex_);
+    std::vector<Particle> particlesCopy = particles_;
+    guard.unlock();
+
+    for (auto& particle : particlesCopy) {
         Cloud::Ptr particleCloud(new Cloud);
         const auto& deltaPose = getDeltaPoseFromParticle(particle, lastPose);
+
         pcl::transformPointCloud(*mapCloud, *particleCloud, deltaPose);
         double score = CloudProcessing::matchClouds(rawCloud, particleCloud);
 
         if (score == 0.) score = std::numeric_limits<double>::min();
         particle.weight = 1. / score;
     }
+
+    guard.lock();
+    for (auto i = 0; i < numParticles_; i++)
+        particles_[i].weight = particlesCopy[i].weight;
+    guard.unlock();
 }
 
 void ParticleFilter::resample(void) {
+    std::lock_guard<std::mutex> guard(particlesMutex_);
+
     std::vector<Particle> newParticles;
     std::vector<double> weights;
 
@@ -87,6 +104,8 @@ void ParticleFilter::getEstimate(
         double& estimateX,
         double& estimateY,
         double& estimateYaw) const {
+    std::lock_guard<std::mutex> guard(particlesMutex_);
+
     const auto& bestParticle = getBestParticle();
 
     estimateX = bestParticle.x;

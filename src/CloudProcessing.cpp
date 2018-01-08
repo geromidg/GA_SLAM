@@ -12,11 +12,11 @@ void CloudProcessing::processCloud(
         Cloud::Ptr& outputCloud,
         std::vector<float>& cloudVariances,
         const Pose& sensorToMapTF,
-        const Map& map,
+        const MapParameters& mapParameters,
         double voxelSize) {
     downsampleCloud(inputCloud, outputCloud, voxelSize);
     transformCloudToMap(outputCloud, sensorToMapTF);
-    cropCloudToMap(outputCloud, map);
+    cropCloudToMap(outputCloud, mapParameters);
     calculateCloudVariances(outputCloud, cloudVariances);
 }
 
@@ -34,12 +34,14 @@ void CloudProcessing::transformCloudToMap(Cloud::Ptr& cloud, const Pose& tf) {
     pcl::transformPointCloud(*cloud, *cloud, tf);
 }
 
-void CloudProcessing::cropCloudToMap(Cloud::Ptr& cloud, const Map& map) {
-    const float pointX = (map.getLengthX() / 2) + map.getPositionX();
-    const float pointY = (map.getLengthY() / 2) + map.getPositionY();
+void CloudProcessing::cropCloudToMap(
+        Cloud::Ptr& cloud,
+        const MapParameters& params) {
+    const float pointX = (params.lengthX / 2) + params.positionX;
+    const float pointY = (params.lengthY / 2) + params.positionY;
 
-    Eigen::Vector4f minCutoffPoint(-pointX, -pointY, map.getMinElevation(), 0.);
-    Eigen::Vector4f maxCutoffPoint(pointX, pointY, map.getMaxElevation(), 0.);
+    Eigen::Vector4f minCutoffPoint(-pointX, -pointY, params.minElevation, 0.);
+    Eigen::Vector4f maxCutoffPoint(pointX, pointY, params.maxElevation, 0.);
 
     pcl::CropBox<pcl::PointXYZ> cropBox;
     cropBox.setInputCloud(cloud);
@@ -63,7 +65,9 @@ void CloudProcessing::convertMapToCloud(const Map& map, Cloud::Ptr& cloud) {
 
     if (!map.isValid()) return;
 
-    cloud->reserve(map.getSizeX() * map.getSizeY());
+    const auto params = map.getParameters();
+
+    cloud->reserve(params.sizeX * params.sizeY);
     cloud->is_dense = true;
     cloud->header.stamp = map.getTimestamp();
 

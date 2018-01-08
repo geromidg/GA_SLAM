@@ -13,26 +13,38 @@ void PoseEstimation::setParameters(
     particleFilter_.initialize();
 }
 
-void PoseEstimation::estimatePose(
-        const Map& map,
-        const Cloud::ConstPtr& cloud,
-        const Pose& poseGuess) {
-    Cloud::Ptr mapCloud(new Cloud);
-    CloudProcessing::convertMapToCloud(map, mapCloud);
-
+void PoseEstimation::predictPose(const Pose& poseGuess) {
     Eigen::Vector3d estimateTranslation = poseGuess.translation();
     Eigen::Vector3d estimateAngles = getAnglesFromPose(poseGuess);
+
+    std::unique_lock<std::mutex> guard(poseMutex_);
     const auto deltaAngles = estimateAngles - getAnglesFromPose(pose_);
     const auto deltaTranslation = estimateTranslation - pose_.translation();
+    guard.unlock();
 
     particleFilter_.predict(deltaTranslation(0), deltaTranslation(1),
             deltaAngles(2));
-    particleFilter_.update(pose_, cloud, mapCloud);
-    particleFilter_.resample();
+
     particleFilter_.getEstimate(estimateTranslation(0), estimateTranslation(1),
             estimateAngles(2));
 
-    pose_ = createPose(estimateTranslation, estimateAngles);
+    const Pose newPose = createPose(estimateTranslation, estimateAngles);
+
+    guard.lock();
+    pose_ = newPose;
+    guard.unlock();
+}
+
+void PoseEstimation::filterPose(
+        const Cloud::ConstPtr& rawCloud,
+        const Cloud::ConstPtr& mapCloud) {
+    std::unique_lock<std::mutex> guard(poseMutex_);
+    const Pose lastPose = pose_;
+    guard.unlock();
+
+    particleFilter_.update(lastPose, rawCloud, mapCloud);
+
+    particleFilter_.resample();
 }
 
 Pose PoseEstimation::createPose(

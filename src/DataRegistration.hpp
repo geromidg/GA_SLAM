@@ -2,6 +2,8 @@
 
 #include "ga_slam/TypeDefs.hpp"
 
+#include <mutex>
+
 namespace ga_slam {
 
 class DataRegistration {
@@ -15,26 +17,31 @@ class DataRegistration {
 
     const Map& getMap(void) const { return map_; }
 
+    std::mutex& getMapMutex(void) { return mapMutex_; }
+
     void setParameters(
             double mapLengthX, double mapLengthY, double mapResolution,
             double minElevation, double maxElevation);
 
-    void registerData(
-            const Cloud::ConstPtr& cloud,
-            const std::vector<float>& cloudVariances,
-            const Pose& estimatedPose);
+    MapParameters getMapParameters(void) const {
+        std::lock_guard<std::mutex> guard(mapMutex_);
+        return map_.getParameters();
+    }
 
-  protected:
+    void translateMap(const Pose& estimatedPose);
+
     void updateMap(
             const Cloud::ConstPtr& cloud,
             const std::vector<float>& cloudVariances);
 
+  protected:
     static void fuseGaussians(
             float& mean1, float& variance1,
             const float& mean2, const float& variance2);
 
   protected:
     Map map_;
+    mutable std::mutex mapMutex_;
 };
 
 }  // namespace ga_slam

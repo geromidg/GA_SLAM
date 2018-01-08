@@ -8,8 +8,8 @@ GaSlam::GaSlam(void)
         : poseEstimation_(),
           poseCorrection_(),
           dataRegistration_(),
-          dataFusion_() {
-    processedCloud_.reset(new Cloud);
+          dataFusion_(),
+          poseInitialized_(false) {
 }
 
 void GaSlam::setParameters(
@@ -27,23 +27,36 @@ void GaSlam::setParameters(
             minElevation, maxElevation);
 }
 
+void GaSlam::poseCallback(const Pose& poseGuess, const Pose& bodyToGroundTF) {
+    if (!poseInitialized_) poseInitialized_ = true;
+
+    const auto transformedPoseGuess = poseGuess * bodyToGroundTF;
+    poseEstimation_.predictPose(transformedPoseGuess);
+
+    dataRegistration_.translateMap(poseEstimation_.getPose());
+}
+
 void GaSlam::cloudCallback(
         const Cloud::ConstPtr& cloud,
-        const Pose& sensorToBodyTF,
-        const Pose& bodyToGroundTF,
-        const Pose& poseGuess) {
-    const Map& map = dataRegistration_.getMap();
+        const Pose& sensorToBodyTF) {
+    if (!poseInitialized_) return;
+
+    const auto sensorToMapTF = poseEstimation_.getPose() * sensorToBodyTF;
+    const auto mapParameters = dataRegistration_.getMap().getParameters();
+    Cloud::Ptr processedCloud(new Cloud);
+    Cloud::Ptr mapCloud(new Cloud);
     std::vector<float> cloudVariances;
-    const auto sensorToMapTF = poseGuess * bodyToGroundTF * sensorToBodyTF;
 
-    CloudProcessing::processCloud(cloud, processedCloud_, cloudVariances,
-            sensorToMapTF, map, voxelSize_);
+    CloudProcessing::processCloud(cloud, processedCloud, cloudVariances,
+            sensorToMapTF, mapParameters, voxelSize_);
 
-    poseEstimation_.estimatePose(map, processedCloud_,
-            poseGuess * bodyToGroundTF);
+    std::unique_lock<std::mutex> mapGuard(dataRegistration_.getMapMutex());
+    CloudProcessing::convertMapToCloud(dataRegistration_.getMap(), mapCloud);
+    mapGuard.unlock();
 
-    dataRegistration_.registerData(processedCloud_, cloudVariances,
-            poseEstimation_.getPose());
+    poseEstimation_.filterPose(processedCloud, mapCloud);
+
+    dataRegistration_.updateMap(processedCloud, cloudVariances);
 }
 
 }  // namespace ga_slam

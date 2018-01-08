@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <random>
+#include <mutex>
 
 namespace ga_slam {
 
@@ -23,6 +24,8 @@ class ParticleFilter {
     ParticleFilter& operator=(const ParticleFilter&) = delete;
     ParticleFilter(ParticleFilter&&) = delete;
     ParticleFilter& operator=(ParticleFilter&&) = delete;
+
+    std::mutex& getParticlesMutex(void) { return particlesMutex_; }
 
     void setParameters(
             int numParticles,
@@ -62,6 +65,7 @@ class ParticleFilter {
 
   protected:
     std::vector<Particle> particles_;
+    mutable std::mutex particlesMutex_;
 
     std::default_random_engine generator_;
 

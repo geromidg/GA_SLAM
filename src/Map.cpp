@@ -2,17 +2,14 @@
 
 namespace ga_slam {
 
-Map::Map(void)
-        : valid_(false),
-          layerMeanZ_("meanZ"),
-          layerVarianceZ_("varZ") {
+Map::Map(void) : valid_(false) {
     gridMap_ = GridMap({layerMeanZ_, layerVarianceZ_});
     gridMap_.setBasicLayers({layerMeanZ_, layerVarianceZ_});
     gridMap_.clearBasic();
     gridMap_.resetTimestamp();
 }
 
-void Map::setMapParameters(
+void Map::setParameters(
         double lengthX, double lengthY, double resolution,
         double minElevation, double maxElevation) {
     minElevation_ = minElevation;
@@ -20,6 +17,21 @@ void Map::setMapParameters(
 
     gridMap_.setGeometry(grid_map::Length(lengthX, lengthY), resolution,
             grid_map::Position::Zero());
+}
+
+MapParameters Map::getParameters(void) const {
+    MapParameters params;
+    params.lengthX = gridMap_.getLength().x();
+    params.lengthY = gridMap_.getLength().y();
+    params.sizeX = gridMap_.getSize().x();
+    params.sizeY = gridMap_.getSize().y();
+    params.positionX = gridMap_.getPosition().x();
+    params.positionY = gridMap_.getPosition().y();
+    params.resolution = gridMap_.getResolution();
+    params.minElevation = minElevation_;
+    params.maxElevation = maxElevation_;
+
+    return params;
 }
 
 bool Map::getIndexFromPosition(
@@ -31,7 +43,7 @@ bool Map::getIndexFromPosition(
 
     if (!gridMap_.getIndex(position, arrayIndex)) return false;
 
-    index = arrayIndex.x() + arrayIndex.y() * getSizeX();
+    index = arrayIndex.x() + arrayIndex.y() * gridMap_.getSize().x();
 
     return true;
 }

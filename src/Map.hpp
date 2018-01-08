@@ -9,6 +9,18 @@ using GridMap = grid_map::GridMap;
 using Matrix = Eigen::MatrixXf;
 using Time = uint64_t;
 
+struct MapParameters {
+    double lengthX;
+    double lengthY;
+    double sizeX;
+    double sizeY;
+    double positionX;
+    double positionY;
+    double minElevation;
+    double maxElevation;
+    double resolution;
+};
+
 class Map {
   public:
     Map(void);
@@ -27,22 +39,6 @@ class Map {
 
     bool isValid(void) const { return valid_; }
 
-    double getMinElevation(void) const { return minElevation_; }
-
-    double getMaxElevation(void) const { return maxElevation_; }
-
-    double getPositionX(void) const { return gridMap_.getPosition().x(); }
-
-    double getPositionY(void) const { return gridMap_.getPosition().y(); }
-
-    double getLengthX(void) const { return gridMap_.getLength().x(); }
-
-    double getLengthY(void) const { return gridMap_.getLength().y(); }
-
-    int getSizeX(void) const { return gridMap_.getSize().x(); }
-
-    int getSizeY(void) const { return gridMap_.getSize().y(); }
-
     const Matrix& getMeanZ(void) const { return gridMap_.get(layerMeanZ_); }
 
     Matrix& getMeanZ(void) { return gridMap_.get(layerMeanZ_); }
@@ -57,9 +53,11 @@ class Map {
 
     void setTimestamp(const Time& time) { gridMap_.setTimestamp(time); }
 
-    void setMapParameters(
+    void setParameters(
             double lengthX, double lengthY, double resolution,
             double minElevation, double maxElevation);
+
+    MapParameters getParameters(void) const;
 
     bool getIndexFromPosition(
             double positionX,
@@ -81,8 +79,8 @@ class Map {
     double minElevation_;
     double maxElevation_;
 
-    const std::string layerMeanZ_;
-    const std::string layerVarianceZ_;
+    static constexpr const char* layerMeanZ_ = "meanZ";
+    static constexpr const char* layerVarianceZ_ = "varZ";
 };
 
 }  // namespace ga_slam
