@@ -5,6 +5,7 @@
 #include <vector>
 #include <random>
 #include <mutex>
+#include <atomic>
 
 namespace ga_slam {
 
@@ -18,14 +19,12 @@ struct Particle {
 
 class ParticleFilter {
   public:
-    ParticleFilter(void) {}
+    ParticleFilter(void) : weightsUpdated_(true) {}
 
     ParticleFilter(const ParticleFilter&) = delete;
     ParticleFilter& operator=(const ParticleFilter&) = delete;
     ParticleFilter(ParticleFilter&&) = delete;
     ParticleFilter& operator=(ParticleFilter&&) = delete;
-
-    std::mutex& getParticlesMutex(void) { return particlesMutex_; }
 
     void setParameters(
             int numParticles,
@@ -66,6 +65,8 @@ class ParticleFilter {
   protected:
     std::vector<Particle> particles_;
     mutable std::mutex particlesMutex_;
+
+    std::atomic<bool> weightsUpdated_;
 
     std::default_random_engine generator_;
 

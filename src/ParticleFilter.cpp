@@ -45,11 +45,19 @@ void ParticleFilter::predict(
         double deltaYaw) {
     std::lock_guard<std::mutex> guard(particlesMutex_);
 
+    double sigmaX = 0., sigmaY = 0., sigmaYaw = 0.;
+
+    if (weightsUpdated_) {
+        weightsUpdated_ = false;
+        sigmaX = predictSigmaX_;
+        sigmaY = predictSigmaY_;
+        sigmaYaw = predictSigmaYaw_;
+    }
+
     for (auto& particle : particles_) {
-        particle.x = sampleGaussian(particle.x + deltaX, predictSigmaX_);
-        particle.y = sampleGaussian(particle.y + deltaY, predictSigmaY_);
-        particle.yaw = sampleGaussian(particle.yaw + deltaYaw,
-                predictSigmaYaw_);
+        particle.x = sampleGaussian(particle.x + deltaX, sigmaX);
+        particle.y = sampleGaussian(particle.y + deltaY, sigmaY);
+        particle.yaw = sampleGaussian(particle.yaw + deltaYaw, sigmaYaw);
     }
 }
 
@@ -78,6 +86,8 @@ void ParticleFilter::update(
     for (auto i = 0; i < numParticles_; i++)
         particles_[i].weight = particlesCopy[i].weight;
     guard.unlock();
+
+    weightsUpdated_ = true;
 }
 
 void ParticleFilter::resample(void) {
