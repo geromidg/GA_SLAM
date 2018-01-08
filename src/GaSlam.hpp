@@ -6,6 +6,8 @@
 #include "ga_slam/DataRegistration.hpp"
 #include "ga_slam/DataFusion.hpp"
 
+#include <atomic>
+
 namespace ga_slam {
 
 class GaSlam {
@@ -25,9 +27,6 @@ class GaSlam {
 
     const Map& getGlobalMap(void) const {
         return poseCorrection_.getGlobalMap(); }
-
-    const Cloud::ConstPtr getProcessedCloud(void) const {
-        return processedCloud_; }
 
     void setParameters(
             double mapLengthX, double mapLengthY, double mapResolution,
@@ -57,9 +56,7 @@ class GaSlam {
     DataRegistration dataRegistration_;
     DataFusion dataFusion_;
 
-    bool poseInitialized_;
-
-    Cloud::Ptr processedCloud_;
+    std::atomic<bool> poseInitialized_;
 
     double voxelSize_;
 };

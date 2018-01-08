@@ -10,7 +10,6 @@ GaSlam::GaSlam(void)
           dataRegistration_(),
           dataFusion_(),
           poseInitialized_(false) {
-    processedCloud_.reset(new Cloud);
 }
 
 void GaSlam::setParameters(
@@ -42,14 +41,16 @@ void GaSlam::cloudCallback(
         const Pose& sensorToBodyTF) {
     if (!poseInitialized_) return;
 
+    Cloud::Ptr processedCloud(new Cloud);
     std::vector<float> cloudVariances;
     const auto sensorToMapTF = poseEstimation_.getPose() * sensorToBodyTF;
-    CloudProcessing::processCloud(cloud, processedCloud_, cloudVariances,
+
+    CloudProcessing::processCloud(cloud, processedCloud, cloudVariances,
             sensorToMapTF, dataRegistration_.getMap(), voxelSize_);
 
-    poseEstimation_.filterPose(dataRegistration_.getMap(), processedCloud_);
+    poseEstimation_.filterPose(dataRegistration_.getMap(), processedCloud);
 
-    dataRegistration_.updateMap(processedCloud_, cloudVariances);
+    dataRegistration_.updateMap(processedCloud, cloudVariances);
 }
 
 }  // namespace ga_slam
