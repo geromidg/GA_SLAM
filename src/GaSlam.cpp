@@ -33,7 +33,11 @@ void GaSlam::poseCallback(const Pose& poseGuess, const Pose& bodyToGroundTF) {
     const auto transformedPoseGuess = poseGuess * bodyToGroundTF;
     poseEstimation_.predictPose(transformedPoseGuess);
 
-    dataRegistration_.translateMap(poseEstimation_.getPose());
+    std::unique_lock<std::mutex> guard(poseEstimation_.getPoseMutex());
+    Pose estimatedPose = poseEstimation_.getPose();
+    guard.unlock();
+
+    dataRegistration_.translateMap(estimatedPose);
 }
 
 void GaSlam::cloudCallback(
@@ -41,10 +45,12 @@ void GaSlam::cloudCallback(
         const Pose& sensorToBodyTF) {
     if (!poseInitialized_) return;
 
+    std::unique_lock<std::mutex> guard(poseEstimation_.getPoseMutex());
+    const auto sensorToMapTF = poseEstimation_.getPose() * sensorToBodyTF;
+    guard.unlock();
+
     Cloud::Ptr processedCloud(new Cloud);
     std::vector<float> cloudVariances;
-    const auto sensorToMapTF = poseEstimation_.getPose() * sensorToBodyTF;
-
     CloudProcessing::processCloud(cloud, processedCloud, cloudVariances,
             sensorToMapTF, dataRegistration_.getMap(), voxelSize_);
 

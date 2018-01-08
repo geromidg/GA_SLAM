@@ -3,6 +3,8 @@
 #include "ga_slam/TypeDefs.hpp"
 #include "ga_slam/ParticleFilter.hpp"
 
+#include <mutex>
+
 namespace ga_slam {
 
 class PoseEstimation {
@@ -17,6 +19,8 @@ class PoseEstimation {
     PoseEstimation& operator=(PoseEstimation&&) = delete;
 
     const Pose& getPose(void) const { return pose_; }
+
+    std::mutex& getPoseMutex(void) { return poseMutex_; }
 
     void setParameters(
             int numParticles,
@@ -36,6 +40,7 @@ class PoseEstimation {
 
   protected:
     Pose pose_;
+    std::mutex poseMutex_;
 
     ParticleFilter particleFilter_;
 };

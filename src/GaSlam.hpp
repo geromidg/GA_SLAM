@@ -7,6 +7,7 @@
 #include "ga_slam/DataFusion.hpp"
 
 #include <atomic>
+#include <mutex>
 
 namespace ga_slam {
 
@@ -20,6 +21,9 @@ class GaSlam {
     GaSlam& operator=(GaSlam&&) = delete;
 
     const Pose& getPose(void) const { return poseEstimation_.getPose(); }
+
+    std::mutex& getPoseMutex(void) {
+        return poseEstimation_.getPoseMutex(); }
 
     const Map& getRawMap(void) const { return dataRegistration_.getMap(); }
 
@@ -40,15 +44,6 @@ class GaSlam {
     void cloudCallback(
             const Cloud::ConstPtr& cloud,
             const Pose& sensorToBodyTF);
-
-  protected:
-    void runPoseEstimation(void) {}
-
-    void runPoseCorrection(void) {}
-
-    void runDataRegistration(void) {}
-
-    void runDataFusion(void) {}
 
   protected:
     PoseEstimation poseEstimation_;

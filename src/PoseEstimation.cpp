@@ -16,8 +16,11 @@ void PoseEstimation::setParameters(
 void PoseEstimation::predictPose(const Pose& poseGuess) {
     Eigen::Vector3d estimateTranslation = poseGuess.translation();
     Eigen::Vector3d estimateAngles = getAnglesFromPose(poseGuess);
+
+    std::unique_lock<std::mutex> guard(poseMutex_);
     const auto deltaAngles = estimateAngles - getAnglesFromPose(pose_);
     const auto deltaTranslation = estimateTranslation - pose_.translation();
+    guard.unlock();
 
     particleFilter_.predict(deltaTranslation(0), deltaTranslation(1),
             deltaAngles(2));
@@ -25,14 +28,22 @@ void PoseEstimation::predictPose(const Pose& poseGuess) {
     particleFilter_.getEstimate(estimateTranslation(0), estimateTranslation(1),
             estimateAngles(2));
 
-    pose_ = createPose(estimateTranslation, estimateAngles);
+    Pose newPose = createPose(estimateTranslation, estimateAngles);
+
+    guard.lock();
+    pose_ = newPose;
+    guard.unlock();
 }
 
 void PoseEstimation::filterPose(const Map& map, const Cloud::ConstPtr& cloud) {
     Cloud::Ptr mapCloud(new Cloud);
     CloudProcessing::convertMapToCloud(map, mapCloud);
 
-    particleFilter_.update(pose_, cloud, mapCloud);
+    std::unique_lock<std::mutex> guard(poseMutex_);
+    Pose pose = pose_;
+    guard.unlock();
+
+    particleFilter_.update(pose, cloud, mapCloud);
 
     particleFilter_.resample();
 }
