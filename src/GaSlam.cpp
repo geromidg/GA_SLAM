@@ -45,20 +45,22 @@ void GaSlam::cloudCallback(
     const auto sensorToMapTF = poseEstimation_.getPose() * sensorToBodyTF;
     const auto mapParameters = dataRegistration_.getMap().getParameters();
     Cloud::Ptr processedCloud(new Cloud);
-    Cloud::Ptr mapCloud(new Cloud);
     std::vector<float> cloudVariances;
 
     CloudProcessing::processCloud(cloud, processedCloud, cloudVariances,
             sensorToMapTF, mapParameters, voxelSize_);
 
-    std::unique_lock<std::mutex> mapGuard(dataRegistration_.getMapMutex());
-    CloudProcessing::convertMapToCloud(dataRegistration_.getMap(), mapCloud);
-    mapGuard.unlock();
-
     if (isFutureReady(filterPoseFuture_))
-        filterPoseFuture_ = std::async(std::launch::async,
-                &PoseEstimation::filterPose, &poseEstimation_,
-                processedCloud, mapCloud);
+        filterPoseFuture_ = std::async(std::launch::async, [&, processedCloud] {
+            Cloud::Ptr mapCloud(new Cloud);
+
+            std::unique_lock<std::mutex> guard(dataRegistration_.getMapMutex());
+            const auto& map = dataRegistration_.getMap();
+            CloudProcessing::convertMapToCloud(map, mapCloud);
+            guard.unlock();
+
+            poseEstimation_.filterPose(processedCloud, mapCloud);
+        });
 
     dataRegistration_.updateMap(processedCloud, cloudVariances);
 }
