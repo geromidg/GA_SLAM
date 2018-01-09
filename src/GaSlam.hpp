@@ -48,6 +48,8 @@ class GaSlam {
             const Cloud::ConstPtr& cloud,
             const Pose& sensorToBodyTF);
 
+    void registerOrbiterCloud(const Cloud::ConstPtr& cloud);
+
     template<typename T>
     bool isFutureReady(const std::future<T>& future) const {
         if (!future.valid()) return true;

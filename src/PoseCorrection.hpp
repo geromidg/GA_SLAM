@@ -15,6 +15,8 @@ class PoseCorrection {
 
     const Map& getGlobalMap(void) const { return globalMap_; }
 
+    void createGlobalMap(const Cloud::ConstPtr& cloud);
+
   protected:
     Map globalMap_;
 };

@@ -65,5 +65,9 @@ void GaSlam::cloudCallback(
     dataRegistration_.updateMap(processedCloud, cloudVariances);
 }
 
+void GaSlam::registerOrbiterCloud(const Cloud::ConstPtr& cloud) {
+    poseCorrection_.createGlobalMap(cloud);
+}
+
 }  // namespace ga_slam
 
