@@ -2,6 +2,8 @@
 
 #include "ga_slam/TypeDefs.hpp"
 
+#include <mutex>
+
 namespace ga_slam {
 
 class PoseCorrection {
@@ -15,10 +17,13 @@ class PoseCorrection {
 
     const Map& getGlobalMap(void) const { return globalMap_; }
 
+    std::mutex& getGlobalMapMutex(void) { return globalMapMutex_; }
+
     void createGlobalMap(const Cloud::ConstPtr& cloud);
 
   protected:
     Map globalMap_;
+    mutable std::mutex globalMapMutex_;
 };
 
 }  // namespace ga_slam

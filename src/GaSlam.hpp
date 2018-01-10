@@ -35,6 +35,9 @@ class GaSlam {
     const Map& getGlobalMap(void) const {
         return poseCorrection_.getGlobalMap(); }
 
+    std::mutex& getGlobalMapMutex(void) {
+        return poseCorrection_.getGlobalMapMutex(); }
+
     void setParameters(
             double mapLengthX, double mapLengthY, double mapResolution,
             double minElevation, double maxElevation, double voxelSize,

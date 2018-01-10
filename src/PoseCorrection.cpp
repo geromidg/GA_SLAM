@@ -3,6 +3,8 @@
 namespace ga_slam {
 
 void PoseCorrection::createGlobalMap(const Cloud::ConstPtr& cloud) {
+    std::lock_guard<std::mutex> guard(globalMapMutex_);
+
     globalMap_.setParameters(100., 100., 1., -1000., 1000.);
 
     auto& meanData = globalMap_.getMeanZ();
