@@ -24,6 +24,8 @@ void GaSlam::setParameters(
             initialSigmaX, initialSigmaY, initialSigmaYaw,
             predictSigmaX, predictSigmaY, predictSigmaYaw);
 
+    poseCorrection_.setParameters(5.);
+
     dataRegistration_.setParameters(mapLengthX, mapLengthY, mapResolution,
             minElevation, maxElevation);
 }

@@ -21,6 +21,8 @@ class PoseCorrection {
 
     std::mutex& getGlobalMapMutex(void) { return globalMapMutex_; }
 
+    void setParameters(double traversedDistanceThreshold);
+
     void createGlobalMap(const Cloud::ConstPtr& cloud);
 
     bool distanceCriterionFulfilled(const Pose& pose) const;
@@ -34,6 +36,8 @@ class PoseCorrection {
     mutable std::mutex globalMapMutex_;
 
     Pose lastCorrectedPose_;
+
+    double traversedDistanceThreshold_;
 };
 
 }  // namespace ga_slam

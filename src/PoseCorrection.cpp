@@ -2,6 +2,10 @@
 
 namespace ga_slam {
 
+void PoseCorrection::setParameters(double traversedDistanceThreshold) {
+    traversedDistanceThreshold_ = traversedDistanceThreshold;
+}
+
 void PoseCorrection::createGlobalMap(const Cloud::ConstPtr& cloud) {
     std::lock_guard<std::mutex> guard(globalMapMutex_);
 
@@ -39,7 +43,11 @@ void PoseCorrection::createGlobalMap(const Cloud::ConstPtr& cloud) {
 }
 
 bool PoseCorrection::distanceCriterionFulfilled(const Pose& pose) const {
-    return true;
+    const Eigen::Vector3d currentXYZ = pose.translation();
+    const Eigen::Vector3d lastXYZ = lastCorrectedPose_.translation();
+    const Eigen::Vector2d deltaXY = currentXYZ.head(2) - lastXYZ.head(2);
+
+    return deltaXY.norm() > traversedDistanceThreshold_;
 }
 
 bool PoseCorrection::featureCriterionFulfilled(const Map& map) const {
