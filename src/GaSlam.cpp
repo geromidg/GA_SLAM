@@ -51,6 +51,7 @@ void GaSlam::cloudCallback(
             sensorToMapTF, mapParameters, voxelSize_);
 
     if (isFutureReady(filterPoseFuture_))
+        // Capture processedCloud (ptr) by value
         filterPoseFuture_ = std::async(std::launch::async, [&, processedCloud] {
             Cloud::Ptr mapCloud(new Cloud);
 
@@ -63,6 +64,21 @@ void GaSlam::cloudCallback(
         });
 
     dataRegistration_.updateMap(processedCloud, cloudVariances);
+
+    if (isFutureReady(poseCorrectionFuture_))
+        filterPoseFuture_ = std::async(std::launch::async, [&] {
+            const auto pose = poseEstimation_.getPose();
+            if (!poseCorrection_.distanceCriterionFulfilled(pose)) return;
+
+            std::unique_lock<std::mutex> guard(dataRegistration_.getMapMutex());
+            const auto& map = dataRegistration_.getMap();
+            if (!poseCorrection_.featureCriterionFulfilled(map)) return;
+
+            const auto correctedPose = poseCorrection_.matchMaps(pose, map);
+            guard.unlock();
+
+            poseEstimation_.predictPose(correctedPose);
+        });
 }
 
 void GaSlam::registerOrbiterCloud(const Cloud::ConstPtr& cloud) {

@@ -67,6 +67,7 @@ class GaSlam {
     DataFusion dataFusion_;
 
     std::future<void> filterPoseFuture_;
+    std::future<void> poseCorrectionFuture_;
 
     std::atomic<bool> poseInitialized_;
 

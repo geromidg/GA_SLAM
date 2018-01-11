@@ -38,5 +38,21 @@ void PoseCorrection::createGlobalMap(const Cloud::ConstPtr& cloud) {
     globalMap_.setTimestamp(cloud->header.stamp);
 }
 
+bool PoseCorrection::distanceCriterionFulfilled(const Pose& pose) const {
+    return true;
+}
+
+bool PoseCorrection::featureCriterionFulfilled(const Map& map) const {
+    return true;
+}
+
+Pose PoseCorrection::matchMaps(const Pose& pose, const Map& map) {
+    auto correctedPose = pose;
+
+    lastCorrectedPose_= correctedPose;
+
+    return correctedPose;
+}
+
 }  // namespace ga_slam
 
