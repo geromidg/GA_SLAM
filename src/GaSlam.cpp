@@ -17,14 +17,16 @@ void GaSlam::setParameters(
         double minElevation, double maxElevation, double voxelSize,
         int numParticles, int resampleFrequency,
         double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
-        double predictSigmaX, double predictSigmaY, double predictSigmaYaw) {
+        double predictSigmaX, double predictSigmaY, double predictSigmaYaw,
+        double traversedDistanceThreshold, double slopeSumThreshold) {
     voxelSize_ = voxelSize;
 
     poseEstimation_.setParameters(numParticles, resampleFrequency,
             initialSigmaX, initialSigmaY, initialSigmaYaw,
             predictSigmaX, predictSigmaY, predictSigmaYaw);
 
-    poseCorrection_.setParameters(5.);
+    poseCorrection_.setParameters(traversedDistanceThreshold,
+            slopeSumThreshold);
 
     dataRegistration_.setParameters(mapLengthX, mapLengthY, mapResolution,
             minElevation, maxElevation);

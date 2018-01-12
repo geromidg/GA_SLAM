@@ -4,8 +4,11 @@
 
 namespace ga_slam {
 
-void PoseCorrection::setParameters(double traversedDistanceThreshold) {
+void PoseCorrection::setParameters(
+        double traversedDistanceThreshold,
+        double slopeSumThreshold) {
     traversedDistanceThreshold_ = traversedDistanceThreshold;
+    slopeSumThreshold_ = slopeSumThreshold;
 }
 
 void PoseCorrection::createGlobalMap(const Cloud::ConstPtr& cloud) {
@@ -53,6 +56,7 @@ bool PoseCorrection::distanceCriterionFulfilled(const Pose& pose) const {
 }
 
 bool PoseCorrection::featureCriterionFulfilled(const Map& localMap) const {
+
     return true;
 }
 

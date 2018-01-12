@@ -43,7 +43,8 @@ class GaSlam {
             double minElevation, double maxElevation, double voxelSize,
             int numParticles, int resampleFrequency,
             double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
-            double predictSigmaX, double predictSigmaY, double predictSigmaYaw);
+            double predictSigmaX, double predictSigmaY, double predictSigmaYaw,
+            double traversedDistanceThreshold, double slopeSumThreshold);
 
     void poseCallback(const Pose& poseGuess, const Pose& bodyToGroundTF);
 
