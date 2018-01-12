@@ -1,5 +1,7 @@
 #include "ga_slam/PoseCorrection.hpp"
 
+#include <opencv2/highgui/highgui.hpp>
+
 namespace ga_slam {
 
 void PoseCorrection::setParameters(double traversedDistanceThreshold) {
@@ -50,11 +52,42 @@ bool PoseCorrection::distanceCriterionFulfilled(const Pose& pose) const {
     return deltaXY.norm() > traversedDistanceThreshold_;
 }
 
-bool PoseCorrection::featureCriterionFulfilled(const Map& map) const {
+bool PoseCorrection::featureCriterionFulfilled(const Map& localMap) const {
     return true;
 }
 
-Pose PoseCorrection::matchMaps(const Pose& pose, const Map& map) {
+cv::Mat PoseCorrection::convertMapToImage(const Map& map) {
+    const auto params = map.getParameters();
+    const auto meanData = map.getMeanZ();
+    cv::Mat image = cv::Mat::zeros(params.sizeX, params.sizeY, CV_32FC1);
+
+    for (auto&& it = map.begin(); !it.isPastEnd(); ++it) {
+        const grid_map::Index index(*it);
+        const grid_map::Index imageIndex(it.getUnwrappedIndex());
+        const float value = meanData(index(0), index(1));
+        image.at<float>(imageIndex(0), imageIndex(1)) = value;
+    }
+
+    return image;
+}
+
+void PoseCorrection::displayImage(
+        const cv::Mat& image,
+        const std::string& windowName,
+        int width,
+        int height) {
+    constexpr int waitTimeout = 100;
+
+    cv::Mat normalizedImage;
+    cv::normalize(image, normalizedImage, 0., 1., cv::NORM_MINMAX);
+
+    cv::namedWindow(windowName, cv::WINDOW_NORMAL);
+    cv::resizeWindow(windowName, width, height);
+    cv::imshow(windowName, normalizedImage);
+    cv::waitKey(waitTimeout);
+}
+
+Pose PoseCorrection::matchMaps(const Pose& pose, const Map& localMap) {
     auto correctedPose = pose;
 
     lastCorrectedPose_= correctedPose;

@@ -2,6 +2,8 @@
 
 #include "ga_slam/TypeDefs.hpp"
 
+#include <opencv2/core/core.hpp>
+
 #include <mutex>
 
 namespace ga_slam {
@@ -27,9 +29,17 @@ class PoseCorrection {
 
     bool distanceCriterionFulfilled(const Pose& pose) const;
 
-    bool featureCriterionFulfilled(const Map& map) const;
+    bool featureCriterionFulfilled(const Map& localMap) const;
 
-    Pose matchMaps(const Pose& pose, const Map& map);
+    Pose matchMaps(const Pose& pose, const Map& localMap);
+
+    static cv::Mat convertMapToImage(const Map& map);
+
+    static void displayImage(
+            const cv::Mat& image,
+            const std::string& windowName = "Image Display",
+            int width = 500,
+            int height = 500);
 
   protected:
     Map globalMap_;
