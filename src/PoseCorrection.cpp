@@ -1,5 +1,6 @@
 #include "ga_slam/PoseCorrection.hpp"
 
+#include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
 namespace ga_slam {
@@ -58,6 +59,40 @@ bool PoseCorrection::distanceCriterionFulfilled(const Pose& pose) const {
 bool PoseCorrection::featureCriterionFulfilled(const Map& localMap) const {
 
     return true;
+}
+
+cv::Mat PoseCorrection::calculateGradientMagnitudeImage(const cv::Mat& image) {
+    cv::Mat gradient, gradientX, gradientY;
+
+    cv::Sobel(image, gradientX, CV_32FC1, 1, 0, 3);
+    cv::Sobel(image, gradientY, CV_32FC1, 0, 1, 3);
+
+    cv::magnitude(gradientX, gradientY, gradient);
+
+    return gradient;
+}
+
+cv::Mat PoseCorrection::calculateApproximateGradientMagnitudeImage(
+        const cv::Mat& image) {
+    cv::Mat gradient, gradientX, gradientY;
+
+    cv::Sobel(image, gradientX, CV_32FC1, 1, 0, 3);
+    cv::Sobel(image, gradientY, CV_32FC1, 0, 1, 3);
+
+    cv::abs(gradientX);
+    cv::abs(gradientY);
+    cv::addWeighted(gradientX, 0.5, gradientY, 0.5, 0., gradient);
+
+    return gradient;
+}
+
+cv::Mat PoseCorrection::calculateLaplacianImage(
+        const cv::Mat& image) {
+    cv::Mat laplacian;
+
+    cv::Laplacian(image, laplacian, CV_32FC1, 3);
+
+    return laplacian;
 }
 
 cv::Mat PoseCorrection::convertMapToImage(const Map& map) {

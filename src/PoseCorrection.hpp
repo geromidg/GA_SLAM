@@ -37,6 +37,14 @@ class PoseCorrection {
 
     static cv::Mat convertMapToImage(const Map& map);
 
+    static cv::Mat calculateGradientMagnitudeImage(const cv::Mat& image);
+
+    static cv::Mat calculateApproximateGradientMagnitudeImage(
+            const cv::Mat& image);
+
+    static cv::Mat calculateLaplacianImage(
+            const cv::Mat& image);
+
     static void displayImage(
             const cv::Mat& image,
             const std::string& windowName = "Image Display",
