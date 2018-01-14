@@ -7,6 +7,7 @@
   <url>http://</url>
   <logo>http://</logo>
   <depend package="base/cmake" />
-  <depend package="slam/pcl"/>
+  <depend package="slam/pcl" />
   <depend package="slam/grid_map" />
+  <depend package="opencv" />
 </package>

@@ -35,18 +35,25 @@ class GaSlam {
     const Map& getGlobalMap(void) const {
         return poseCorrection_.getGlobalMap(); }
 
+    std::mutex& getGlobalMapMutex(void) {
+        return poseCorrection_.getGlobalMapMutex(); }
+
     void setParameters(
             double mapLengthX, double mapLengthY, double mapResolution,
             double minElevation, double maxElevation, double voxelSize,
             int numParticles, int resampleFrequency,
             double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
-            double predictSigmaX, double predictSigmaY, double predictSigmaYaw);
+            double predictSigmaX, double predictSigmaY, double predictSigmaYaw,
+            double traversedDistanceThreshold, double minSlopeThreshold,
+            double slopeSumThresholdMultiplier);
 
     void poseCallback(const Pose& poseGuess, const Pose& bodyToGroundTF);
 
     void cloudCallback(
             const Cloud::ConstPtr& cloud,
             const Pose& sensorToBodyTF);
+
+    void registerOrbiterCloud(const Cloud::ConstPtr& cloud);
 
     template<typename T>
     bool isFutureReady(const std::future<T>& future) const {
@@ -62,6 +69,7 @@ class GaSlam {
     DataFusion dataFusion_;
 
     std::future<void> filterPoseFuture_;
+    std::future<void> poseCorrectionFuture_;
 
     std::atomic<bool> poseInitialized_;
 
