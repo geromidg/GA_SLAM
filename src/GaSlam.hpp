@@ -48,7 +48,7 @@ class GaSlam {
     std::mutex& getGlobalMapMutex(void) {
         return poseCorrection_.getGlobalMapMutex(); }
 
-    void setParameters(
+    void configure(
             double mapLengthX, double mapLengthY, double mapResolution,
             double minElevation, double maxElevation, double voxelSize,
             int numParticles, int resampleFrequency,

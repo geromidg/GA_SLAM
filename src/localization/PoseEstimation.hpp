@@ -38,7 +38,7 @@ class PoseEstimation {
 
     std::mutex& getPoseMutex(void) { return poseMutex_; }
 
-    void setParameters(
+    void configure(
             int numParticles, int resampleFrequency,
             double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
             double predictSigmaX, double predictSigmaY, double predictSigmaYaw);

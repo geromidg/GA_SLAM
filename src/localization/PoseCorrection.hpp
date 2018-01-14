@@ -31,7 +31,7 @@ class PoseCorrection {
 
     std::mutex& getGlobalMapMutex(void) { return globalMapMutex_; }
 
-    void setParameters(
+    void configure(
             double traversedDistanceThreshold,
             double minSlopeThreshold,
             double slopeSumThresholdMultiplier);

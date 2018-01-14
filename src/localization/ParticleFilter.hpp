@@ -35,7 +35,7 @@ class ParticleFilter {
     ParticleFilter(ParticleFilter&&) = delete;
     ParticleFilter& operator=(ParticleFilter&&) = delete;
 
-    void setParameters(
+    void configure(
             int numParticles,
             double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
             double predictSigmaX, double predictSigmaY, double predictSigmaYaw);

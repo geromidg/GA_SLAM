@@ -23,7 +23,7 @@
 
 namespace ga_slam {
 
-void PoseCorrection::setParameters(
+void PoseCorrection::configure(
         double traversedDistanceThreshold,
         double minSlopeThreshold,
         double slopeSumThresholdMultiplier) {

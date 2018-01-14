@@ -30,7 +30,7 @@ class DataRegistration {
 
     std::mutex& getMapMutex(void) { return mapMutex_; }
 
-    void setParameters(
+    void configure(
             double mapLengthX, double mapLengthY, double mapResolution,
             double minElevation, double maxElevation);
 

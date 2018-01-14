@@ -18,7 +18,7 @@
 
 namespace ga_slam {
 
-void DataRegistration::setParameters(
+void DataRegistration::configure(
         double mapLengthX, double mapLengthY, double mapResolution,
         double minElevation, double maxElevation) {
     std::lock_guard<std::mutex> guard(mapMutex_);

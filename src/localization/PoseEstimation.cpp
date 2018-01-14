@@ -18,11 +18,11 @@
 
 namespace ga_slam {
 
-void PoseEstimation::setParameters(
+void PoseEstimation::configure(
         int numParticles, int resampleFrequency,
         double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
         double predictSigmaX, double predictSigmaY, double predictSigmaYaw) {
-    particleFilter_.setParameters(numParticles, initialSigmaX, initialSigmaY,
+    particleFilter_.configure(numParticles, initialSigmaX, initialSigmaY,
             initialSigmaYaw, predictSigmaX, predictSigmaY, predictSigmaYaw);
     particleFilter_.initialize();
 

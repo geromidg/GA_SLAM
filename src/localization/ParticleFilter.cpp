@@ -23,7 +23,7 @@
 
 namespace ga_slam {
 
-void ParticleFilter::setParameters(
+void ParticleFilter::configure(
         int numParticles,
         double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
         double predictSigmaX, double predictSigmaY, double predictSigmaYaw) {
