@@ -37,13 +37,17 @@ class PoseCorrection {
 
     static cv::Mat convertMapToImage(const Map& map);
 
-    static cv::Mat calculateGradientMagnitudeImage(const cv::Mat& image);
-
-    static cv::Mat calculateApproximateGradientMagnitudeImage(
-            const cv::Mat& image);
+    static cv::Mat calculateGradientImage(
+            const cv::Mat& image,
+            bool useSobel = true,
+            int sobelKernelSize = 3,
+            bool approximate = false);
 
     static cv::Mat calculateLaplacianImage(
-            const cv::Mat& image);
+            const cv::Mat& image,
+            int laplacianKernelSize = 1,
+            bool applyGaussianBlur = false,
+            int gaussianKernelSize = 3);
 
     static void displayImage(
             const cv::Mat& image,
