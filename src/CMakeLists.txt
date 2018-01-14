@@ -6,6 +6,7 @@ rock_library(ga_slam
         DataRegistration.cpp
         DataFusion.cpp
         CloudProcessing.cpp
+        ImageProcessing.cpp
         Map.cpp
         ParticleFilter.cpp
     HEADERS
@@ -15,6 +16,7 @@ rock_library(ga_slam
         DataRegistration.hpp
         DataFusion.hpp
         CloudProcessing.hpp
+        ImageProcessing.hpp
         Map.hpp
         ParticleFilter.hpp
         TypeDefs.hpp
