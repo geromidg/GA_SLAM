@@ -1,7 +1,12 @@
 #pragma once
 
+// Grid Map
+#include "grid_map_core/TypeDefs.hpp"
 #include "grid_map_core/GridMap.hpp"
 #include "grid_map_core/iterators/GridMapIterator.hpp"
+
+// Eigen
+#include <Eigen/Core>
 
 namespace ga_slam {
 

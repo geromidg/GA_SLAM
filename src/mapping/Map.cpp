@@ -1,4 +1,11 @@
-#include "ga_slam/Map.hpp"
+#include "ga_slam/mapping/Map.hpp"
+
+// Grid Map
+#include "grid_map_core/TypeDefs.hpp"
+#include "grid_map_core/GridMap.hpp"
+
+// Eigen
+#include <Eigen/Core>
 
 namespace ga_slam {
 

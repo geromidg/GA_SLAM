@@ -1,8 +1,25 @@
-#include "ga_slam/PoseCorrection.hpp"
+#include "ga_slam/localization/PoseCorrection.hpp"
 
-#include "ga_slam/ImageProcessing.hpp"
+// GA SLAM
+#include "ga_slam/TypeDefs.hpp"
+#include "ga_slam/mapping/Map.hpp"
+#include "ga_slam/processing/ImageProcessing.hpp"
 
+// Eigen
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+
+// PCL
+#include <pcl/point_types.h>
+#include <pcl/point_cloud.h>
+
+// OpenCV
+#include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+
+// STL
+#include <mutex>
+#include <cmath>
 
 namespace ga_slam {
 

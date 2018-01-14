@@ -1,7 +1,16 @@
 #pragma once
 
+// GA SLAM
 #include "ga_slam/TypeDefs.hpp"
 
+// Eigen
+#include <Eigen/Geometry>
+
+// PCL
+#include <pcl/point_types.h>
+#include <pcl/point_cloud.h>
+
+// STL
 #include <vector>
 #include <random>
 #include <mutex>

@@ -1,6 +1,20 @@
-#include "ga_slam/PoseEstimation.hpp"
+#include "ga_slam/localization/PoseEstimation.hpp"
 
-#include "ga_slam/CloudProcessing.hpp"
+// GA SLAM
+#include "ga_slam/TypeDefs.hpp"
+#include "ga_slam/processing/CloudProcessing.hpp"
+
+// Eigen
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+
+// PCL
+#include <pcl/point_types.h>
+#include <pcl/point_cloud.h>
+
+// STL
+#include <vector>
+#include <mutex>
 
 namespace ga_slam {
 

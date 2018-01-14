@@ -1,7 +1,19 @@
-#include "ga_slam/ImageProcessing.hpp"
+#include "ga_slam/processing/ImageProcessing.hpp"
 
+// GA SLAM
+#include "ga_slam/TypeDefs.hpp"
+#include "ga_slam/mapping/Map.hpp"
+
+// Eigen
+#include <Eigen/Core>
+
+// OpenCV
+#include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
+
+// STL
+#include <string>
 
 namespace ga_slam {
 
@@ -12,8 +24,8 @@ void ImageProcessing::convertMapToImage(const Map& map, Image& image) {
     image = Image::zeros(params.sizeX, params.sizeY, CV_32F);
 
     for (auto&& it = map.begin(); !it.isPastEnd(); ++it) {
-        const grid_map::Index index(*it);
-        const grid_map::Index imageIndex(it.getUnwrappedIndex());
+        const Eigen::Array2i index(*it);
+        const Eigen::Array2i imageIndex(it.getUnwrappedIndex());
         const float value = meanData(index(0), index(1));
         image.at<float>(imageIndex(0), imageIndex(1)) = value;
     }

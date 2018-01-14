@@ -1,9 +1,23 @@
-#include "ga_slam/CloudProcessing.hpp"
+#include "ga_slam/processing/CloudProcessing.hpp"
 
+// GA SLAM
+#include "ga_slam/TypeDefs.hpp"
+#include "ga_slam/mapping/Map.hpp"
+
+// Eigen
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+
+// PCL
+#include <pcl/point_types.h>
+#include <pcl/point_cloud.h>
 #include <pcl/common/transforms.h>
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/filters/crop_box.h>
 #include <pcl/registration/icp.h>
+
+// STL
+#include <vector>
 
 namespace ga_slam {
 

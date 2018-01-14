@@ -1,8 +1,19 @@
 #pragma once
 
+// GA SLAM
 #include "ga_slam/TypeDefs.hpp"
-#include "ga_slam/ParticleFilter.hpp"
+#include "ga_slam/localization/ParticleFilter.hpp"
 
+// Eigen
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+
+// PCL
+#include <pcl/point_types.h>
+#include <pcl/point_cloud.h>
+
+// STL
+#include <vector>
 #include <mutex>
 #include <atomic>
 

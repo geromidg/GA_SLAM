@@ -1,10 +1,24 @@
-#include "ga_slam/ParticleFilter.hpp"
+#include "ga_slam/localization/ParticleFilter.hpp"
 
-#include "ga_slam/CloudProcessing.hpp"
+// GA SLAM
+#include "ga_slam/TypeDefs.hpp"
+#include "ga_slam/processing/CloudProcessing.hpp"
 
+// Eigen
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+
+// PCL
+#include <pcl/point_types.h>
+#include <pcl/point_cloud.h>
 #include <pcl/common/transforms.h>
 
+// STL
+#include <vector>
+#include <algorithm>
+#include <iterator>
 #include <random>
+#include <mutex>
 #include <limits>
 
 namespace ga_slam {
