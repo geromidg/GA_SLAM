@@ -7,9 +7,11 @@ namespace ga_slam {
 
 void PoseCorrection::setParameters(
         double traversedDistanceThreshold,
-        double slopeSumThreshold) {
+        double minSlopeThreshold,
+        double slopeSumThresholdMultiplier) {
     traversedDistanceThreshold_ = traversedDistanceThreshold;
-    slopeSumThreshold_ = slopeSumThreshold;
+    minSlopeThreshold_ = minSlopeThreshold;
+    slopeSumThresholdMultiplier_ = slopeSumThresholdMultiplier;
 }
 
 void PoseCorrection::createGlobalMap(const Cloud::ConstPtr& cloud) {
@@ -57,7 +59,17 @@ bool PoseCorrection::distanceCriterionFulfilled(const Pose& pose) const {
 }
 
 bool PoseCorrection::featureCriterionFulfilled(const Map& localMap) const {
-    return true;
+    auto elevationImage = convertMapToImage(localMap);
+    auto gradientImage = calculateGradientImage(elevationImage);
+
+    cv::threshold(gradientImage, gradientImage, minSlopeThreshold_, 0.,
+            cv::THRESH_TOZERO);
+
+    const double slopeSum = cv::sum(gradientImage)[0];
+    const double resolution = localMap.getParameters().resolution;
+    const double slopeSumThreshold = slopeSumThresholdMultiplier_ / resolution;
+
+    return slopeSum >= slopeSumThreshold;
 }
 
 cv::Mat PoseCorrection::calculateGradientImage(

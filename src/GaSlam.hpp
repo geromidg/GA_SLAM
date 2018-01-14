@@ -44,7 +44,8 @@ class GaSlam {
             int numParticles, int resampleFrequency,
             double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
             double predictSigmaX, double predictSigmaY, double predictSigmaYaw,
-            double traversedDistanceThreshold, double slopeSumThreshold);
+            double traversedDistanceThreshold, double minSlopeThreshold,
+            double slopeSumThresholdMultiplier);
 
     void poseCallback(const Pose& poseGuess, const Pose& bodyToGroundTF);
 

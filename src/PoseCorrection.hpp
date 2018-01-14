@@ -25,7 +25,8 @@ class PoseCorrection {
 
     void setParameters(
             double traversedDistanceThreshold,
-            double slopeSumThreshold);
+            double minSlopeThreshold,
+            double slopeSumThresholdMultiplier);
 
     void createGlobalMap(const Cloud::ConstPtr& cloud);
 
@@ -62,7 +63,8 @@ class PoseCorrection {
     Pose lastCorrectedPose_;
 
     double traversedDistanceThreshold_;
-    double slopeSumThreshold_;
+    double minSlopeThreshold_;
+    double slopeSumThresholdMultiplier_;
 };
 
 }  // namespace ga_slam
