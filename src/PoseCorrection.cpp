@@ -60,14 +60,12 @@ bool PoseCorrection::distanceCriterionFulfilled(const Pose& pose) const {
 }
 
 bool PoseCorrection::featureCriterionFulfilled(const Map& localMap) const {
-    auto elevationImage = ImageProcessing::convertMapToImage(localMap);
-    auto gradientImage = ImageProcessing::calculateGradientImage(
-            elevationImage);
+    Image image;
+    ImageProcessing::convertMapToImage(localMap, image);
+    ImageProcessing::calculateGradientImage(image, image);
+    cv::threshold(image, image, minSlopeThreshold_, 0., cv::THRESH_TOZERO);
 
-    cv::threshold(gradientImage, gradientImage, minSlopeThreshold_, 0.,
-            cv::THRESH_TOZERO);
-
-    const double slopeSum = cv::sum(gradientImage)[0];
+    const double slopeSum = cv::sum(image)[0];
     const double resolution = localMap.getParameters().resolution;
     const double slopeSumThreshold = slopeSumThresholdMultiplier_ / resolution;
 

@@ -5,10 +5,11 @@
 
 namespace ga_slam {
 
-cv::Mat ImageProcessing::convertMapToImage(const Map& map) {
+void ImageProcessing::convertMapToImage(const Map& map, Image& image) {
     const auto params = map.getParameters();
     const auto meanData = map.getMeanZ();
-    cv::Mat image = cv::Mat::zeros(params.sizeX, params.sizeY, CV_32F);
+
+    image = Image::zeros(params.sizeX, params.sizeY, CV_32F);
 
     for (auto&& it = map.begin(); !it.isPastEnd(); ++it) {
         const grid_map::Index index(*it);
@@ -16,18 +17,16 @@ cv::Mat ImageProcessing::convertMapToImage(const Map& map) {
         const float value = meanData(index(0), index(1));
         image.at<float>(imageIndex(0), imageIndex(1)) = value;
     }
-
-    return image;
 }
 
 void ImageProcessing::displayImage(
-        const cv::Mat& image,
+        const Image& image,
         const std::string& windowName,
         int width,
         int height) {
     constexpr int waitTimeout = 100;
 
-    cv::Mat normalizedImage;
+    Image normalizedImage;
     cv::normalize(image, normalizedImage, 0., 1., cv::NORM_MINMAX);
 
     cv::namedWindow(windowName, cv::WINDOW_NORMAL);
@@ -36,49 +35,45 @@ void ImageProcessing::displayImage(
     cv::waitKey(waitTimeout);
 }
 
-cv::Mat ImageProcessing::calculateGradientImage(
-        const cv::Mat& image,
+void ImageProcessing::calculateGradientImage(
+        const Image& inputImage,
+        Image& outputImage,
         bool useSobel,
         int sobelKernelSize,
         bool approximate) {
-    cv::Mat gradient, gradientX, gradientY;
+    Image gradientX, gradientY;
 
     if (useSobel) {
-        cv::Sobel(image, gradientX, CV_32F, 1, 0, sobelKernelSize);
-        cv::Sobel(image, gradientY, CV_32F, 0, 1, sobelKernelSize);
+        cv::Sobel(inputImage, gradientX, CV_32F, 1, 0, sobelKernelSize);
+        cv::Sobel(inputImage, gradientY, CV_32F, 0, 1, sobelKernelSize);
     } else {
-        cv::Scharr(image, gradientX, CV_32F, 1, 0);
-        cv::Scharr(image, gradientY, CV_32F, 0, 1);
+        cv::Scharr(inputImage, gradientX, CV_32F, 1, 0);
+        cv::Scharr(inputImage, gradientY, CV_32F, 0, 1);
     }
 
     if (approximate) {
         cv::abs(gradientX);
         cv::abs(gradientY);
-        cv::addWeighted(gradientX, 0.5, gradientY, 0.5, 0., gradient);
+        cv::addWeighted(gradientX, 0.5, gradientY, 0.5, 0., outputImage);
     } else {
-        cv::magnitude(gradientX, gradientY, gradient);
+        cv::magnitude(gradientX, gradientY, outputImage);
     }
-
-    return gradient;
 }
 
-cv::Mat ImageProcessing::calculateLaplacianImage(
-        const cv::Mat& image,
+void ImageProcessing::calculateLaplacianImage(
+        const Image& inputImage,
+        Image& outputImage,
         int laplacianKernelSize,
         bool applyGaussianBlur,
         int gaussianKernelSize) {
-    cv::Mat laplacian;
-
     if (applyGaussianBlur) {
-        cv::GaussianBlur(image, laplacian,
+        cv::GaussianBlur(inputImage, outputImage,
                 cv::Size(gaussianKernelSize, gaussianKernelSize), 0, 0);
-        cv::Laplacian(laplacian, laplacian, CV_32F, laplacianKernelSize);
-        cv::abs(laplacian);
+        cv::Laplacian(outputImage, outputImage, CV_32F, laplacianKernelSize);
+        cv::abs(outputImage);
     } else {
-        cv::Laplacian(image, laplacian, CV_32F, laplacianKernelSize);
+        cv::Laplacian(inputImage, outputImage, CV_32F, laplacianKernelSize);
     }
-
-    return laplacian;
 }
 
 }  // namespace ga_slam
