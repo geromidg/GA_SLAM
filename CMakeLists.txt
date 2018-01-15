@@ -1,36 +1,72 @@
 cmake_minimum_required(VERSION 2.6)
+project(ga_slam)
 
+###############
+### General ###
+###############
+set(TARGET_NAME ${PROJECT_NAME})
+set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+set(CMAKE_INCLUDE_DIR ${CMAKE_SOURCE_DIR})
+set(CMAKE_SOURCE_DIR ${CMAKE_SOURCE_DIR}/${TARGET_NAME}/)
+
+find_package(grid_map_core REQUIRED)
+find_package(Eigen3 REQUIRED)
 find_package(PCL REQUIRED)
-include_directories(${PCL_INCLUDE_DIRS})
+find_package(OpenCV REQUIRED)
 
-find_package(Rock)
-rock_init(ga_slam 0.1)
-rock_standard_layout()
+#############
+### Build ###
+#############
+include_directories(
+    ${CMAKE_INCLUDE_DIR}
+    ${grid_map_core_INCLUDE_DIRS}
+    ${EIGEN3_INCLUDE_DIRS}
+    ${PCL_INCLUDE_DIRS}
+    ${OpenCV_INCLUDE_DIRS}
+)
 
-rock_library(ga_slam
-    SOURCES
-        src/GaSlam.cpp
-        src/localization/ParticleFilter.cpp
-        src/localization/PoseEstimation.cpp
-        src/localization/PoseCorrection.cpp
-        src/mapping/Map.cpp
-        src/mapping/DataRegistration.cpp
-        src/mapping/DataFusion.cpp
-        src/processing/CloudProcessing.cpp
-        src/processing/ImageProcessing.cpp
-    HEADERS
-        src/GaSlam.hpp
-        src/TypeDefs.hpp
-        src/localization/ParticleFilter.hpp
-        src/localization/PoseEstimation.hpp
-        src/localization/PoseCorrection.hpp
-        src/mapping/Map.hpp
-        src/mapping/DataRegistration.hpp
-        src/mapping/DataFusion.hpp
-        src/processing/CloudProcessing.hpp
-        src/processing/ImageProcessing.hpp
-    DEPS_PKGCONFIG grid_map_core)
+add_library(${TARGET_NAME} SHARED
+    ${CMAKE_SOURCE_DIR}/GaSlam.cpp
+    ${CMAKE_SOURCE_DIR}/localization/ParticleFilter.cpp
+    ${CMAKE_SOURCE_DIR}/localization/PoseEstimation.cpp
+    ${CMAKE_SOURCE_DIR}/localization/PoseCorrection.cpp
+    ${CMAKE_SOURCE_DIR}/mapping/Map.cpp
+    ${CMAKE_SOURCE_DIR}/mapping/DataRegistration.cpp
+    ${CMAKE_SOURCE_DIR}/mapping/DataFusion.cpp
+    ${CMAKE_SOURCE_DIR}/processing/CloudProcessing.cpp
+    ${CMAKE_SOURCE_DIR}/processing/ImageProcessing.cpp
+)
 
-target_link_libraries(ga_slam
-    ${PCL_LIBRARIES})
+target_link_libraries(${TARGET_NAME}
+    ${grid_map_core_LIBRARIES}
+    ${PCL_LIBRARIES}
+    ${OpenCV_LIBS}
+)
+
+##################
+### Pkg Config ###
+##################
+configure_file(
+    ${TARGET_NAME}.pc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}.pc @ONLY
+)
+
+###############
+### Install ###
+###############
+install(
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}.pc
+    DESTINATION lib/pkgconfig
+)
+
+install(
+    TARGETS ${TARGET_NAME}
+    LIBRARY DESTINATION lib
+)
+
+install(
+    DIRECTORY ${CMAKE_INCLUDE_DIR}/${TARGET_NAME}
+    DESTINATION include
+    FILES_MATCHING PATTERN "*.hpp"
+)
 
