@@ -11,8 +11,8 @@ set(CMAKE_SOURCE_DIR ${CMAKE_SOURCE_DIR}/${TARGET_NAME}/)
 
 find_package(grid_map_core REQUIRED)
 find_package(Eigen3 REQUIRED)
-find_package(PCL REQUIRED)
-find_package(OpenCV REQUIRED)
+find_package(PCL 1.7 REQUIRED)
+find_package(OpenCV 2.4 REQUIRED)
 
 #############
 ### Build ###
