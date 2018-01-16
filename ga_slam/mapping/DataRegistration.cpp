@@ -1,8 +1,24 @@
-#include "ga_slam/DataRegistration.hpp"
+#include "ga_slam/mapping/DataRegistration.hpp"
+
+// GA SLAM
+#include "ga_slam/TypeDefs.hpp"
+#include "ga_slam/mapping/Map.hpp"
+
+// Eigen
+#include <Eigen/Geometry>
+
+// PCL
+#include <pcl/point_types.h>
+#include <pcl/point_cloud.h>
+
+// STL
+#include <vector>
+#include <cmath>
+#include <mutex>
 
 namespace ga_slam {
 
-void DataRegistration::setParameters(
+void DataRegistration::configure(
         double mapLengthX, double mapLengthY, double mapResolution,
         double minElevation, double maxElevation) {
     std::lock_guard<std::mutex> guard(mapMutex_);

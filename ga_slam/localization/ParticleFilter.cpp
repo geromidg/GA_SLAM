@@ -1,15 +1,29 @@
-#include "ga_slam/ParticleFilter.hpp"
+#include "ga_slam/localization/ParticleFilter.hpp"
 
-#include "ga_slam/CloudProcessing.hpp"
+// GA SLAM
+#include "ga_slam/TypeDefs.hpp"
+#include "ga_slam/processing/CloudProcessing.hpp"
 
+// Eigen
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+
+// PCL
+#include <pcl/point_types.h>
+#include <pcl/point_cloud.h>
 #include <pcl/common/transforms.h>
 
+// STL
+#include <vector>
+#include <algorithm>
+#include <iterator>
 #include <random>
+#include <mutex>
 #include <limits>
 
 namespace ga_slam {
 
-void ParticleFilter::setParameters(
+void ParticleFilter::configure(
         int numParticles,
         double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
         double predictSigmaX, double predictSigmaY, double predictSigmaYaw) {
@@ -73,7 +87,7 @@ void ParticleFilter::update(
 
     for (auto& particle : particlesCopy) {
         Cloud::Ptr particleCloud(new Cloud);
-        const auto& deltaPose = getDeltaPoseFromParticle(particle, lastPose);
+        const auto deltaPose = getDeltaPoseFromParticle(particle, lastPose);
 
         pcl::transformPointCloud(*mapCloud, *particleCloud, deltaPose);
         double score = CloudProcessing::matchClouds(rawCloud, particleCloud);
@@ -116,7 +130,7 @@ void ParticleFilter::getEstimate(
         double& estimateYaw) const {
     std::lock_guard<std::mutex> guard(particlesMutex_);
 
-    const auto& bestParticle = getBestParticle();
+    const auto bestParticle = getBestParticle();
 
     estimateX = bestParticle.x;
     estimateY = bestParticle.y;

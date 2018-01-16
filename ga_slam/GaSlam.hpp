@@ -1,11 +1,21 @@
 #pragma once
 
+// GA SLAM
 #include "ga_slam/TypeDefs.hpp"
-#include "ga_slam/PoseEstimation.hpp"
-#include "ga_slam/PoseCorrection.hpp"
-#include "ga_slam/DataRegistration.hpp"
-#include "ga_slam/DataFusion.hpp"
+#include "ga_slam/mapping/Map.hpp"
+#include "ga_slam/mapping/DataRegistration.hpp"
+#include "ga_slam/mapping/DataFusion.hpp"
+#include "ga_slam/localization/PoseEstimation.hpp"
+#include "ga_slam/localization/PoseCorrection.hpp"
 
+// Eigen
+#include <Eigen/Geometry>
+
+// PCL
+#include <pcl/point_types.h>
+#include <pcl/point_cloud.h>
+
+// STL
 #include <atomic>
 #include <mutex>
 #include <chrono>
@@ -38,7 +48,7 @@ class GaSlam {
     std::mutex& getGlobalMapMutex(void) {
         return poseCorrection_.getGlobalMapMutex(); }
 
-    void setParameters(
+    void configure(
             double mapLengthX, double mapLengthY, double mapResolution,
             double minElevation, double maxElevation, double voxelSize,
             int numParticles, int resampleFrequency,
@@ -52,6 +62,10 @@ class GaSlam {
     void cloudCallback(
             const Cloud::ConstPtr& cloud,
             const Pose& sensorToBodyTF);
+
+    void matchLocalMapToRawCloud(const Cloud::ConstPtr& rawCloud);
+
+    void matchLocalMapToGlobalMap(void);
 
     void registerOrbiterCloud(const Cloud::ConstPtr& cloud);
 
@@ -68,8 +82,8 @@ class GaSlam {
     DataRegistration dataRegistration_;
     DataFusion dataFusion_;
 
-    std::future<void> filterPoseFuture_;
-    std::future<void> poseCorrectionFuture_;
+    std::future<void> scanToMapMatchingFuture_;
+    std::future<void> mapToMapMatchingFuture_;
 
     std::atomic<bool> poseInitialized_;
 

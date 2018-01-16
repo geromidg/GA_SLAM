@@ -1,6 +1,20 @@
 #include "ga_slam/GaSlam.hpp"
 
-#include "ga_slam/CloudProcessing.hpp"
+// GA SLAM
+#include "ga_slam/TypeDefs.hpp"
+#include "ga_slam/processing/CloudProcessing.hpp"
+
+// Eigen
+#include <Eigen/Geometry>
+
+// PCL
+#include <pcl/point_types.h>
+#include <pcl/point_cloud.h>
+
+// STL
+#include <vector>
+#include <mutex>
+#include <future>
 
 namespace ga_slam {
 
@@ -12,7 +26,7 @@ GaSlam::GaSlam(void)
           poseInitialized_(false) {
 }
 
-void GaSlam::setParameters(
+void GaSlam::configure(
         double mapLengthX, double mapLengthY, double mapResolution,
         double minElevation, double maxElevation, double voxelSize,
         int numParticles, int resampleFrequency,
@@ -22,14 +36,14 @@ void GaSlam::setParameters(
         double slopeSumThresholdMultiplier) {
     voxelSize_ = voxelSize;
 
-    poseEstimation_.setParameters(numParticles, resampleFrequency,
+    poseEstimation_.configure(numParticles, resampleFrequency,
             initialSigmaX, initialSigmaY, initialSigmaYaw,
             predictSigmaX, predictSigmaY, predictSigmaYaw);
 
-    poseCorrection_.setParameters(traversedDistanceThreshold, minSlopeThreshold,
+    poseCorrection_.configure(traversedDistanceThreshold, minSlopeThreshold,
             slopeSumThresholdMultiplier);
 
-    dataRegistration_.setParameters(mapLengthX, mapLengthY, mapResolution,
+    dataRegistration_.configure(mapLengthX, mapLengthY, mapResolution,
             minElevation, maxElevation);
 }
 
@@ -55,35 +69,40 @@ void GaSlam::cloudCallback(
     CloudProcessing::processCloud(cloud, processedCloud, cloudVariances,
             sensorToMapTF, mapParameters, voxelSize_);
 
-    if (isFutureReady(filterPoseFuture_))
-        // Capture processedCloud (ptr) by value
-        filterPoseFuture_ = std::async(std::launch::async, [&, processedCloud] {
-            Cloud::Ptr mapCloud(new Cloud);
-
-            std::unique_lock<std::mutex> guard(dataRegistration_.getMapMutex());
-            const auto& map = dataRegistration_.getMap();
-            CloudProcessing::convertMapToCloud(map, mapCloud);
-            guard.unlock();
-
-            poseEstimation_.filterPose(processedCloud, mapCloud);
-        });
-
     dataRegistration_.updateMap(processedCloud, cloudVariances);
 
-    if (isFutureReady(poseCorrectionFuture_))
-        filterPoseFuture_ = std::async(std::launch::async, [&] {
-            const auto pose = poseEstimation_.getPose();
-            if (!poseCorrection_.distanceCriterionFulfilled(pose)) return;
+    if (isFutureReady(scanToMapMatchingFuture_))
+        scanToMapMatchingFuture_ = std::async(std::launch::async,
+                &GaSlam::matchLocalMapToRawCloud, this, processedCloud);
 
-            std::unique_lock<std::mutex> guard(dataRegistration_.getMapMutex());
-            const auto& map = dataRegistration_.getMap();
-            if (!poseCorrection_.featureCriterionFulfilled(map)) return;
+    if (isFutureReady(mapToMapMatchingFuture_))
+        mapToMapMatchingFuture_ = std::async(std::launch::async,
+                &GaSlam::matchLocalMapToGlobalMap, this);
+}
 
-            const auto correctedPose = poseCorrection_.matchMaps(pose, map);
-            guard.unlock();
+void GaSlam::matchLocalMapToRawCloud(const Cloud::ConstPtr& rawCloud) {
+    Cloud::Ptr mapCloud(new Cloud);
 
-            poseEstimation_.predictPose(correctedPose);
-        });
+    std::unique_lock<std::mutex> guard(dataRegistration_.getMapMutex());
+    const auto& map = dataRegistration_.getMap();
+    CloudProcessing::convertMapToCloud(map, mapCloud);
+    guard.unlock();
+
+    poseEstimation_.filterPose(rawCloud, mapCloud);
+}
+
+void GaSlam::matchLocalMapToGlobalMap(void) {
+    const auto pose = poseEstimation_.getPose();
+    if (!poseCorrection_.distanceCriterionFulfilled(pose)) return;
+
+    std::unique_lock<std::mutex> guard(dataRegistration_.getMapMutex());
+    const auto& map = dataRegistration_.getMap();
+    if (!poseCorrection_.featureCriterionFulfilled(map)) return;
+
+    const auto correctedPose = poseCorrection_.matchMaps(pose, map);
+    guard.unlock();
+
+    poseEstimation_.predictPose(correctedPose);
 }
 
 void GaSlam::registerOrbiterCloud(const Cloud::ConstPtr& cloud) {

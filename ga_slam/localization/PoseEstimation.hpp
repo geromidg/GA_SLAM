@@ -1,8 +1,19 @@
 #pragma once
 
+// GA SLAM
 #include "ga_slam/TypeDefs.hpp"
-#include "ga_slam/ParticleFilter.hpp"
+#include "ga_slam/localization/ParticleFilter.hpp"
 
+// Eigen
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+
+// PCL
+#include <pcl/point_types.h>
+#include <pcl/point_cloud.h>
+
+// STL
+#include <vector>
 #include <mutex>
 #include <atomic>
 
@@ -27,7 +38,7 @@ class PoseEstimation {
 
     std::mutex& getPoseMutex(void) { return poseMutex_; }
 
-    void setParameters(
+    void configure(
             int numParticles, int resampleFrequency,
             double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
             double predictSigmaX, double predictSigmaY, double predictSigmaYaw);

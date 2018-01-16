@@ -1,14 +1,28 @@
-#include "ga_slam/PoseEstimation.hpp"
+#include "ga_slam/localization/PoseEstimation.hpp"
 
-#include "ga_slam/CloudProcessing.hpp"
+// GA SLAM
+#include "ga_slam/TypeDefs.hpp"
+#include "ga_slam/processing/CloudProcessing.hpp"
+
+// Eigen
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+
+// PCL
+#include <pcl/point_types.h>
+#include <pcl/point_cloud.h>
+
+// STL
+#include <vector>
+#include <mutex>
 
 namespace ga_slam {
 
-void PoseEstimation::setParameters(
+void PoseEstimation::configure(
         int numParticles, int resampleFrequency,
         double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
         double predictSigmaX, double predictSigmaY, double predictSigmaYaw) {
-    particleFilter_.setParameters(numParticles, initialSigmaX, initialSigmaY,
+    particleFilter_.configure(numParticles, initialSigmaX, initialSigmaY,
             initialSigmaYaw, predictSigmaX, predictSigmaY, predictSigmaYaw);
     particleFilter_.initialize();
 

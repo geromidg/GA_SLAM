@@ -1,7 +1,18 @@
 #pragma once
 
+// GA SLAM
 #include "ga_slam/TypeDefs.hpp"
+#include "ga_slam/mapping/Map.hpp"
 
+// Eigen
+#include <Eigen/Geometry>
+
+// PCL
+#include <pcl/point_types.h>
+#include <pcl/point_cloud.h>
+
+// STL
+#include <vector>
 #include <mutex>
 
 namespace ga_slam {
@@ -19,7 +30,7 @@ class DataRegistration {
 
     std::mutex& getMapMutex(void) { return mapMutex_; }
 
-    void setParameters(
+    void configure(
             double mapLengthX, double mapLengthY, double mapResolution,
             double minElevation, double maxElevation);
 

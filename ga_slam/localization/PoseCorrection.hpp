@@ -1,9 +1,17 @@
 #pragma once
 
+// GA SLAM
 #include "ga_slam/TypeDefs.hpp"
+#include "ga_slam/mapping/Map.hpp"
 
-#include <opencv2/core/core.hpp>
+// Eigen
+#include <Eigen/Geometry>
 
+// PCL
+#include <pcl/point_types.h>
+#include <pcl/point_cloud.h>
+
+// STL
 #include <mutex>
 
 namespace ga_slam {
@@ -23,7 +31,7 @@ class PoseCorrection {
 
     std::mutex& getGlobalMapMutex(void) { return globalMapMutex_; }
 
-    void setParameters(
+    void configure(
             double traversedDistanceThreshold,
             double minSlopeThreshold,
             double slopeSumThresholdMultiplier);
@@ -35,26 +43,6 @@ class PoseCorrection {
     bool featureCriterionFulfilled(const Map& localMap) const;
 
     Pose matchMaps(const Pose& pose, const Map& localMap);
-
-    static cv::Mat convertMapToImage(const Map& map);
-
-    static cv::Mat calculateGradientImage(
-            const cv::Mat& image,
-            bool useSobel = true,
-            int sobelKernelSize = 3,
-            bool approximate = false);
-
-    static cv::Mat calculateLaplacianImage(
-            const cv::Mat& image,
-            int laplacianKernelSize = 1,
-            bool applyGaussianBlur = false,
-            int gaussianKernelSize = 3);
-
-    static void displayImage(
-            const cv::Mat& image,
-            const std::string& windowName = "Image Display",
-            int width = 500,
-            int height = 500);
 
   protected:
     Map globalMap_;

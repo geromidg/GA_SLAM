@@ -1,7 +1,16 @@
 #pragma once
 
+// GA SLAM
 #include "ga_slam/TypeDefs.hpp"
 
+// Eigen
+#include <Eigen/Geometry>
+
+// PCL
+#include <pcl/point_types.h>
+#include <pcl/point_cloud.h>
+
+// STL
 #include <vector>
 #include <random>
 #include <mutex>
@@ -26,7 +35,7 @@ class ParticleFilter {
     ParticleFilter(ParticleFilter&&) = delete;
     ParticleFilter& operator=(ParticleFilter&&) = delete;
 
-    void setParameters(
+    void configure(
             int numParticles,
             double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
             double predictSigmaX, double predictSigmaY, double predictSigmaYaw);
