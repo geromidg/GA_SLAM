@@ -87,7 +87,7 @@ void ParticleFilter::update(
 
     for (auto& particle : particlesCopy) {
         Cloud::Ptr particleCloud(new Cloud);
-        const auto& deltaPose = getDeltaPoseFromParticle(particle, lastPose);
+        const auto deltaPose = getDeltaPoseFromParticle(particle, lastPose);
 
         pcl::transformPointCloud(*mapCloud, *particleCloud, deltaPose);
         double score = CloudProcessing::matchClouds(rawCloud, particleCloud);
@@ -130,7 +130,7 @@ void ParticleFilter::getEstimate(
         double& estimateYaw) const {
     std::lock_guard<std::mutex> guard(particlesMutex_);
 
-    const auto& bestParticle = getBestParticle();
+    const auto bestParticle = getBestParticle();
 
     estimateX = bestParticle.x;
     estimateY = bestParticle.y;
