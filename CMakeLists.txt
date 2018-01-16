@@ -1,14 +1,24 @@
-cmake_minimum_required(VERSION 2.6)
-project(ga_slam)
-
 ###############
 ### General ###
 ###############
+cmake_minimum_required(VERSION 3.5.1)  # Ubuntu 16.04 (Xenial)
+
+project(ga_slam)
+
 set(TARGET_NAME ${PROJECT_NAME})
-set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 set(CMAKE_INCLUDE_DIR ${CMAKE_SOURCE_DIR})
 set(CMAKE_SOURCE_DIR ${CMAKE_SOURCE_DIR}/${TARGET_NAME}/)
 
+set(CMAKE_BUILD_TYPE RelWithDebInfo)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -g -DNDEBUG")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wpedantic")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+
+####################
+### Dependencies ###
+####################
 find_package(grid_map_core REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(PCL 1.7 REQUIRED)
