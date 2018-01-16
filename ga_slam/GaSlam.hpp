@@ -63,6 +63,10 @@ class GaSlam {
             const Cloud::ConstPtr& cloud,
             const Pose& sensorToBodyTF);
 
+    void matchLocalMapToRawCloud(const Cloud::ConstPtr& rawCloud);
+
+    void matchLocalMapToGlobalMap(void);
+
     void registerOrbiterCloud(const Cloud::ConstPtr& cloud);
 
     template<typename T>
@@ -78,8 +82,8 @@ class GaSlam {
     DataRegistration dataRegistration_;
     DataFusion dataFusion_;
 
-    std::future<void> filterPoseFuture_;
-    std::future<void> poseCorrectionFuture_;
+    std::future<void> scanToMapMatchingFuture_;
+    std::future<void> mapToMapMatchingFuture_;
 
     std::atomic<bool> poseInitialized_;
 

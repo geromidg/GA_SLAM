@@ -69,35 +69,40 @@ void GaSlam::cloudCallback(
     CloudProcessing::processCloud(cloud, processedCloud, cloudVariances,
             sensorToMapTF, mapParameters, voxelSize_);
 
-    if (isFutureReady(filterPoseFuture_))
-        // Capture processedCloud (ptr) by value
-        filterPoseFuture_ = std::async(std::launch::async, [&, processedCloud] {
-            Cloud::Ptr mapCloud(new Cloud);
-
-            std::unique_lock<std::mutex> guard(dataRegistration_.getMapMutex());
-            const auto& map = dataRegistration_.getMap();
-            CloudProcessing::convertMapToCloud(map, mapCloud);
-            guard.unlock();
-
-            poseEstimation_.filterPose(processedCloud, mapCloud);
-        });
-
     dataRegistration_.updateMap(processedCloud, cloudVariances);
 
-    if (isFutureReady(poseCorrectionFuture_))
-        filterPoseFuture_ = std::async(std::launch::async, [&] {
-            const auto pose = poseEstimation_.getPose();
-            if (!poseCorrection_.distanceCriterionFulfilled(pose)) return;
+    if (isFutureReady(scanToMapMatchingFuture_))
+        scanToMapMatchingFuture_ = std::async(std::launch::async,
+                &GaSlam::matchLocalMapToRawCloud, this, processedCloud);
 
-            std::unique_lock<std::mutex> guard(dataRegistration_.getMapMutex());
-            const auto& map = dataRegistration_.getMap();
-            if (!poseCorrection_.featureCriterionFulfilled(map)) return;
+    if (isFutureReady(mapToMapMatchingFuture_))
+        mapToMapMatchingFuture_ = std::async(std::launch::async,
+                &GaSlam::matchLocalMapToGlobalMap, this);
+}
 
-            const auto correctedPose = poseCorrection_.matchMaps(pose, map);
-            guard.unlock();
+void GaSlam::matchLocalMapToRawCloud(const Cloud::ConstPtr& rawCloud) {
+    Cloud::Ptr mapCloud(new Cloud);
 
-            poseEstimation_.predictPose(correctedPose);
-        });
+    std::unique_lock<std::mutex> guard(dataRegistration_.getMapMutex());
+    const auto& map = dataRegistration_.getMap();
+    CloudProcessing::convertMapToCloud(map, mapCloud);
+    guard.unlock();
+
+    poseEstimation_.filterPose(rawCloud, mapCloud);
+}
+
+void GaSlam::matchLocalMapToGlobalMap(void) {
+    const auto pose = poseEstimation_.getPose();
+    if (!poseCorrection_.distanceCriterionFulfilled(pose)) return;
+
+    std::unique_lock<std::mutex> guard(dataRegistration_.getMapMutex());
+    const auto& map = dataRegistration_.getMap();
+    if (!poseCorrection_.featureCriterionFulfilled(map)) return;
+
+    const auto correctedPose = poseCorrection_.matchMaps(pose, map);
+    guard.unlock();
+
+    poseEstimation_.predictPose(correctedPose);
 }
 
 void GaSlam::registerOrbiterCloud(const Cloud::ConstPtr& cloud) {
