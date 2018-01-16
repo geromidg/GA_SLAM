@@ -91,4 +91,8 @@ add_executable(GaSlamTest ${CMAKE_SOURCE_DIR}/GaSlamTest.cpp)
 target_link_libraries(GaSlamTest ${TARGET_NAME} ${GTEST_BOTH_LIBRARIES})
 add_test(GaSlamTest GaSlamTest)
 
+add_executable(ParticleFilterTest
+    ${CMAKE_SOURCE_DIR}/localization/ParticleFilterTest.cpp)
+target_link_libraries(ParticleFilterTest ${TARGET_NAME} ${GTEST_BOTH_LIBRARIES})
+add_test(ParticleFilterTest ParticleFilterTest)
 
