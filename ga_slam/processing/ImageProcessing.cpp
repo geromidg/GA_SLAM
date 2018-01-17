@@ -14,6 +14,7 @@
 
 // STL
 #include <string>
+#include <cmath>
 
 namespace ga_slam {
 
@@ -24,10 +25,11 @@ void ImageProcessing::convertMapToImage(const Map& map, Image& image) {
     image = Image::zeros(params.size, params.size, CV_32F);
 
     for (auto&& it = map.begin(); !it.isPastEnd(); ++it) {
-        const Eigen::Array2i index(*it);
-        const Eigen::Array2i imageIndex(it.getUnwrappedIndex());
-        const float value = meanData(index(0), index(1));
-        image.at<float>(imageIndex(0), imageIndex(1)) = value;
+        const Eigen::Array2i mapIndex(*it);
+        const float value = meanData(mapIndex(0), mapIndex(1));
+
+        const Eigen::Array2i index(it.getUnwrappedIndex());
+        if (std::isfinite(value)) image.at<float>(index(0), index(1)) = value;
     }
 }
 
