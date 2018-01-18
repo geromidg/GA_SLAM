@@ -8,6 +8,9 @@
 // Eigen
 #include <Eigen/Core>
 
+// STL
+#include <limits>
+
 namespace ga_slam {
 
 using GridMap = grid_map::GridMap;
@@ -59,8 +62,11 @@ class Map {
     void setTimestamp(const Time& time) { gridMap_.setTimestamp(time); }
 
     void setParameters(
-            double lengthX, double lengthY, double resolution,
-            double minElevation, double maxElevation);
+            double lengthX,
+            double lengthY,
+            double resolution,
+            double minElevation = -std::numeric_limits<double>::max(),
+            double maxElevation = std::numeric_limits<double>::max());
 
     MapParameters getParameters(void) const;
 
