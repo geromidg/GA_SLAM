@@ -34,7 +34,9 @@ class PoseCorrection {
     void configure(
             double traversedDistanceThreshold,
             double minSlopeThreshold,
-            double slopeSumThresholdMultiplier);
+            double slopeSumThresholdMultiplier,
+            double globalMapLength,
+            double globalMapResolution);
 
     void createGlobalMap(const Cloud::ConstPtr& cloud);
 

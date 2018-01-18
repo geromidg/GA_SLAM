@@ -26,16 +26,19 @@ namespace ga_slam {
 void PoseCorrection::configure(
         double traversedDistanceThreshold,
         double minSlopeThreshold,
-        double slopeSumThresholdMultiplier) {
+        double slopeSumThresholdMultiplier,
+        double globalMapLength,
+        double globalMapResolution) {
     traversedDistanceThreshold_ = traversedDistanceThreshold;
     minSlopeThreshold_ = minSlopeThreshold;
     slopeSumThresholdMultiplier_ = slopeSumThresholdMultiplier;
+
+    globalMap_.setParameters(globalMapLength, globalMapLength,
+            globalMapResolution);
 }
 
 void PoseCorrection::createGlobalMap(const Cloud::ConstPtr& cloud) {
     std::lock_guard<std::mutex> guard(globalMapMutex_);
-
-    globalMap_.setParameters(100., 100., 1., -1000., 1000.);
 
     auto& meanData = globalMap_.getMeanZ();
     auto& varianceData = globalMap_.getVarianceZ();

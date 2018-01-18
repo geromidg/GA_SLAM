@@ -12,7 +12,7 @@ TEST(GaSlamTest, MapParameters) {
 
     const double mapResolution = 3.14;
     gaSlam.configure(1., 1., mapResolution, 1., 1., 1., 1, 1, 1., 1., 1., 1.,
-            1., 1., 1., 1., 1.);
+            1., 1., 1., 1., 1., 1., 1.);
 
     const auto& map = gaSlam.getRawMap();
     const auto mapParameters = map.getParameters();

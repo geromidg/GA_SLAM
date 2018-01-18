@@ -33,7 +33,8 @@ void GaSlam::configure(
         double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
         double predictSigmaX, double predictSigmaY, double predictSigmaYaw,
         double traversedDistanceThreshold, double minSlopeThreshold,
-        double slopeSumThresholdMultiplier) {
+        double slopeSumThresholdMultiplier, double globalMapLength,
+        double globalMapResolution) {
     voxelSize_ = voxelSize;
 
     poseEstimation_.configure(numParticles, resampleFrequency,
@@ -41,7 +42,7 @@ void GaSlam::configure(
             predictSigmaX, predictSigmaY, predictSigmaYaw);
 
     poseCorrection_.configure(traversedDistanceThreshold, minSlopeThreshold,
-            slopeSumThresholdMultiplier);
+            slopeSumThresholdMultiplier, globalMapLength, globalMapResolution);
 
     dataRegistration_.configure(mapLengthX, mapLengthY, mapResolution,
             minElevation, maxElevation);
@@ -105,7 +106,7 @@ void GaSlam::matchLocalMapToGlobalMap(void) {
     poseEstimation_.predictPose(correctedPose);
 }
 
-void GaSlam::registerOrbiterCloud(const Cloud::ConstPtr& cloud) {
+void GaSlam::createGlobalMap(const Cloud::ConstPtr& cloud) {
     poseCorrection_.createGlobalMap(cloud);
 }
 
