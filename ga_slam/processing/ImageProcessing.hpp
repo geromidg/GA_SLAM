@@ -21,8 +21,13 @@ class ImageProcessing {
     static void displayImage(
             const Image& image,
             const std::string& windowName = "Image Display",
-            int width = 500,
-            int height = 500);
+            double zoom = 1.);
+
+    static void displayImage(
+            const Image& image,
+            const std::string& windowName,
+            int width,
+            int height);
 
     static void calculateGradientImage(
             const Image& inputImage,

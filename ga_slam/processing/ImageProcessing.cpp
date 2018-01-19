@@ -36,6 +36,15 @@ void ImageProcessing::convertMapToImage(const Map& map, Image& image) {
 void ImageProcessing::displayImage(
         const Image& image,
         const std::string& windowName,
+        double zoom) {
+    displayImage(image, windowName,
+            std::round(zoom * image.cols),
+            std::round(zoom * image.rows));
+}
+
+void ImageProcessing::displayImage(
+        const Image& image,
+        const std::string& windowName,
         int width,
         int height) {
     constexpr int waitTimeout = 100;
