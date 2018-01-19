@@ -33,6 +33,7 @@ void PoseCorrection::configure(
     minSlopeThreshold_ = minSlopeThreshold;
     slopeSumThresholdMultiplier_ = slopeSumThresholdMultiplier;
 
+    std::lock_guard<std::mutex> guard(globalMapMutex_);
     globalMap_.setParameters(globalMapLength, globalMapResolution);
 }
 
