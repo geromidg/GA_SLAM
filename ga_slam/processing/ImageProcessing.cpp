@@ -99,5 +99,31 @@ void ImageProcessing::calculateLaplacianImage(
     }
 }
 
+bool ImageProcessing::findBestMatch(
+        const Image& originalImage,
+        const Image& templateImage,
+        cv::Point& matchedPosition,
+        double matchAcceptanceThreshold,
+        bool useCrossCorrelation) {
+    int method;
+    Image resultImage;
+
+    if (useCrossCorrelation)
+        method = CV_TM_CCORR_NORMED;
+    else
+        method = CV_TM_CCOEFF_NORMED;
+
+    cv::matchTemplate(originalImage, templateImage, resultImage, method);
+
+    cv::Point maxPosition;
+    double maxValue;
+    cv::minMaxLoc(resultImage, nullptr, &maxValue, nullptr, &maxPosition);
+
+    const bool matchFound = maxValue > matchAcceptanceThreshold;
+    if (matchFound) matchedPosition = maxPosition;
+
+    return matchFound;
+}
+
 }  // namespace ga_slam
 

@@ -42,6 +42,13 @@ class ImageProcessing {
             int laplacianKernelSize = 1,
             bool applyGaussianBlur = false,
             int gaussianKernelSize = 3);
+
+    static bool findBestMatch(
+            const Image& originalImage,
+            const Image& templateImage,
+            cv::Point& matchedPosition,
+            double matchAcceptanceThreshold,
+            bool useCrossCorrelation = false);
 };
 
 }  // namespace ga_slam
