@@ -49,7 +49,7 @@ class GaSlam {
         return poseCorrection_.getGlobalMapMutex(); }
 
     void configure(
-            double mapLengthX, double mapLengthY, double mapResolution,
+            double mapLength, double mapResolution,
             double minElevation, double maxElevation, double voxelSize,
             int numParticles, int resampleFrequency,
             double initialSigmaX, double initialSigmaY, double initialSigmaYaw,

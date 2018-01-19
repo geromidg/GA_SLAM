@@ -18,10 +18,8 @@ using Matrix = Eigen::MatrixXf;
 using Time = uint64_t;
 
 struct MapParameters {
-    double lengthX;
-    double lengthY;
-    double sizeX;
-    double sizeY;
+    double length;
+    double size;
     double positionX;
     double positionY;
     double minElevation;
@@ -62,8 +60,7 @@ class Map {
     void setTimestamp(const Time& time) { gridMap_.setTimestamp(time); }
 
     void setParameters(
-            double lengthX,
-            double lengthY,
+            double length,
             double resolution,
             double minElevation = -std::numeric_limits<double>::max(),
             double maxElevation = std::numeric_limits<double>::max());

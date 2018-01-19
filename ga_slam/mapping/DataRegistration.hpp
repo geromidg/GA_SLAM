@@ -31,8 +31,10 @@ class DataRegistration {
     std::mutex& getMapMutex(void) { return mapMutex_; }
 
     void configure(
-            double mapLengthX, double mapLengthY, double mapResolution,
-            double minElevation, double maxElevation);
+            double mapLength,
+            double mapResolution,
+            double minElevation,
+            double maxElevation);
 
     MapParameters getMapParameters(void) const {
         std::lock_guard<std::mutex> guard(mapMutex_);

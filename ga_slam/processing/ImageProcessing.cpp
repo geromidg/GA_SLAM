@@ -21,7 +21,7 @@ void ImageProcessing::convertMapToImage(const Map& map, Image& image) {
     const auto params = map.getParameters();
     const auto meanData = map.getMeanZ();
 
-    image = Image::zeros(params.sizeX, params.sizeY, CV_32F);
+    image = Image::zeros(params.size, params.size, CV_32F);
 
     for (auto&& it = map.begin(); !it.isPastEnd(); ++it) {
         const Eigen::Array2i index(*it);

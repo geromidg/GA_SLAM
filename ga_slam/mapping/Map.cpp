@@ -17,21 +17,21 @@ Map::Map(void) : valid_(false) {
 }
 
 void Map::setParameters(
-        double lengthX, double lengthY, double resolution,
-        double minElevation, double maxElevation) {
+        double length,
+        double resolution,
+        double minElevation,
+        double maxElevation) {
     minElevation_ = minElevation;
     maxElevation_ = maxElevation;
 
-    gridMap_.setGeometry(grid_map::Length(lengthX, lengthY), resolution,
+    gridMap_.setGeometry(grid_map::Length(length, length), resolution,
             grid_map::Position::Zero());
 }
 
 MapParameters Map::getParameters(void) const {
     MapParameters params;
-    params.lengthX = gridMap_.getLength().x();
-    params.lengthY = gridMap_.getLength().y();
-    params.sizeX = gridMap_.getSize().x();
-    params.sizeY = gridMap_.getSize().y();
+    params.length = gridMap_.getLength().x();
+    params.size = gridMap_.getSize().x();
     params.positionX = gridMap_.getPosition().x();
     params.positionY = gridMap_.getPosition().y();
     params.resolution = gridMap_.getResolution();

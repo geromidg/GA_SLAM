@@ -33,8 +33,7 @@ void PoseCorrection::configure(
     minSlopeThreshold_ = minSlopeThreshold;
     slopeSumThresholdMultiplier_ = slopeSumThresholdMultiplier;
 
-    globalMap_.setParameters(globalMapLength, globalMapLength,
-            globalMapResolution);
+    globalMap_.setParameters(globalMapLength, globalMapResolution);
 }
 
 void PoseCorrection::createGlobalMap(const Cloud::ConstPtr& cloud) {

@@ -51,8 +51,8 @@ void CloudProcessing::transformCloudToMap(Cloud::Ptr& cloud, const Pose& tf) {
 void CloudProcessing::cropCloudToMap(
         Cloud::Ptr& cloud,
         const MapParameters& params) {
-    const float pointX = (params.lengthX / 2) + params.positionX;
-    const float pointY = (params.lengthY / 2) + params.positionY;
+    const float pointX = (params.length / 2) + params.positionX;
+    const float pointY = (params.length / 2) + params.positionY;
 
     Eigen::Vector4f minCutoffPoint(-pointX, -pointY, params.minElevation, 0.);
     Eigen::Vector4f maxCutoffPoint(pointX, pointY, params.maxElevation, 0.);
@@ -81,7 +81,7 @@ void CloudProcessing::convertMapToCloud(const Map& map, Cloud::Ptr& cloud) {
 
     const auto params = map.getParameters();
 
-    cloud->reserve(params.sizeX * params.sizeY);
+    cloud->reserve(params.size * params.size);
     cloud->is_dense = true;
     cloud->header.stamp = map.getTimestamp();
 

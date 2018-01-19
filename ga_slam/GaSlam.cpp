@@ -27,7 +27,7 @@ GaSlam::GaSlam(void)
 }
 
 void GaSlam::configure(
-        double mapLengthX, double mapLengthY, double mapResolution,
+        double mapLength, double mapResolution,
         double minElevation, double maxElevation, double voxelSize,
         int numParticles, int resampleFrequency,
         double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
@@ -44,8 +44,8 @@ void GaSlam::configure(
     poseCorrection_.configure(traversedDistanceThreshold, minSlopeThreshold,
             slopeSumThresholdMultiplier, globalMapLength, globalMapResolution);
 
-    dataRegistration_.configure(mapLengthX, mapLengthY, mapResolution,
-            minElevation, maxElevation);
+    dataRegistration_.configure(mapLength, mapResolution, minElevation,
+            maxElevation);
 }
 
 void GaSlam::poseCallback(const Pose& poseGuess, const Pose& bodyToGroundTF) {

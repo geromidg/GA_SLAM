@@ -19,11 +19,12 @@
 namespace ga_slam {
 
 void DataRegistration::configure(
-        double mapLengthX, double mapLengthY, double mapResolution,
-        double minElevation, double maxElevation) {
+        double mapLength,
+        double mapResolution,
+        double minElevation,
+        double maxElevation) {
     std::lock_guard<std::mutex> guard(mapMutex_);
-    map_.setParameters(mapLengthX, mapLengthY, mapResolution,
-            minElevation, maxElevation);
+    map_.setParameters(mapLength, mapResolution, minElevation, maxElevation);
 }
 
 void DataRegistration::translateMap(const Pose& estimatedPose) {
