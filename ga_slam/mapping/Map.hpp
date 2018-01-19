@@ -55,6 +55,8 @@ class Map {
     Matrix& getVarianceZ(void) {
         return gridMap_.get(layerVarianceZ_); }
 
+    void clear(void) { gridMap_.clearBasic(); }
+
     Time getTimestamp(void) const { return gridMap_.getTimestamp(); }
 
     void setTimestamp(const Time& time) { gridMap_.setTimestamp(time); }
@@ -77,7 +79,7 @@ class Map {
             const Matrix& layerData,
             Eigen::Vector3d& point) const;
 
-    void translate(const Eigen::Vector3d& translation);
+    void translate(const Eigen::Vector3d& translation, bool moveData = false);
 
   protected:
     GridMap gridMap_;

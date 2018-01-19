@@ -66,8 +66,14 @@ void Map::getPointFromArrayIndex(
             layerData(arrayIndex.x(), arrayIndex.y()));
 }
 
-void Map::translate(const Eigen::Vector3d& translation) {
-    gridMap_.move(grid_map::Position(translation.x(), translation.y()));
+void Map::translate(const Eigen::Vector3d& translation, bool moveData) {
+    const auto newPosition = grid_map::Position(translation.x(),
+            translation.y());
+
+    if (moveData)
+        gridMap_.setPosition(newPosition);
+    else
+        gridMap_.move(newPosition);
 }
 
 }  // namespace ga_slam

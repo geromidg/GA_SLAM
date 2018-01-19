@@ -38,7 +38,9 @@ class PoseCorrection {
             double globalMapLength,
             double globalMapResolution);
 
-    void createGlobalMap(const Cloud::ConstPtr& cloud);
+    void createGlobalMap(
+            const Cloud::ConstPtr& globalCloud,
+            const Pose& globalPose);
 
     bool distanceCriterionFulfilled(const Pose& pose) const;
 

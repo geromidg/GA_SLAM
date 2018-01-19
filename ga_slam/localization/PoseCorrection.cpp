@@ -36,8 +36,13 @@ void PoseCorrection::configure(
     globalMap_.setParameters(globalMapLength, globalMapResolution);
 }
 
-void PoseCorrection::createGlobalMap(const Cloud::ConstPtr& cloud) {
+void PoseCorrection::createGlobalMap(
+            const Cloud::ConstPtr& globalCloud,
+            const Pose& globalPose) {
     std::lock_guard<std::mutex> guard(globalMapMutex_);
+
+    globalMap_.clear();
+    globalMap_.translate(Eigen::Vector3d::Zero(), true);
 
     auto& meanData = globalMap_.getMeanZ();
     auto& varianceData = globalMap_.getVarianceZ();
@@ -45,7 +50,7 @@ void PoseCorrection::createGlobalMap(const Cloud::ConstPtr& cloud) {
     size_t cloudIndex = 0;
     size_t mapIndex;
 
-    for (const auto& point : cloud->points) {
+    for (const auto& point : globalCloud->points) {
         cloudIndex++;
 
         if (!globalMap_.getIndexFromPosition(point.x, point.y, mapIndex))
@@ -66,8 +71,10 @@ void PoseCorrection::createGlobalMap(const Cloud::ConstPtr& cloud) {
         }
     }
 
+    globalMap_.translate(globalPose.translation(), true);
+
     globalMap_.setValid(true);
-    globalMap_.setTimestamp(cloud->header.stamp);
+    globalMap_.setTimestamp(globalCloud->header.stamp);
 }
 
 bool PoseCorrection::distanceCriterionFulfilled(const Pose& pose) const {

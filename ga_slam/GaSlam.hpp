@@ -68,7 +68,9 @@ class GaSlam {
 
     void matchLocalMapToGlobalMap(void);
 
-    void createGlobalMap(const Cloud::ConstPtr& cloud);
+    void createGlobalMap(
+            const Cloud::ConstPtr& globalCloud,
+            const Pose& globalPose);
 
     template<typename T>
     bool isFutureReady(const std::future<T>& future) const {
