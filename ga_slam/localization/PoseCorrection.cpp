@@ -41,7 +41,7 @@ void PoseCorrection::configure(
 
 void PoseCorrection::createGlobalMap(
             const Cloud::ConstPtr& globalCloud,
-            const Pose& globalPose) {
+            const Pose& globalCloudPose) {
     std::lock_guard<std::mutex> guard(globalMapMutex_);
 
     globalMap_.clear();
@@ -74,7 +74,8 @@ void PoseCorrection::createGlobalMap(
         }
     }
 
-    globalMap_.translate(globalPose.translation(), true);
+    globalMap_.translate(globalCloudPose.translation(), true);
+    globalMapPose_ = globalCloudPose;
 
     globalMap_.setValid(true);
     globalMap_.setTimestamp(globalCloud->header.stamp);
@@ -109,10 +110,38 @@ bool PoseCorrection::matchMaps(
         Pose& correctedPose) {
     if (!globalMapInitialized_) return false;
 
-    lastCorrectedPose_= currentPose;
-    correctedPose = lastCorrectedPose_;
+    Image localImage, globalImage;
+    ImageProcessing::convertMapToImage(localMap, localImage);
+    const double localMapResolution = localMap.getParameters().resolution;
 
-    return true;
+    std::unique_lock<std::mutex> guard(globalMapMutex_);
+    ImageProcessing::convertMapToImage(globalMap_, globalImage);
+    const double globalMapResolution = globalMap_.getParameters().resolution;
+    guard.unlock();
+
+    const double resolutionRatio = localMapResolution / globalMapResolution;
+    cv::resize(localImage, localImage, cv::Size(), resolutionRatio,
+            resolutionRatio, cv::INTER_NEAREST);
+
+    cv::Point2d matchedPosition;
+    const bool matchFound = ImageProcessing::findBestMatch(globalImage,
+            localImage, matchedPosition, matchAcceptanceThreshold_);
+
+    if (matchFound) {
+        ImageProcessing::convertPositionToMapCoordinates(matchedPosition,
+                globalImage, globalMapResolution);
+
+        const auto newX = globalMapPose_.translation().x() + matchedPosition.x;
+        const auto newY = globalMapPose_.translation().y() + matchedPosition.y;
+        const auto currentZ = currentPose.translation().z();
+
+        correctedPose = currentPose;
+        correctedPose.translation() = Eigen::Vector3d(newX, newY, currentZ);
+
+        lastCorrectedPose_ = correctedPose;
+    }
+
+    return matchFound;
 }
 
 }  // namespace ga_slam

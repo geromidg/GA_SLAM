@@ -111,8 +111,8 @@ void GaSlam::matchLocalMapToGlobalMap(void) {
 
 void GaSlam::createGlobalMap(
             const Cloud::ConstPtr& globalCloud,
-            const Pose& globalPose) {
-    poseCorrection_.createGlobalMap(globalCloud, globalPose);
+            const Pose& globalCloudPose) {
+    poseCorrection_.createGlobalMap(globalCloud, globalCloudPose);
 }
 
 }  // namespace ga_slam

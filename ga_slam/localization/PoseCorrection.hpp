@@ -22,6 +22,7 @@ class PoseCorrection {
     PoseCorrection(void)
         : globalMapInitialized_(false),
           globalMap_(),
+          globalMapPose_(Pose::Identity()),
           lastCorrectedPose_(Pose::Identity()) {}
 
     PoseCorrection(const PoseCorrection&) = delete;
@@ -43,7 +44,7 @@ class PoseCorrection {
 
     void createGlobalMap(
             const Cloud::ConstPtr& globalCloud,
-            const Pose& globalPose);
+            const Pose& globalCloudPose);
 
     bool distanceCriterionFulfilled(const Pose& pose) const;
 
@@ -60,6 +61,7 @@ class PoseCorrection {
     Map globalMap_;
     mutable std::mutex globalMapMutex_;
 
+    Pose globalMapPose_;
     Pose lastCorrectedPose_;
 
     double traversedDistanceThreshold_;
