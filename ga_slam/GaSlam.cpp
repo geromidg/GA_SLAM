@@ -93,17 +93,19 @@ void GaSlam::matchLocalMapToRawCloud(const Cloud::ConstPtr& rawCloud) {
 }
 
 void GaSlam::matchLocalMapToGlobalMap(void) {
-    const auto pose = poseEstimation_.getPose();
-    if (!poseCorrection_.distanceCriterionFulfilled(pose)) return;
+    const auto currentPose = poseEstimation_.getPose();
+    if (!poseCorrection_.distanceCriterionFulfilled(currentPose)) return;
 
     std::unique_lock<std::mutex> guard(dataRegistration_.getMapMutex());
     const auto& map = dataRegistration_.getMap();
     if (!poseCorrection_.featureCriterionFulfilled(map)) return;
 
-    const auto correctedPose = poseCorrection_.matchMaps(pose, map);
+    Pose correctedPose;
+    const bool matchFound = poseCorrection_.matchMaps(map, currentPose,
+            correctedPose);
     guard.unlock();
 
-    poseEstimation_.predictPose(correctedPose);
+    if (matchFound) poseEstimation_.predictPose(correctedPose);
 }
 
 void GaSlam::createGlobalMap(

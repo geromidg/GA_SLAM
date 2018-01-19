@@ -13,13 +13,15 @@
 
 // STL
 #include <mutex>
+#include <atomic>
 
 namespace ga_slam {
 
 class PoseCorrection {
   public:
     PoseCorrection(void)
-        : globalMap_(),
+        : globalMapInitialized_(false),
+          globalMap_(),
           lastCorrectedPose_(Pose::Identity()) {}
 
     PoseCorrection(const PoseCorrection&) = delete;
@@ -46,9 +48,14 @@ class PoseCorrection {
 
     bool featureCriterionFulfilled(const Map& localMap) const;
 
-    Pose matchMaps(const Pose& pose, const Map& localMap);
+    bool matchMaps(
+            const Map& localMap,
+            const Pose& currentPose,
+            Pose& correctedPose);
 
   protected:
+    std::atomic<bool> globalMapInitialized_;
+
     Map globalMap_;
     mutable std::mutex globalMapMutex_;
 

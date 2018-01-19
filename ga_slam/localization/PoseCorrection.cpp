@@ -76,6 +76,8 @@ void PoseCorrection::createGlobalMap(
 
     globalMap_.setValid(true);
     globalMap_.setTimestamp(globalCloud->header.stamp);
+
+    globalMapInitialized_ = true;
 }
 
 bool PoseCorrection::distanceCriterionFulfilled(const Pose& pose) const {
@@ -99,12 +101,16 @@ bool PoseCorrection::featureCriterionFulfilled(const Map& localMap) const {
     return slopeSum >= slopeSumThreshold;
 }
 
-Pose PoseCorrection::matchMaps(const Pose& pose, const Map& localMap) {
-    auto correctedPose = pose;
+bool PoseCorrection::matchMaps(
+        const Map& localMap,
+        const Pose& currentPose,
+        Pose& correctedPose) {
+    if (!globalMapInitialized_) return false;
 
-    lastCorrectedPose_= correctedPose;
+    lastCorrectedPose_= currentPose;
+    correctedPose = lastCorrectedPose_;
 
-    return correctedPose;
+    return true;
 }
 
 }  // namespace ga_slam
