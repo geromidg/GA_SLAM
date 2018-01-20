@@ -27,11 +27,13 @@ void PoseCorrection::configure(
         double traversedDistanceThreshold,
         double minSlopeThreshold,
         double slopeSumThresholdMultiplier,
+        double matchAcceptanceThreshold,
         double globalMapLength,
         double globalMapResolution) {
     traversedDistanceThreshold_ = traversedDistanceThreshold;
     minSlopeThreshold_ = minSlopeThreshold;
     slopeSumThresholdMultiplier_ = slopeSumThresholdMultiplier;
+    matchAcceptanceThreshold_ = matchAcceptanceThreshold;
 
     std::lock_guard<std::mutex> guard(globalMapMutex_);
     globalMap_.setParameters(globalMapLength, globalMapResolution);

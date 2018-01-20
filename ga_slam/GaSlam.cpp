@@ -33,8 +33,8 @@ void GaSlam::configure(
         double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
         double predictSigmaX, double predictSigmaY, double predictSigmaYaw,
         double traversedDistanceThreshold, double minSlopeThreshold,
-        double slopeSumThresholdMultiplier, double globalMapLength,
-        double globalMapResolution) {
+        double slopeSumThresholdMultiplier, double matchAcceptanceThreshold,
+        double globalMapLength, double globalMapResolution) {
     voxelSize_ = voxelSize;
 
     poseEstimation_.configure(numParticles, resampleFrequency,
@@ -42,7 +42,8 @@ void GaSlam::configure(
             predictSigmaX, predictSigmaY, predictSigmaYaw);
 
     poseCorrection_.configure(traversedDistanceThreshold, minSlopeThreshold,
-            slopeSumThresholdMultiplier, globalMapLength, globalMapResolution);
+            slopeSumThresholdMultiplier, matchAcceptanceThreshold,
+            globalMapLength, globalMapResolution);
 
     dataRegistration_.configure(mapLength, mapResolution, minElevation,
             maxElevation);

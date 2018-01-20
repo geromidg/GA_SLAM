@@ -37,6 +37,7 @@ class PoseCorrection {
             double traversedDistanceThreshold,
             double minSlopeThreshold,
             double slopeSumThresholdMultiplier,
+            double matchAcceptanceThreshold,
             double globalMapLength,
             double globalMapResolution);
 
@@ -64,6 +65,7 @@ class PoseCorrection {
     double traversedDistanceThreshold_;
     double minSlopeThreshold_;
     double slopeSumThresholdMultiplier_;
+    double matchAcceptanceThreshold_;
 };
 
 }  // namespace ga_slam

@@ -55,8 +55,8 @@ class GaSlam {
             double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
             double predictSigmaX, double predictSigmaY, double predictSigmaYaw,
             double traversedDistanceThreshold, double minSlopeThreshold,
-            double slopeSumThresholdMultiplier, double globalMapLength,
-            double globalMapResolution);
+            double slopeSumThresholdMultiplier, double matchAcceptanceThreshold,
+            double globalMapLength, double globalMapResolution);
 
     void poseCallback(const Pose& poseGuess, const Pose& bodyToGroundTF);
 
