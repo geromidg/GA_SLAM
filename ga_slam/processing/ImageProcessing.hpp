@@ -46,7 +46,7 @@ class ImageProcessing {
     static bool findBestMatch(
             const Image& originalImage,
             const Image& templateImage,
-            cv::Point& matchedPosition,
+            cv::Point2d& matchedPosition,
             double matchAcceptanceThreshold,
             bool useCrossCorrelation = false,
             bool displayMatch = true);
@@ -55,8 +55,13 @@ class ImageProcessing {
             const Image& originalImage,
             const Image& templateImage,
             const Image& resultImage,
-            const cv::Point& matchedPosition,
+            const cv::Point2d& matchedPosition,
             double zoom = 4.);
+
+    static void convertPositionToMapCoordinates(
+        cv::Point2d& imagePosition,
+        const Image& image,
+        double mapResolution);
 };
 
 }  // namespace ga_slam

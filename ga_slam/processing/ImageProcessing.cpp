@@ -102,7 +102,7 @@ void ImageProcessing::calculateLaplacianImage(
 bool ImageProcessing::findBestMatch(
         const Image& originalImage,
         const Image& templateImage,
-        cv::Point& matchedPosition,
+        cv::Point2d& matchedPosition,
         double matchAcceptanceThreshold,
         bool useCrossCorrelation,
         bool displayMatch) {
@@ -116,12 +116,12 @@ bool ImageProcessing::findBestMatch(
 
     cv::matchTemplate(originalImage, templateImage, resultImage, method);
 
-    cv::Point maxPosition;
+    cv::Point2i maxPosition;
     double maxValue;
     cv::minMaxLoc(resultImage, nullptr, &maxValue, nullptr, &maxPosition);
 
     const bool matchFound = maxValue > matchAcceptanceThreshold;
-    if (matchFound) matchedPosition = maxPosition;
+    if (matchFound) matchedPosition = cv::Point2d(maxPosition.x, maxPosition.y);
 
     if (matchFound && displayMatch)
         displayMatchedPosition(originalImage, templateImage, resultImage,
@@ -134,23 +134,34 @@ void ImageProcessing::displayMatchedPosition(
         const Image& originalImage,
         const Image& templateImage,
         const Image& resultImage,
-        const cv::Point& matchedPosition,
+        const cv::Point2d& matchedPosition,
         double zoom) {
     Image originalImageClone = originalImage.clone();
     Image templateImageClone = templateImage.clone();
     Image resultImageClone = resultImage.clone();
 
-    const auto matchedDiagon = cv::Point(
-            matchedPosition.x + templateImageClone.cols,
-            matchedPosition.y + templateImageClone.rows);
+    const auto matchedDiagonal = cv::Point2i(
+            std::round(matchedPosition.x) + templateImageClone.cols,
+            std::round(matchedPosition.y) + templateImageClone.rows);
 
     const auto color = cv::Scalar::all(0.);
-    cv::rectangle(originalImageClone, matchedPosition, matchedDiagon, color);
-    cv::rectangle(resultImageClone, matchedPosition, matchedDiagon, color);
+    cv::rectangle(originalImageClone, matchedPosition, matchedDiagonal, color);
+    cv::rectangle(resultImageClone, matchedPosition, matchedDiagonal, color);
 
     ImageProcessing::displayImage(originalImageClone, "Original Image", zoom);
     ImageProcessing::displayImage(templateImageClone, "Template Image", zoom);
     ImageProcessing::displayImage(resultImageClone, "Result Image", zoom);
+}
+
+void ImageProcessing::convertPositionToMapCoordinates(
+        cv::Point2d& imagePosition,
+        const Image& image,
+        double mapResolution) {
+    double mapPositionX = std::round(image.rows / 2.) - imagePosition.y;
+    double mapPositionY = std::round(image.cols / 2.) - imagePosition.x;
+
+    imagePosition.x = mapPositionX * mapResolution;
+    imagePosition.y = mapPositionY * mapResolution;
 }
 
 }  // namespace ga_slam
