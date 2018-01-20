@@ -104,27 +104,36 @@ bool ImageProcessing::findBestMatch(
         const Image& templateImage,
         cv::Point2d& matchedPosition,
         double matchAcceptanceThreshold,
+        bool matchImageGradients,
         bool useCrossCorrelation,
         bool displayMatch) {
+    Image originalInput, templateInput, resultOutput;
     int method;
-    Image resultImage;
 
     if (useCrossCorrelation)
         method = CV_TM_CCORR_NORMED;
     else
         method = CV_TM_CCOEFF_NORMED;
 
-    cv::matchTemplate(originalImage, templateImage, resultImage, method);
+    if (matchImageGradients) {
+        calculateGradientImage(originalImage, originalInput);
+        calculateGradientImage(templateImage, templateInput);
+    } else {
+        originalInput = originalImage;
+        templateInput = templateImage;
+    }
+
+    cv::matchTemplate(originalInput, templateInput, resultOutput, method);
 
     cv::Point2i maxPosition;
     double maxValue;
-    cv::minMaxLoc(resultImage, nullptr, &maxValue, nullptr, &maxPosition);
+    cv::minMaxLoc(resultOutput, nullptr, &maxValue, nullptr, &maxPosition);
 
     const bool matchFound = maxValue > matchAcceptanceThreshold;
     if (matchFound) matchedPosition = cv::Point2d(maxPosition.x, maxPosition.y);
 
-    if (matchFound && displayMatch)
-        displayMatchedPosition(originalImage, templateImage, resultImage,
+    if (displayMatch && matchFound)
+        displayMatchedPosition(originalInput, templateInput, resultOutput,
                 matchedPosition);
 
     return matchFound;
@@ -148,9 +157,9 @@ void ImageProcessing::displayMatchedPosition(
     cv::rectangle(originalImageClone, matchedPosition, matchedDiagonal, color);
     cv::rectangle(resultImageClone, matchedPosition, matchedDiagonal, color);
 
-    ImageProcessing::displayImage(originalImageClone, "Original Image", zoom);
-    ImageProcessing::displayImage(templateImageClone, "Template Image", zoom);
-    ImageProcessing::displayImage(resultImageClone, "Result Image", zoom);
+    displayImage(originalImageClone, "Original Image", zoom);
+    displayImage(templateImageClone, "Template Image", zoom);
+    displayImage(resultImageClone, "Result Image", zoom);
 }
 
 void ImageProcessing::convertPositionToMapCoordinates(

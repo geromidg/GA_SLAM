@@ -48,6 +48,7 @@ class ImageProcessing {
             const Image& templateImage,
             cv::Point2d& matchedPosition,
             double matchAcceptanceThreshold,
+            bool matchImageGradients = true,
             bool useCrossCorrelation = false,
             bool displayMatch = true);
 
