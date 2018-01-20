@@ -104,7 +104,8 @@ bool ImageProcessing::findBestMatch(
         const Image& templateImage,
         cv::Point& matchedPosition,
         double matchAcceptanceThreshold,
-        bool useCrossCorrelation) {
+        bool useCrossCorrelation,
+        bool displayMatch) {
     int method;
     Image resultImage;
 
@@ -122,7 +123,34 @@ bool ImageProcessing::findBestMatch(
     const bool matchFound = maxValue > matchAcceptanceThreshold;
     if (matchFound) matchedPosition = maxPosition;
 
+    if (matchFound && displayMatch)
+        displayMatchedPosition(originalImage, templateImage, resultImage,
+                matchedPosition);
+
     return matchFound;
+}
+
+void ImageProcessing::displayMatchedPosition(
+        const Image& originalImage,
+        const Image& templateImage,
+        const Image& resultImage,
+        const cv::Point& matchedPosition,
+        double zoom) {
+    Image originalImageClone = originalImage.clone();
+    Image templateImageClone = templateImage.clone();
+    Image resultImageClone = resultImage.clone();
+
+    const auto matchedDiagon = cv::Point(
+            matchedPosition.x + templateImageClone.cols,
+            matchedPosition.y + templateImageClone.rows);
+
+    const auto color = cv::Scalar::all(0.);
+    cv::rectangle(originalImageClone, matchedPosition, matchedDiagon, color);
+    cv::rectangle(resultImageClone, matchedPosition, matchedDiagon, color);
+
+    ImageProcessing::displayImage(originalImageClone, "Original Image", zoom);
+    ImageProcessing::displayImage(templateImageClone, "Template Image", zoom);
+    ImageProcessing::displayImage(resultImageClone, "Result Image", zoom);
 }
 
 }  // namespace ga_slam

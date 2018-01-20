@@ -48,7 +48,15 @@ class ImageProcessing {
             const Image& templateImage,
             cv::Point& matchedPosition,
             double matchAcceptanceThreshold,
-            bool useCrossCorrelation = false);
+            bool useCrossCorrelation = false,
+            bool displayMatch = true);
+
+    static void displayMatchedPosition(
+            const Image& originalImage,
+            const Image& templateImage,
+            const Image& resultImage,
+            const cv::Point& matchedPosition,
+            double zoom = 4.);
 };
 
 }  // namespace ga_slam
