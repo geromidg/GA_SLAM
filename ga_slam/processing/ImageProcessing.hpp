@@ -21,8 +21,13 @@ class ImageProcessing {
     static void displayImage(
             const Image& image,
             const std::string& windowName = "Image Display",
-            int width = 500,
-            int height = 500);
+            double zoom = 1.);
+
+    static void displayImage(
+            const Image& image,
+            const std::string& windowName,
+            int width,
+            int height);
 
     static void calculateGradientImage(
             const Image& inputImage,
@@ -37,6 +42,27 @@ class ImageProcessing {
             int laplacianKernelSize = 1,
             bool applyGaussianBlur = false,
             int gaussianKernelSize = 3);
+
+    static bool findBestMatch(
+            const Image& originalImage,
+            const Image& templateImage,
+            cv::Point2d& matchedPosition,
+            double matchAcceptanceThreshold,
+            bool matchImageGradients = true,
+            bool useCrossCorrelation = false,
+            bool displayMatch = true);
+
+    static void displayMatchedPosition(
+            const Image& originalImage,
+            const Image& templateImage,
+            const Image& resultImage,
+            const cv::Point2d& matchedPosition,
+            double zoom = 4.);
+
+    static void convertPositionToMapCoordinates(
+        cv::Point2d& imagePosition,
+        const Image& image,
+        double mapResolution);
 };
 
 }  // namespace ga_slam

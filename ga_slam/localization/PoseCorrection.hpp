@@ -13,13 +13,16 @@
 
 // STL
 #include <mutex>
+#include <atomic>
 
 namespace ga_slam {
 
 class PoseCorrection {
   public:
     PoseCorrection(void)
-        : globalMap_(),
+        : globalMapInitialized_(false),
+          globalMap_(),
+          globalMapPose_(Pose::Identity()),
           lastCorrectedPose_(Pose::Identity()) {}
 
     PoseCorrection(const PoseCorrection&) = delete;
@@ -35,28 +38,36 @@ class PoseCorrection {
             double traversedDistanceThreshold,
             double minSlopeThreshold,
             double slopeSumThresholdMultiplier,
+            double matchAcceptanceThreshold,
             double globalMapLength,
             double globalMapResolution);
 
     void createGlobalMap(
             const Cloud::ConstPtr& globalCloud,
-            const Pose& globalPose);
+            const Pose& globalCloudPose);
 
     bool distanceCriterionFulfilled(const Pose& pose) const;
 
     bool featureCriterionFulfilled(const Map& localMap) const;
 
-    Pose matchMaps(const Pose& pose, const Map& localMap);
+    bool matchMaps(
+            const Map& localMap,
+            const Pose& currentPose,
+            Pose& correctedPose);
 
   protected:
+    std::atomic<bool> globalMapInitialized_;
+
     Map globalMap_;
     mutable std::mutex globalMapMutex_;
 
+    Pose globalMapPose_;
     Pose lastCorrectedPose_;
 
     double traversedDistanceThreshold_;
     double minSlopeThreshold_;
     double slopeSumThresholdMultiplier_;
+    double matchAcceptanceThreshold_;
 };
 
 }  // namespace ga_slam

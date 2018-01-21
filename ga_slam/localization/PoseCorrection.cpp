@@ -27,18 +27,21 @@ void PoseCorrection::configure(
         double traversedDistanceThreshold,
         double minSlopeThreshold,
         double slopeSumThresholdMultiplier,
+        double matchAcceptanceThreshold,
         double globalMapLength,
         double globalMapResolution) {
     traversedDistanceThreshold_ = traversedDistanceThreshold;
     minSlopeThreshold_ = minSlopeThreshold;
     slopeSumThresholdMultiplier_ = slopeSumThresholdMultiplier;
+    matchAcceptanceThreshold_ = matchAcceptanceThreshold;
 
+    std::lock_guard<std::mutex> guard(globalMapMutex_);
     globalMap_.setParameters(globalMapLength, globalMapResolution);
 }
 
 void PoseCorrection::createGlobalMap(
             const Cloud::ConstPtr& globalCloud,
-            const Pose& globalPose) {
+            const Pose& globalCloudPose) {
     std::lock_guard<std::mutex> guard(globalMapMutex_);
 
     globalMap_.clear();
@@ -71,10 +74,13 @@ void PoseCorrection::createGlobalMap(
         }
     }
 
-    globalMap_.translate(globalPose.translation(), true);
+    globalMap_.translate(globalCloudPose.translation(), true);
+    globalMapPose_ = globalCloudPose;
 
     globalMap_.setValid(true);
     globalMap_.setTimestamp(globalCloud->header.stamp);
+
+    globalMapInitialized_ = true;
 }
 
 bool PoseCorrection::distanceCriterionFulfilled(const Pose& pose) const {
@@ -98,12 +104,44 @@ bool PoseCorrection::featureCriterionFulfilled(const Map& localMap) const {
     return slopeSum >= slopeSumThreshold;
 }
 
-Pose PoseCorrection::matchMaps(const Pose& pose, const Map& localMap) {
-    auto correctedPose = pose;
+bool PoseCorrection::matchMaps(
+        const Map& localMap,
+        const Pose& currentPose,
+        Pose& correctedPose) {
+    if (!globalMapInitialized_) return false;
 
-    lastCorrectedPose_= correctedPose;
+    Image localImage, globalImage;
+    ImageProcessing::convertMapToImage(localMap, localImage);
+    const double localMapResolution = localMap.getParameters().resolution;
 
-    return correctedPose;
+    std::unique_lock<std::mutex> guard(globalMapMutex_);
+    ImageProcessing::convertMapToImage(globalMap_, globalImage);
+    const double globalMapResolution = globalMap_.getParameters().resolution;
+    guard.unlock();
+
+    const double resolutionRatio = localMapResolution / globalMapResolution;
+    cv::resize(localImage, localImage, cv::Size(), resolutionRatio,
+            resolutionRatio, cv::INTER_NEAREST);
+
+    cv::Point2d matchedPosition;
+    const bool matchFound = ImageProcessing::findBestMatch(globalImage,
+            localImage, matchedPosition, matchAcceptanceThreshold_);
+
+    if (matchFound) {
+        ImageProcessing::convertPositionToMapCoordinates(matchedPosition,
+                globalImage, globalMapResolution);
+
+        const auto newX = globalMapPose_.translation().x() + matchedPosition.x;
+        const auto newY = globalMapPose_.translation().y() + matchedPosition.y;
+        const auto currentZ = currentPose.translation().z();
+
+        correctedPose = currentPose;
+        correctedPose.translation() = Eigen::Vector3d(newX, newY, currentZ);
+
+        lastCorrectedPose_ = correctedPose;
+    }
+
+    return matchFound;
 }
 
 }  // namespace ga_slam

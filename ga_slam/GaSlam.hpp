@@ -55,8 +55,8 @@ class GaSlam {
             double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
             double predictSigmaX, double predictSigmaY, double predictSigmaYaw,
             double traversedDistanceThreshold, double minSlopeThreshold,
-            double slopeSumThresholdMultiplier, double globalMapLength,
-            double globalMapResolution);
+            double slopeSumThresholdMultiplier, double matchAcceptanceThreshold,
+            double globalMapLength, double globalMapResolution);
 
     void poseCallback(const Pose& poseGuess, const Pose& bodyToGroundTF);
 
@@ -70,7 +70,7 @@ class GaSlam {
 
     void createGlobalMap(
             const Cloud::ConstPtr& globalCloud,
-            const Pose& globalPose);
+            const Pose& globalCloudPose);
 
     template<typename T>
     bool isFutureReady(const std::future<T>& future) const {

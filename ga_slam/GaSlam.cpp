@@ -33,8 +33,8 @@ void GaSlam::configure(
         double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
         double predictSigmaX, double predictSigmaY, double predictSigmaYaw,
         double traversedDistanceThreshold, double minSlopeThreshold,
-        double slopeSumThresholdMultiplier, double globalMapLength,
-        double globalMapResolution) {
+        double slopeSumThresholdMultiplier, double matchAcceptanceThreshold,
+        double globalMapLength, double globalMapResolution) {
     voxelSize_ = voxelSize;
 
     poseEstimation_.configure(numParticles, resampleFrequency,
@@ -42,7 +42,8 @@ void GaSlam::configure(
             predictSigmaX, predictSigmaY, predictSigmaYaw);
 
     poseCorrection_.configure(traversedDistanceThreshold, minSlopeThreshold,
-            slopeSumThresholdMultiplier, globalMapLength, globalMapResolution);
+            slopeSumThresholdMultiplier, matchAcceptanceThreshold,
+            globalMapLength, globalMapResolution);
 
     dataRegistration_.configure(mapLength, mapResolution, minElevation,
             maxElevation);
@@ -93,23 +94,25 @@ void GaSlam::matchLocalMapToRawCloud(const Cloud::ConstPtr& rawCloud) {
 }
 
 void GaSlam::matchLocalMapToGlobalMap(void) {
-    const auto pose = poseEstimation_.getPose();
-    if (!poseCorrection_.distanceCriterionFulfilled(pose)) return;
+    const auto currentPose = poseEstimation_.getPose();
+    if (!poseCorrection_.distanceCriterionFulfilled(currentPose)) return;
 
     std::unique_lock<std::mutex> guard(dataRegistration_.getMapMutex());
     const auto& map = dataRegistration_.getMap();
     if (!poseCorrection_.featureCriterionFulfilled(map)) return;
 
-    const auto correctedPose = poseCorrection_.matchMaps(pose, map);
+    Pose correctedPose;
+    const bool matchFound = poseCorrection_.matchMaps(map, currentPose,
+            correctedPose);
     guard.unlock();
 
-    poseEstimation_.predictPose(correctedPose);
+    if (matchFound) poseEstimation_.predictPose(correctedPose);
 }
 
 void GaSlam::createGlobalMap(
             const Cloud::ConstPtr& globalCloud,
-            const Pose& globalPose) {
-    poseCorrection_.createGlobalMap(globalCloud, globalPose);
+            const Pose& globalCloudPose) {
+    poseCorrection_.createGlobalMap(globalCloud, globalCloudPose);
 }
 
 }  // namespace ga_slam
