@@ -36,23 +36,37 @@
 
 namespace ga_slam {
 
+/** TODO
+  */
 class PoseCorrection {
   public:
+    /// TODO
     PoseCorrection(void)
         : globalMapInitialized_(false),
           globalMap_(),
           globalMapPose_(Pose::Identity()),
           lastCorrectedPose_(Pose::Identity()) {}
 
+    /// TODO
     PoseCorrection(const PoseCorrection&) = delete;
     PoseCorrection& operator=(const PoseCorrection&) = delete;
     PoseCorrection(PoseCorrection&&) = delete;
     PoseCorrection& operator=(PoseCorrection&&) = delete;
 
+    /// TODO
     const Map& getGlobalMap(void) const { return globalMap_; }
 
+    /// TODO
     std::mutex& getGlobalMapMutex(void) { return globalMapMutex_; }
 
+    /** TODO
+      * @param[in] traversedDistanceThreshold TODO
+      * @param[in] minSlopeThreshold TODO
+      * @param[in] slopeSumThresholdMultiplier TODO
+      * @param[in] matchAcceptanceThreshold TODO
+      * @param[in] globalMapLength TODO
+      * @param[in] globalMapResolution TODO
+      */
     void configure(
             double traversedDistanceThreshold,
             double minSlopeThreshold,
@@ -61,31 +75,63 @@ class PoseCorrection {
             double globalMapLength,
             double globalMapResolution);
 
+    /** TODO
+      * @param[in] globalCloud TODO
+      * @param[in] globalCloudPose TODO
+      */
     void createGlobalMap(
             const Cloud::ConstPtr& globalCloud,
             const Pose& globalCloudPose);
 
+    /** TODO
+      * @param[in] pose TODO
+      * @return TODO
+      */
     bool distanceCriterionFulfilled(const Pose& pose) const;
 
+    /** TODO
+      * @param[in] localMap TODO
+      * @return TODO
+      */
     bool featureCriterionFulfilled(const Map& localMap) const;
 
+    /** TODO
+      * @param[in] localMap TODO
+      * @param[in] currentPose TODO
+      * @param[out] correctedPose TODO
+      * @return TODO
+      */
     bool matchMaps(
             const Map& localMap,
             const Pose& currentPose,
             Pose& correctedPose);
 
   protected:
+    /// TODO
     std::atomic<bool> globalMapInitialized_;
 
+    /// TODO
     Map globalMap_;
+
+    /// TODO
     mutable std::mutex globalMapMutex_;
 
+    /// TODO
     Pose globalMapPose_;
+
+    /// TODO
     Pose lastCorrectedPose_;
 
+    /// TODO
     double traversedDistanceThreshold_;
+
+    /// TODO
     double minSlopeThreshold_;
+
+    /// TODO
     double slopeSumThresholdMultiplier_;
+
+    /// TODO
     double matchAcceptanceThreshold_;
 };
 

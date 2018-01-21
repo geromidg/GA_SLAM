@@ -31,23 +31,48 @@
 
 namespace ga_slam {
 
+/** TODO
+  */
 class ImageProcessing {
   public:
+    /// TODO
     ImageProcessing(void) = delete;
 
+    /** TODO
+      * @param[in] map TODO
+      * @param[out] image TODO
+      */
     static void convertMapToImage(const Map& map, Image& image);
 
+    /** TODO
+      * @param[in] image TODO
+      * @param[in] windowName TODO
+      * @param[in] zoom TODO
+      */
     static void displayImage(
             const Image& image,
             const std::string& windowName = "Image Display",
             double zoom = 1.);
 
+    /** TODO
+      * @param[in] image TODO
+      * @param[in] windowName TODO
+      * @param[in] width TODO
+      * @param[in] height TODO
+      */
     static void displayImage(
             const Image& image,
             const std::string& windowName,
             int width,
             int height);
 
+    /** TODO
+      * @param[in] inputImage TODO
+      * @param[out] outputImage TODO
+      * @param[in] useSobel TODO
+      * @param[in] sobelKernelSize TODO
+      * @param[in] approximate TODO
+      */
     static void calculateGradientImage(
             const Image& inputImage,
             Image& outputImage,
@@ -55,6 +80,13 @@ class ImageProcessing {
             int sobelKernelSize = 3,
             bool approximate = false);
 
+    /** TODO
+      * @param[in] inputImage TODO
+      * @param[out] outputImage TODO
+      * @param[in] laplacianKernelSize TODO
+      * @param[in] applyGaussianBlur TODO
+      * @param[in] gaussianKernelSize TODO
+      */
     static void calculateLaplacianImage(
             const Image& inputImage,
             Image& outputImage,
@@ -62,6 +94,16 @@ class ImageProcessing {
             bool applyGaussianBlur = false,
             int gaussianKernelSize = 3);
 
+    /** TODO
+      * @param[in] originalImage TODO
+      * @param[in] templateImage TODO
+      * @param[out] matchedPosition TODO
+      * @param[in] matchAcceptanceThreshold TODO
+      * @param[in] matchImageGradients TODO
+      * @param[in] useCrossCorrelation TODO
+      * @param[in] displayImage TODO
+      * @return TODO
+      */
     static bool findBestMatch(
             const Image& originalImage,
             const Image& templateImage,
@@ -71,6 +113,13 @@ class ImageProcessing {
             bool useCrossCorrelation = false,
             bool displayMatch = true);
 
+    /** TODO
+      * @param[in] originalImage TODO
+      * @param[in] templateImage TODO
+      * @param[in] resultImage TODO
+      * @param[in] matchedPosition TODO
+      * @param[in] zoom TODO
+      */
     static void displayMatchedPosition(
             const Image& originalImage,
             const Image& templateImage,
@@ -78,6 +127,11 @@ class ImageProcessing {
             const cv::Point2d& matchedPosition,
             double zoom = 4.);
 
+    /** TODO
+      * @param[out] imagePosition TODO
+      * @param[in] image TODO
+      * @param[in] mapResolution TODO
+      */
     static void convertPositionToMapCoordinates(
         cv::Point2d& imagePosition,
         const Image& image,

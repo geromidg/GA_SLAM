@@ -35,10 +35,21 @@
 
 namespace ga_slam {
 
+/** TODO
+  */
 class CloudProcessing {
   public:
+    /// TODO
     CloudProcessing(void) = delete;
 
+    /** TODO
+      * @param[in] inputCloud TODO
+      * @param[out] outputCloud TODO
+      * @param[out] cloudVariances TODO
+      * @param[in] sensorToMapTF TODO
+      * @param[in] mapParameters TODO
+      * @param[in] voxelSize TODO
+      */
     static void processCloud(
             const Cloud::ConstPtr& inputCloud,
             Cloud::Ptr& outputCloud,
@@ -47,23 +58,49 @@ class CloudProcessing {
             const MapParameters& mapParameters,
             double voxelSize);
 
+    /** TODO
+      * @param[in] inputCloud TODO
+      * @param[out] outputCloud TODO
+      * @param[in] voxelSize TODO
+      */
     static void downsampleCloud(
             const Cloud::ConstPtr& inputCloud,
             Cloud::Ptr& outputCloud,
             double voxelSize);
 
+    /** TODO
+      * @param[in/out] cloud TODO
+      * @param[in] tf TODO
+      */
     static void transformCloudToMap(Cloud::Ptr& cloud, const Pose& tf);
 
+    /** TODO
+      * @param[in/out] cloud TODO
+      * @param[in] mapParameters TODO
+      */
     static void cropCloudToMap(
             Cloud::Ptr& cloud,
             const MapParameters& mapParameters);
 
+    /** TODO
+      * @param[in] cloud TODO
+      * @param[out] variances TODO
+      */
     static void calculateCloudVariances(
             const Cloud::ConstPtr& cloud,
             std::vector<float>& variances);
 
+    /** TODO
+      * @param[in] map TODO
+      * @param[out] cloud TODO
+      */
     static void convertMapToCloud(const Map& map, Cloud::Ptr& cloud);
 
+    /** TODO
+      * @param[in] cloud1 TODO
+      * @param[in] cloud2 TODO
+      * @return TODO
+      */
     static double matchClouds(
             const Cloud::ConstPtr& cloud1,
             const Cloud::ConstPtr& cloud2);

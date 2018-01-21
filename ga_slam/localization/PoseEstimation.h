@@ -38,50 +38,88 @@
 
 namespace ga_slam {
 
+/** TODO
+  */
 class PoseEstimation {
   public:
+    /// TODO
     PoseEstimation(void)
             : pose_(Pose::Identity()),
               resampleCounter_(0),
               particleFilter_() {}
 
+    /// TODO
     PoseEstimation(const PoseEstimation&) = delete;
     PoseEstimation& operator=(const PoseEstimation&) = delete;
     PoseEstimation(PoseEstimation&&) = delete;
     PoseEstimation& operator=(PoseEstimation&&) = delete;
 
+    /// TODO
     Pose getPose(void) const {
         std::lock_guard<std::mutex> guard(poseMutex_);
         return pose_;
     }
 
+    /// TODO
     std::mutex& getPoseMutex(void) { return poseMutex_; }
 
+    /** TODO
+      * @param[in] numParticles TODO
+      * @param[in] initialSigmaX TODO
+      * @param[in] initialSigmaY TODO
+      * @param[in] initialSigmaYaw TODO
+      * @param[in] predictSigmaX TODO
+      * @param[in] predictSigmaY TODO
+      * @param[in] predictSigmaYaw TODO
+      */
     void configure(
             int numParticles, int resampleFrequency,
             double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
             double predictSigmaX, double predictSigmaY, double predictSigmaYaw);
 
+    /** TODO
+      * @param[in] poseGuess TODO
+      */
     void predictPose(const Pose& poseGuess = Pose::Identity());
 
+    /** TODO
+      * @param[in] rawCloud TODO
+      * @param[in] mapCloud TODO
+      */
     void filterPose(
             const Cloud::ConstPtr& rawCloud,
             const Cloud::ConstPtr& mapCloud);
 
   protected:
+    /** TODO
+      * @param[in] translation TODO
+      * @param[in] angles TODO
+      * @return TODO
+      */
     static Pose createPose(
             const Eigen::Vector3d& translation,
             const Eigen::Vector3d& angles);
 
+    /** TODO
+      * @param[in] pose TODO
+      * @return TODO
+      */
     static Eigen::Vector3d getAnglesFromPose(const Pose& pose);
 
   protected:
+    /// TODO
     Pose pose_;
+
+    /// TODO
     mutable std::mutex poseMutex_;
 
+    /// TODO
     std::atomic<int> resampleCounter_;
+
+    /// TODO
     int resampleFrequency_;
 
+    /// TODO
     ParticleFilter particleFilter_;
 };
 

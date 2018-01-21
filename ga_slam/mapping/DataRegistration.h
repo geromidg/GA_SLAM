@@ -36,43 +36,72 @@
 
 namespace ga_slam {
 
+/** TODO
+  */
 class DataRegistration {
   public:
+    /// TODO
     DataRegistration(void) : map_() {}
 
+    /// TODO
     DataRegistration(const DataRegistration&) = delete;
     DataRegistration& operator=(const DataRegistration&) = delete;
     DataRegistration(DataRegistration&&) = delete;
     DataRegistration& operator=(DataRegistration&&) = delete;
 
+    /// TODO
     const Map& getMap(void) const { return map_; }
 
+    /// TODO
     std::mutex& getMapMutex(void) { return mapMutex_; }
 
+    /** TODO
+      * @param[in] mapLength TODO
+      * @param[in] mapResolution TODO
+      * @param[in] minElevation TODO
+      * @param[in] maxElevation TODO
+      */
     void configure(
             double mapLength,
             double mapResolution,
             double minElevation,
             double maxElevation);
 
+    /// TODO
     MapParameters getMapParameters(void) const {
         std::lock_guard<std::mutex> guard(mapMutex_);
         return map_.getParameters();
     }
 
+    /** TODO
+      * @param[in] estimatedPose TODO
+      */
     void translateMap(const Pose& estimatedPose);
 
+    /** TODO
+      * @param[in] cloud TODO
+      * @param[in] cloudVariances TODO
+      */
     void updateMap(
             const Cloud::ConstPtr& cloud,
             const std::vector<float>& cloudVariances);
 
   protected:
+    /** TODO
+      * @param[in/out] mean1 TODO
+      * @param[in/out] variance1 TODO
+      * @param[in] mean2 TODO
+      * @param[in] variance2 TODO
+      */
     static void fuseGaussians(
             float& mean1, float& variance1,
             const float& mean2, const float& variance2);
 
   protected:
+    /// TODO
     Map map_;
+
+    /// TODO
     mutable std::mutex mapMutex_;
 };
 

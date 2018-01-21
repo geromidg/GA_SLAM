@@ -37,71 +37,133 @@
 
 namespace ga_slam {
 
+/** TODO
+  */
 struct Particle {
+    /// TODO
     double x;
     double y;
     double yaw;
 
+    /// TODO
     double weight = 0.;
 };
 
+/** TODO
+  */
 class ParticleFilter {
   public:
+    /// TODO
     ParticleFilter(void) : weightsUpdated_(true) {}
 
+    /// TODO
     ParticleFilter(const ParticleFilter&) = delete;
     ParticleFilter& operator=(const ParticleFilter&) = delete;
     ParticleFilter(ParticleFilter&&) = delete;
     ParticleFilter& operator=(ParticleFilter&&) = delete;
 
+    /** TODO
+      * @param[in] numParticles TODO
+      * @param[in] initialSigmaX TODO
+      * @param[in] initialSigmaY TODO
+      * @param[in] initialSigmaYaw TODO
+      * @param[in] predictSigmaX TODO
+      * @param[in] predictSigmaY TODO
+      * @param[in] predictSigmaYaw TODO
+      */
     void configure(
             int numParticles,
             double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
             double predictSigmaX, double predictSigmaY, double predictSigmaYaw);
 
+    /** TODO
+      * @param[in] initialX TODO
+      * @param[in] initialY TODO
+      * @param[in] initialYaw TODO
+      */
     void initialize(
             double initialX = 0.,
             double initialY = 0.,
             double initialYaw = 0.);
 
+    /** TODO
+      * @param[in] deltaX TODO
+      * @param[in] deltaY TODO
+      * @param[in] deltaYaw TODO
+      */
     void predict(
             double deltaX,
             double deltaY,
             double deltaYaw);
 
+    /** TODO
+      * @param[in] lastPose TODO
+      * @param[in] rawCloud TODO
+      * @param[in] mapCloud TODO
+      */
     void update(
             const Pose& lastPose,
             const Cloud::ConstPtr& rawCloud,
             const Cloud::ConstPtr& mapCloud);
 
+    /** TODO
+      */
     void resample(void);
 
+    /** TODO
+      * @param[out] estimateX TODO
+      * @param[out] estimateY TODO
+      * @param[out] estimateYaw TODO
+      */
     void getEstimate(
             double& estimateX,
             double& estimateY,
             double& estimateYaw) const;
 
   protected:
+    /** TODO
+      * @param[in] mean TODO
+      * @param[in] sigma TODO
+      * @return TODO
+      */
     double sampleGaussian(double mean, double sigma);
 
+    /** TODO
+      * @return TODO
+      */
     Particle getBestParticle(void) const;
 
+    /** TODO
+      * @param[in] particle TODO
+      * @param[in] pose TODO
+      * @return TODO
+      */
     static Pose getDeltaPoseFromParticle(
             const Particle& particle,
             const Pose& pose);
 
   protected:
+    /// TODO
     std::vector<Particle> particles_;
+
+    /// TODO
     mutable std::mutex particlesMutex_;
 
+    /// TODO
     std::atomic<bool> weightsUpdated_;
 
+    /// TODO
     std::default_random_engine generator_;
 
+    /// TODO
     int numParticles_;
+
+    /// TODO
     double initialSigmaX_;
     double initialSigmaY_;
     double initialSigmaYaw_;
+
+    /// TODO
     double predictSigmaX_;
     double predictSigmaY_;
     double predictSigmaYaw_;

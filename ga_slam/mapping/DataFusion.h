@@ -25,18 +25,24 @@
 
 namespace ga_slam {
 
+/** TODO
+  */
 class DataFusion {
   public:
+    /// TODO
     DataFusion(void) {}
 
+    /// TODO
     DataFusion(const DataFusion&) = delete;
     DataFusion& operator=(const DataFusion&) = delete;
     DataFusion(DataFusion&&) = delete;
     DataFusion& operator=(DataFusion&&) = delete;
 
+    /// TODO
     const Map& getFusedMap(void) const { return fusedMap_; }
 
   protected:
+    /// TODO
     Map fusedMap_;
 };
 
