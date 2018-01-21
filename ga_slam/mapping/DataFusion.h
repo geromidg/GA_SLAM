@@ -25,24 +25,25 @@
 
 namespace ga_slam {
 
-/** TODO
+/** Module responsible for fusing the local map's data using different methods
+  * depending on the stage of the SLAM pipeline.
   */
 class DataFusion {
   public:
-    /// TODO
-    DataFusion(void) {}
+    /// Instantiates the fused map structure
+    DataFusion(void) : fusedMap_() {}
 
-    /// TODO
+    /// Delete the default copy/move constructors and operators
     DataFusion(const DataFusion&) = delete;
     DataFusion& operator=(const DataFusion&) = delete;
     DataFusion(DataFusion&&) = delete;
     DataFusion& operator=(DataFusion&&) = delete;
 
-    /// TODO
+    /// Returns the fused elevation map
     const Map& getFusedMap(void) const { return fusedMap_; }
 
   protected:
-    /// TODO
+    /// Fused elevation map with mean and variance values
     Map fusedMap_;
 };
 

@@ -31,34 +31,37 @@
 
 namespace ga_slam {
 
-/** TODO
+/** Contains a collection of helper function that are used to process an
+  * OpenCV image (mat) or convert it to different data types.
   */
 class ImageProcessing {
   public:
-    /// TODO
+    /// Delete the default constructor
     ImageProcessing(void) = delete;
 
-    /** TODO
-      * @param[in] map TODO
-      * @param[out] image TODO
+    /** Converts an elevation map to an image of float type
+      * @note nan values in the map (cells with no data) are converted to zero
+      * @param[in] map the elevation map to be converted
+      * @param[out] image the converted image
       */
     static void convertMapToImage(const Map& map, Image& image);
 
-    /** TODO
-      * @param[in] image TODO
-      * @param[in] windowName TODO
-      * @param[in] zoom TODO
+    /** Converts the zoom to width and height and calls the respective
+      * overloaded function
+      * @param[in] image the image to be displayed
+      * @param[in] windowName the name of the display window
+      * @param[in] zoom the zoom of the display
       */
     static void displayImage(
             const Image& image,
             const std::string& windowName = "Image Display",
             double zoom = 1.);
 
-    /** TODO
-      * @param[in] image TODO
-      * @param[in] windowName TODO
-      * @param[in] width TODO
-      * @param[in] height TODO
+    /** Normalizes and displays a float image using OpenCV's GUI
+      * @param[in] image the image to be displayed
+      * @param[in] windowName the name of the display window
+      * @param[in] width the width of the display window
+      * @param[in] height the height of the display window
       */
     static void displayImage(
             const Image& image,
@@ -66,12 +69,15 @@ class ImageProcessing {
             int width,
             int height);
 
-    /** TODO
-      * @param[in] inputImage TODO
-      * @param[out] outputImage TODO
-      * @param[in] useSobel TODO
-      * @param[in] sobelKernelSize TODO
-      * @param[in] approximate TODO
+    /** Computes the gradients of an image in the x and y axes using the
+      * Sobel or Scharr operators and then calculates the absolute or
+      * approximate magnitude
+      * @param[in] inputImage the input image
+      * @param[out] outputImage the gradient image
+      * @param[in] useSobel whether to use the Sobel or Scharr operator
+      * @param[in] sobelKernelSize the kernel size of the Sobel
+      * @param[in] approximate whether to approximate the magnitude using
+      *            weighted addition of the absolute gradients in x and y
       */
     static void calculateGradientImage(
             const Image& inputImage,
@@ -80,12 +86,13 @@ class ImageProcessing {
             int sobelKernelSize = 3,
             bool approximate = false);
 
-    /** TODO
-      * @param[in] inputImage TODO
-      * @param[out] outputImage TODO
-      * @param[in] laplacianKernelSize TODO
-      * @param[in] applyGaussianBlur TODO
-      * @param[in] gaussianKernelSize TODO
+    /** Calculates the laplacian of an image
+      * @param[in] inputImage the input image
+      * @param[out] outputImage the laplacian image
+      * @param[in] laplacianKernelSize the kernel size of the laplacian
+      * @param[in] applyGaussianBlur whether to apply guassian blur before the
+      *            laplacian calculation
+      * @param[in] gaussianKernelSize the kernel size of the laplacian
       */
     static void calculateLaplacianImage(
             const Image& inputImage,
@@ -94,15 +101,19 @@ class ImageProcessing {
             bool applyGaussianBlur = false,
             int gaussianKernelSize = 3);
 
-    /** TODO
-      * @param[in] originalImage TODO
-      * @param[in] templateImage TODO
-      * @param[out] matchedPosition TODO
-      * @param[in] matchAcceptanceThreshold TODO
-      * @param[in] matchImageGradients TODO
-      * @param[in] useCrossCorrelation TODO
-      * @param[in] displayImage TODO
-      * @return TODO
+    /** Find the best match given an original and a template image using
+      * template matching. The matching can be done using the images as they are
+      * or using their gradients
+      * @param[in] originalImage the original image (search space)
+      * @param[in] templateImage the image to be matched
+      * @param[out] matchedPosition the position of the match
+      * @param[in] matchAcceptanceThreshold the minimum score the matched
+      *            position must have, in order for the matching to be accepted
+      * @param[in] matchImageGradients whether to match the images' gradients
+      * @param[in] useCrossCorrelation whether to use the cross correlation
+      *            or the correlation coefficient method
+      * @param[in] displayImage whether to display the found match
+      * @return true if a match was found
       */
     static bool findBestMatch(
             const Image& originalImage,
@@ -113,12 +124,14 @@ class ImageProcessing {
             bool useCrossCorrelation = false,
             bool displayMatch = true);
 
-    /** TODO
-      * @param[in] originalImage TODO
-      * @param[in] templateImage TODO
-      * @param[in] resultImage TODO
-      * @param[in] matchedPosition TODO
-      * @param[in] zoom TODO
+    /** Displays result of the template matching by drawing rectangles at the
+      * matched position in the original and the result images
+      * @param[in] originalImage the original image (search space)
+      * @param[in] templateImage the template image that was matched
+      * @param[in] resultImage the image representing the normalized result of
+      *            the matching for each position
+      * @param[in] matchedPosition the position of the match
+      * @param[in] zoom the zoom to be applied to the image display
       */
     static void displayMatchedPosition(
             const Image& originalImage,
@@ -127,10 +140,11 @@ class ImageProcessing {
             const cv::Point2d& matchedPosition,
             double zoom = 4.);
 
-    /** TODO
-      * @param[out] imagePosition TODO
-      * @param[in] image TODO
-      * @param[in] mapResolution TODO
+    /** Converts a position from image coordinates (origin at top left) to
+      * map coordinates (origin at center)
+      * @param[in/out] imagePosition the position to be converted
+      * @param[in] image the image in which the position corresponds to
+      * @param[in] mapResolution the resolution of the map
       */
     static void convertPositionToMapCoordinates(
         cv::Point2d& imagePosition,

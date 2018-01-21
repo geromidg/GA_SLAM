@@ -36,36 +36,44 @@
 
 namespace ga_slam {
 
-/** TODO
+/** Module responsible for storing a pre-calculated row-resolution elevation
+  * global map and using it to correct the increasing drift of the localization.
   */
 class PoseCorrection {
   public:
-    /// TODO
+    /// Instantiates the global elevation map
     PoseCorrection(void)
         : globalMapInitialized_(false),
           globalMap_(),
           globalMapPose_(Pose::Identity()),
           lastCorrectedPose_(Pose::Identity()) {}
 
-    /// TODO
+    /// Delete the default copy/move constructors and operators
     PoseCorrection(const PoseCorrection&) = delete;
     PoseCorrection& operator=(const PoseCorrection&) = delete;
     PoseCorrection(PoseCorrection&&) = delete;
     PoseCorrection& operator=(PoseCorrection&&) = delete;
 
-    /// TODO
+    /// Returns the global elevation map
     const Map& getGlobalMap(void) const { return globalMap_; }
 
-    /// TODO
+    /// Returns the mutex protecting the map
     std::mutex& getGlobalMapMutex(void) { return globalMapMutex_; }
 
-    /** TODO
-      * @param[in] traversedDistanceThreshold TODO
-      * @param[in] minSlopeThreshold TODO
-      * @param[in] slopeSumThresholdMultiplier TODO
-      * @param[in] matchAcceptanceThreshold TODO
-      * @param[in] globalMapLength TODO
-      * @param[in] globalMapResolution TODO
+    /** Configures the global map and sets the module's parameters
+      * @param[in] traversedDistanceThreshold the distance the robot must
+      *            traverse before a new pose correction
+      * @param[in] minSlopeThreshold the minimum slope (in radians) a cell of
+      *            the map needs to have to be considered as elevation feature
+      * @param[in] slopeSumThresholdMultiplier the value divided by the
+      *            resolution of the map to produce the slope sum threshold,
+      *            which determines if the map has enough elevation features
+      * @param[in] matchAcceptanceThreshold the minimum score the matched
+      *            position from template matching must have, in order for the
+      *            matching to be accepted
+      * @param[in] globalMapLength the size of one dimension of the global map
+      * @param[in] globalMapResolution the resolution of the global map
+      *            in meters
       */
     void configure(
             double traversedDistanceThreshold,
@@ -75,31 +83,35 @@ class PoseCorrection {
             double globalMapLength,
             double globalMapResolution);
 
-    /** TODO
-      * @param[in] globalCloud TODO
-      * @param[in] globalCloudPose TODO
+    /** Creates the global map by registering the global point cloud and
+      * translating it to its corresponding pose
+      * @param[in] globalCloud the global point cloud to be registered
+      * @param[in] globalCloudPose the pose corresponding to the point cloud
       */
     void createGlobalMap(
             const Cloud::ConstPtr& globalCloud,
             const Pose& globalCloudPose);
 
-    /** TODO
-      * @param[in] pose TODO
-      * @return TODO
+    /** Checks if the robot has traversed enough distance before a new pose
+      * correction can be applied
+      * @param[in] pose the current robot's pose
+      * @return true if the criterion is fulfilled
       */
     bool distanceCriterionFulfilled(const Pose& pose) const;
 
-    /** TODO
-      * @param[in] localMap TODO
-      * @return TODO
+    /** Checks if the robot's current local elevation map has enough elevation
+      * features before a new pose correction can be applied
+      * @param[in] localMap the current robot's map
+      * @return true if the criterion is fulfilled
       */
     bool featureCriterionFulfilled(const Map& localMap) const;
 
-    /** TODO
-      * @param[in] localMap TODO
-      * @param[in] currentPose TODO
-      * @param[out] correctedPose TODO
-      * @return TODO
+    /** Matches the local and global maps and corrects the pose if a match
+      * is found
+      * @param[in] localMap the current robot's map to be matched
+      * @param[in] currentPose the current robot's pose
+      * @param[out] correctedPose the corrected robot's pose
+      * @return true if a match was found
       */
     bool matchMaps(
             const Map& localMap,
@@ -107,31 +119,32 @@ class PoseCorrection {
             Pose& correctedPose);
 
   protected:
-    /// TODO
+    /// Whether the global map has been initialized
     std::atomic<bool> globalMapInitialized_;
 
-    /// TODO
+    /// Global low-resolution elevation map
     Map globalMap_;
 
-    /// TODO
+    /// Mutex protecting the map
     mutable std::mutex globalMapMutex_;
 
-    /// TODO
+    /// Pose corresponding to the center of the global map
     Pose globalMapPose_;
 
-    /// TODO
+    /// Last pose when a correction happened
     Pose lastCorrectedPose_;
 
-    /// TODO
+    /// Distance the robot must traversed before a new correction is considered
     double traversedDistanceThreshold_;
 
-    /// TODO
+    /// Minimum slope a cell of the map needs to have to be considered a feature
     double minSlopeThreshold_;
 
-    /// TODO
+    /// Multiplier to adjust the slope threshold a map must reach before a
+    /// new correction is considered
     double slopeSumThresholdMultiplier_;
 
-    /// TODO
+    /// Minimum score in template matching a match must have to be accepted
     double matchAcceptanceThreshold_;
 };
 

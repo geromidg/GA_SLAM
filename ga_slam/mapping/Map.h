@@ -36,81 +36,81 @@ using GridMap = grid_map::GridMap;
 using Matrix = Eigen::MatrixXf;
 using Time = uint64_t;
 
-/** TODO
-  */
+/// Contains the map's parameters which are needed by other modules
 struct MapParameters {
-    /// TODO
+    /// Size of one dimension of the map in meters
     double length;
 
-    /// TODO
+    /// Size of one dimension of the map in number of cells
     double size;
 
-    /// TODO
+    /// Current position of the map in the world
     double positionX;
     double positionY;
 
-    /// TODO
+    /// Minimum and maximum elevation values the map can handle
     double minElevation;
     double maxElevation;
 
-    /// TODO
+    /// Resolution of each square cell of the map in meters
     double resolution;
 };
 
-/** TODO
+/** Wrapper for the GridMap class that extends its functionality in the
+  * context of the GA SLAM library.
   */
 class Map {
   public:
-    /// TODO
+    /// Initializes the GridMap instance by setting the map's layers
     Map(void);
 
-    /// TODO
+    /// Delete the default copy/move constructors and operators
     Map(const Map&) = delete;
     Map& operator=(const Map&) = delete;
     Map(Map&&) = delete;
     Map& operator=(Map&&) = delete;
 
-    /// TODO
+    /// Returns an iterator of the GridMap instance
     grid_map::GridMapIterator begin(void) const {
         return grid_map::GridMapIterator(gridMap_); }
 
-    /// TODO
+    /// Returns the GridMap instance
     const GridMap& getGridMap(void) const { return gridMap_; }
 
-    /// TODO
+    /// Validates or invalidates the map by setting the valid flag
     void setValid(bool valid) { valid_ = valid; }
 
-    /// TODO
+    /// Returns the valid flag
     bool isValid(void) const { return valid_; }
 
-    /// TODO
+    /// Return the constant matrix containing the mean elevation data layer
     const Matrix& getMeanZ(void) const { return gridMap_.get(layerMeanZ_); }
 
-    /// TODO
+    /// Return the matrix containing the mean elevation data layer
     Matrix& getMeanZ(void) { return gridMap_.get(layerMeanZ_); }
 
-    /// TODO
+    /// Return the constant matrix containing the variance elevation data layer
     const Matrix& getVarianceZ(void) const {
         return gridMap_.get(layerVarianceZ_); }
 
-    /// TODO
+    /// Return the matrix containing the variance elevation data layer
     Matrix& getVarianceZ(void) {
         return gridMap_.get(layerVarianceZ_); }
 
-    /// TODO
+    /// Returns the timestamp of the map
     Time getTimestamp(void) const { return gridMap_.getTimestamp(); }
 
-    /// TODO
+    /// Sets the timestamp of the map
     void setTimestamp(const Time& time) { gridMap_.setTimestamp(time); }
 
-    /// TODO
+    /// Clears the values of all cells of the mean and variances layers
     void clear(void) { gridMap_.clearBasic(); }
 
-    /** TODO
-      * @param[in] length TODO
-      * @param[in] resolution TODO
-      * @param[in] minElevation TODO
-      * @param[in] maxElevation TODO
+    /** Configures the initial GridMap instance
+      * @param[in] length the length of the GridMap
+      * @param[in] resolution the resolution of the GridMap
+      * @param[in] minElevation the minimum elevation value
+      * @param[in] maxElevation the maximum elevation value
       */
     void setParameters(
             double length,
@@ -118,50 +118,51 @@ class Map {
             double minElevation = -std::numeric_limits<double>::max(),
             double maxElevation = std::numeric_limits<double>::max());
 
-    /** TODO
-      * @return TODO
-      */
+    /// Returns the structure containing the map's parameters
     MapParameters getParameters(void) const;
 
-    /** TODO
-      * @param[in] positionX TODO
-      * @param[in] positionY TODO
-      * @param[out] index TODO
-      * @return TODO
+    /** Finds the map's linear index that corresponds to a specific position
+      * @param[in] positionX the x coordinate of the position
+      * @param[in] positionY the y coordinate of the position
+      * @param[out] index the linear index matching to the position
+      * @return true if the index was found
       */
     bool getIndexFromPosition(
             double positionX,
             double positionY,
             size_t& index) const;
 
-    /** TODO
-      * @param[in] arrayIndex TODO
-      * @param[in] layerData TODO
-      * @param[out] point TODO
+    /** Finds the 3D point that corresponds to the map's array (2D) index
+      * @param[in] arrayIndex the array index of the point
+      * @param[in] layerData the layer's data matrix
+      * @param[out] point the 3D point corresponding to the array index
       */
     void getPointFromArrayIndex(
             const grid_map::Index& arrayIndex,
             const Matrix& layerData,
             Eigen::Vector3d& point) const;
 
-    /** TODO
-      * @param[in] translation TODO
-      * @param[in] moveData TODO
+    /** Translates the map by either emptying the cells that fall out of the
+      * map using a two-dimensional circular buffer or by simply updating the
+      * position of the map in the world frame and keeping the data as it is
+      * @param[in] translation the translation to be applied to the map
+      * @param[in] moveData whether to move and keep the data or empty the
+      *            cells that fall out of the map
       */
     void translate(const Eigen::Vector3d& translation, bool moveData = false);
 
   protected:
-    /// TODO
+    /// Instance of the wrapped GridMap class
     GridMap gridMap_;
 
-    /// TODO
+    /// Whether the map is valid
     bool valid_;
 
-    /// TODO
+    /// Minimum and maximum elevation values the map can hold
     double minElevation_;
     double maxElevation_;
 
-    /// TODO
+    /// Names of the map's data layers for the mean and variance elevation
     static constexpr const char* layerMeanZ_ = "meanZ";
     static constexpr const char* layerVarianceZ_ = "varZ";
 };

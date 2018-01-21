@@ -38,88 +38,94 @@
 
 namespace ga_slam {
 
-/** TODO
+/** Module responsible for maintaining the robot's 6-DoF pose in space.
+  * The asynchronous inputs, delta pose from odometry and point clouds from
+  * sensors, are handled and passed to the particle filter.
   */
 class PoseEstimation {
   public:
-    /// TODO
+    /// Instantiates the particle filter
     PoseEstimation(void)
             : pose_(Pose::Identity()),
               resampleCounter_(0),
               particleFilter_() {}
 
-    /// TODO
+    /// Delete the default copy/move constructors and operators
     PoseEstimation(const PoseEstimation&) = delete;
     PoseEstimation& operator=(const PoseEstimation&) = delete;
     PoseEstimation(PoseEstimation&&) = delete;
     PoseEstimation& operator=(PoseEstimation&&) = delete;
 
-    /// TODO
+    /// Returns the robot's estimated pose
     Pose getPose(void) const {
         std::lock_guard<std::mutex> guard(poseMutex_);
         return pose_;
     }
 
-    /// TODO
+    /// Returns the mutex protecting the pose
     std::mutex& getPoseMutex(void) { return poseMutex_; }
 
-    /** TODO
-      * @param[in] numParticles TODO
-      * @param[in] initialSigmaX TODO
-      * @param[in] initialSigmaY TODO
-      * @param[in] initialSigmaYaw TODO
-      * @param[in] predictSigmaX TODO
-      * @param[in] predictSigmaY TODO
-      * @param[in] predictSigmaYaw TODO
+    /** Configures the particle filter by passing the parameters
+      * @param[in] numParticles number of particles used
+      * @param[in] resampleFrequency number of iterations of the particle filter
+      *            before resampling
+      * @param[in] initialSigmaX gaussian sigma of x for particle initialization
+      * @param[in] initialSigmaY gaussian sigma of y for particle initialization
+      * @param[in] initialSigmaYaw gaussian sigma of yaw for particle
+      *            initialization
+      * @param[in] predictSigmaX gaussian sigma of x for particle prediction
+      * @param[in] predictSigmaY gaussian sigma of y for particle prediction
+      * @param[in] predictSigmaYaw gaussian sigma of yaw for particle prediction
       */
     void configure(
             int numParticles, int resampleFrequency,
             double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
             double predictSigmaX, double predictSigmaY, double predictSigmaYaw);
 
-    /** TODO
-      * @param[in] poseGuess TODO
+    /** Passes the input delta pose from odometry to the particle filter to
+      * predict the particles' state and then gets the new estimate.
+      * @param[in] poseGuess the input delta pose from odometry
       */
     void predictPose(const Pose& poseGuess = Pose::Identity());
 
-    /** TODO
-      * @param[in] rawCloud TODO
-      * @param[in] mapCloud TODO
+    /** Calls the update and resample steps of the particle filter
+      * @param[in] rawCloud the raw point cloud used in the update step
+      * @param[in] mapCloud the map point cloud used in the update step
       */
     void filterPose(
             const Cloud::ConstPtr& rawCloud,
             const Cloud::ConstPtr& mapCloud);
 
   protected:
-    /** TODO
-      * @param[in] translation TODO
-      * @param[in] angles TODO
-      * @return TODO
+    /** Creates a pose given the translation and angle vectors
+      * @param[in] translation the translation of the pose
+      * @param[in] angles the euler angles of the pose
+      * @return the created pose
       */
     static Pose createPose(
             const Eigen::Vector3d& translation,
             const Eigen::Vector3d& angles);
 
-    /** TODO
-      * @param[in] pose TODO
-      * @return TODO
+    /** Calculates the euler angles from a pose
+      * @param[in] pose the input pose
+      * @return the euler angles of the pose
       */
     static Eigen::Vector3d getAnglesFromPose(const Pose& pose);
 
   protected:
-    /// TODO
+    /// Robot's 6-DoF pose in the continuous space
     Pose pose_;
 
-    /// TODO
+    /// Mutex protecting the pose
     mutable std::mutex poseMutex_;
 
-    /// TODO
+    /// Number of iterations of the particle filter without having resampled
     std::atomic<int> resampleCounter_;
 
-    /// TODO
+    /// Number of iterations of the particle filter before resampling
     int resampleFrequency_;
 
-    /// TODO
+    /// Instance of the particle filter
     ParticleFilter particleFilter_;
 };
 
