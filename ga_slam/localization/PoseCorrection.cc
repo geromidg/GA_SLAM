@@ -1,9 +1,9 @@
-#include "ga_slam/localization/PoseCorrection.hpp"
+#include "ga_slam/localization/PoseCorrection.h"
 
 // GA SLAM
-#include "ga_slam/TypeDefs.hpp"
-#include "ga_slam/mapping/Map.hpp"
-#include "ga_slam/processing/ImageProcessing.hpp"
+#include "ga_slam/TypeDefs.h"
+#include "ga_slam/mapping/Map.h"
+#include "ga_slam/processing/ImageProcessing.h"
 
 // Eigen
 #include <Eigen/Core>

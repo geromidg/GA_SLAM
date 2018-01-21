@@ -1,8 +1,8 @@
 #pragma once
 
 // GA SLAM
-#include "ga_slam/TypeDefs.hpp"
-#include "ga_slam/mapping/Map.hpp"
+#include "ga_slam/TypeDefs.h"
+#include "ga_slam/mapping/Map.h"
 
 // OpenCV
 #include <opencv2/core/core.hpp>

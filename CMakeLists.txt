@@ -40,15 +40,15 @@ include_directories(
 )
 
 add_library(${TARGET_NAME} SHARED
-    ${CMAKE_SOURCE_DIR}/GaSlam.cpp
-    ${CMAKE_SOURCE_DIR}/localization/ParticleFilter.cpp
-    ${CMAKE_SOURCE_DIR}/localization/PoseEstimation.cpp
-    ${CMAKE_SOURCE_DIR}/localization/PoseCorrection.cpp
-    ${CMAKE_SOURCE_DIR}/mapping/Map.cpp
-    ${CMAKE_SOURCE_DIR}/mapping/DataRegistration.cpp
-    ${CMAKE_SOURCE_DIR}/mapping/DataFusion.cpp
-    ${CMAKE_SOURCE_DIR}/processing/CloudProcessing.cpp
-    ${CMAKE_SOURCE_DIR}/processing/ImageProcessing.cpp
+    ${CMAKE_SOURCE_DIR}/GaSlam.cc
+    ${CMAKE_SOURCE_DIR}/localization/ParticleFilter.cc
+    ${CMAKE_SOURCE_DIR}/localization/PoseEstimation.cc
+    ${CMAKE_SOURCE_DIR}/localization/PoseCorrection.cc
+    ${CMAKE_SOURCE_DIR}/mapping/Map.cc
+    ${CMAKE_SOURCE_DIR}/mapping/DataRegistration.cc
+    ${CMAKE_SOURCE_DIR}/mapping/DataFusion.cc
+    ${CMAKE_SOURCE_DIR}/processing/CloudProcessing.cc
+    ${CMAKE_SOURCE_DIR}/processing/ImageProcessing.cc
 )
 
 target_link_libraries(${TARGET_NAME}
@@ -81,18 +81,18 @@ install(
 install(
     DIRECTORY ${CMAKE_INCLUDE_DIR}/${TARGET_NAME}
     DESTINATION include
-    FILES_MATCHING PATTERN "*.hpp"
+    FILES_MATCHING PATTERN "*.h"
 )
 
 ###############
 ### Testing ###
 ###############
-add_executable(GaSlamTest ${CMAKE_SOURCE_DIR}/GaSlamTest.cpp)
+add_executable(GaSlamTest ${CMAKE_SOURCE_DIR}/GaSlamTest.cc)
 target_link_libraries(GaSlamTest ${TARGET_NAME} ${GTEST_BOTH_LIBRARIES})
 add_test(GaSlamTest GaSlamTest)
 
 add_executable(ParticleFilterTest
-    ${CMAKE_SOURCE_DIR}/localization/ParticleFilterTest.cpp)
+    ${CMAKE_SOURCE_DIR}/localization/ParticleFilterTest.cc)
 target_link_libraries(ParticleFilterTest ${TARGET_NAME} ${GTEST_BOTH_LIBRARIES})
 add_test(ParticleFilterTest ParticleFilterTest)
 

@@ -1,12 +1,12 @@
 #pragma once
 
 // GA SLAM
-#include "ga_slam/TypeDefs.hpp"
-#include "ga_slam/mapping/Map.hpp"
-#include "ga_slam/mapping/DataRegistration.hpp"
-#include "ga_slam/mapping/DataFusion.hpp"
-#include "ga_slam/localization/PoseEstimation.hpp"
-#include "ga_slam/localization/PoseCorrection.hpp"
+#include "ga_slam/TypeDefs.h"
+#include "ga_slam/mapping/Map.h"
+#include "ga_slam/mapping/DataRegistration.h"
+#include "ga_slam/mapping/DataFusion.h"
+#include "ga_slam/localization/PoseEstimation.h"
+#include "ga_slam/localization/PoseCorrection.h"
 
 // Eigen
 #include <Eigen/Geometry>

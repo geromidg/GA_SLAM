@@ -1,6 +1,6 @@
 // GA SLAM
-#include "ga_slam/TypeDefs.hpp"
-#include "ga_slam/GaSlam.hpp"
+#include "ga_slam/TypeDefs.h"
+#include "ga_slam/GaSlam.h"
 
 // GTest
 #include "gtest/gtest.h"

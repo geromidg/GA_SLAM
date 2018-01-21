@@ -1,4 +1,4 @@
-#include "ga_slam/mapping/DataFusion.hpp"
+#include "ga_slam/mapping/DataFusion.h"
 
 namespace ga_slam {
 

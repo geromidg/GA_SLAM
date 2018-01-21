@@ -1,7 +1,7 @@
 #pragma once
 
 // GA SLAM
-#include "ga_slam/TypeDefs.hpp"
+#include "ga_slam/TypeDefs.h"
 
 // Eigen
 #include <Eigen/Geometry>

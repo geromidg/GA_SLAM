@@ -1,8 +1,8 @@
 #pragma once
 
 // GA SLAM
-#include "ga_slam/TypeDefs.hpp"
-#include "ga_slam/localization/ParticleFilter.hpp"
+#include "ga_slam/TypeDefs.h"
+#include "ga_slam/localization/ParticleFilter.h"
 
 // Eigen
 #include <Eigen/Core>

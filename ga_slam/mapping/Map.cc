@@ -1,4 +1,4 @@
-#include "ga_slam/mapping/Map.hpp"
+#include "ga_slam/mapping/Map.h"
 
 // Grid Map
 #include "grid_map_core/TypeDefs.hpp"

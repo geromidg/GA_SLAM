@@ -1,8 +1,8 @@
-#include "ga_slam/localization/ParticleFilter.hpp"
+#include "ga_slam/localization/ParticleFilter.h"
 
 // GA SLAM
-#include "ga_slam/TypeDefs.hpp"
-#include "ga_slam/processing/CloudProcessing.hpp"
+#include "ga_slam/TypeDefs.h"
+#include "ga_slam/processing/CloudProcessing.h"
 
 // Eigen
 #include <Eigen/Core>
