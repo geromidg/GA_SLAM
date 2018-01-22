@@ -1,3 +1,20 @@
+# This file is part of GA SLAM.
+# Copyright (C) 2018 Dimitris Geromichalos,
+# Planetary Robotics Lab (PRL), European Space Agency (ESA)
+#
+# GA SLAM is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# GA SLAM is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GA SLAM. If not, see <http://www.gnu.org/licenses/>.
+
 ###############
 ### General ###
 ###############
@@ -40,15 +57,15 @@ include_directories(
 )
 
 add_library(${TARGET_NAME} SHARED
-    ${CMAKE_SOURCE_DIR}/GaSlam.cpp
-    ${CMAKE_SOURCE_DIR}/localization/ParticleFilter.cpp
-    ${CMAKE_SOURCE_DIR}/localization/PoseEstimation.cpp
-    ${CMAKE_SOURCE_DIR}/localization/PoseCorrection.cpp
-    ${CMAKE_SOURCE_DIR}/mapping/Map.cpp
-    ${CMAKE_SOURCE_DIR}/mapping/DataRegistration.cpp
-    ${CMAKE_SOURCE_DIR}/mapping/DataFusion.cpp
-    ${CMAKE_SOURCE_DIR}/processing/CloudProcessing.cpp
-    ${CMAKE_SOURCE_DIR}/processing/ImageProcessing.cpp
+    ${CMAKE_SOURCE_DIR}/GaSlam.cc
+    ${CMAKE_SOURCE_DIR}/localization/ParticleFilter.cc
+    ${CMAKE_SOURCE_DIR}/localization/PoseEstimation.cc
+    ${CMAKE_SOURCE_DIR}/localization/PoseCorrection.cc
+    ${CMAKE_SOURCE_DIR}/mapping/Map.cc
+    ${CMAKE_SOURCE_DIR}/mapping/DataRegistration.cc
+    ${CMAKE_SOURCE_DIR}/mapping/DataFusion.cc
+    ${CMAKE_SOURCE_DIR}/processing/CloudProcessing.cc
+    ${CMAKE_SOURCE_DIR}/processing/ImageProcessing.cc
 )
 
 target_link_libraries(${TARGET_NAME}
@@ -81,18 +98,18 @@ install(
 install(
     DIRECTORY ${CMAKE_INCLUDE_DIR}/${TARGET_NAME}
     DESTINATION include
-    FILES_MATCHING PATTERN "*.hpp"
+    FILES_MATCHING PATTERN "*.h"
 )
 
 ###############
 ### Testing ###
 ###############
-add_executable(GaSlamTest ${CMAKE_SOURCE_DIR}/GaSlamTest.cpp)
+add_executable(GaSlamTest ${CMAKE_SOURCE_DIR}/GaSlamTest.cc)
 target_link_libraries(GaSlamTest ${TARGET_NAME} ${GTEST_BOTH_LIBRARIES})
 add_test(GaSlamTest GaSlamTest)
 
 add_executable(ParticleFilterTest
-    ${CMAKE_SOURCE_DIR}/localization/ParticleFilterTest.cpp)
+    ${CMAKE_SOURCE_DIR}/localization/ParticleFilterTest.cc)
 target_link_libraries(ParticleFilterTest ${TARGET_NAME} ${GTEST_BOTH_LIBRARIES})
 add_test(ParticleFilterTest ParticleFilterTest)
 
