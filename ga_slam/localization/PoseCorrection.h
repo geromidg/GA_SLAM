@@ -110,13 +110,13 @@ class PoseCorrection {
       * is found
       * @param[in] localMap the current robot's map to be matched
       * @param[in] currentPose the current robot's pose
-      * @param[out] correctedPose the corrected robot's pose
+      * @param[out] correctionDeltaPose the delta needed to correct the pose
       * @return true if a match was found
       */
     bool matchMaps(
             const Map& localMap,
             const Pose& currentPose,
-            Pose& correctedPose);
+            Pose& correctionDeltaPose);
 
   protected:
     /// Whether the global map has been initialized

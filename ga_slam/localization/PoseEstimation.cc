@@ -51,13 +51,13 @@ void PoseEstimation::configure(
     resampleFrequency_ = resampleFrequency;
 }
 
-void PoseEstimation::predictPose(const Pose& odometryDeltaPose) {
-    const double deltaX = odometryDeltaPose.translation().x();
-    const double deltaY = odometryDeltaPose.translation().y();
-    const double deltaYaw = getAnglesFromPose(odometryDeltaPose).z();
+void PoseEstimation::predictPose(const Pose& deltaPose) {
+    const double deltaX = deltaPose.translation().x();
+    const double deltaY = deltaPose.translation().y();
+    const double deltaYaw = getAnglesFromPose(deltaPose).z();
     particleFilter_.predict(deltaX, deltaY, deltaYaw);
 
-    Pose initialPoseEstimate = pose_ * odometryDeltaPose;
+    Pose initialPoseEstimate = pose_ * deltaPose;
     Eigen::Vector3d translation = initialPoseEstimate.translation();
     Eigen::Vector3d angles = getAnglesFromPose(initialPoseEstimate);
     particleFilter_.getEstimate(translation(0), translation(1), angles(2));

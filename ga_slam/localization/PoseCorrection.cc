@@ -126,7 +126,7 @@ bool PoseCorrection::featureCriterionFulfilled(const Map& localMap) const {
 bool PoseCorrection::matchMaps(
         const Map& localMap,
         const Pose& currentPose,
-        Pose& correctedPose) {
+        Pose& correctionDeltaPose) {
     if (!globalMapInitialized_) return false;
 
     Image localImage, globalImage;
@@ -150,14 +150,13 @@ bool PoseCorrection::matchMaps(
         ImageProcessing::convertPositionToMapCoordinates(matchedPosition,
                 globalImage, globalMapResolution);
 
-        const auto newX = globalMapPose_.translation().x() + matchedPosition.x;
-        const auto newY = globalMapPose_.translation().y() + matchedPosition.y;
-        const auto currentZ = currentPose.translation().z();
+        const Eigen::Vector2d mapXY = globalMapPose_.translation().head(2);
+        const Eigen::Vector2d currentXY = currentPose.translation().head(2);
+        correctionDeltaPose = Eigen::Translation3d(
+                mapXY.x() + matchedPosition.x - currentXY.x(),
+                mapXY.y() + matchedPosition.y - currentXY.y(), 0.);
 
-        correctedPose = currentPose;
-        correctedPose.translation() = Eigen::Vector3d(newX, newY, currentZ);
-
-        lastCorrectedPose_ = correctedPose;
+        lastCorrectedPose_ = currentPose * correctionDeltaPose;
     }
 
     return matchFound;

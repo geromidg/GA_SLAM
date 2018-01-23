@@ -119,12 +119,12 @@ void GaSlam::matchLocalMapToGlobalMap(void) {
     const auto& map = dataRegistration_.getMap();
     if (!poseCorrection_.featureCriterionFulfilled(map)) return;
 
-    Pose correctedPose;
+    Pose correctionDeltaPose;
     const bool matchFound = poseCorrection_.matchMaps(map, currentPose,
-            correctedPose);
+            correctionDeltaPose);
     guard.unlock();
 
-    if (matchFound) poseEstimation_.predictPose(correctedPose);
+    if (matchFound) poseEstimation_.predictPose(correctionDeltaPose);
 }
 
 void GaSlam::createGlobalMap(

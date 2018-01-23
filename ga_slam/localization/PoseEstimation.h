@@ -56,7 +56,7 @@ class PoseEstimation {
     PoseEstimation(PoseEstimation&&) = delete;
     PoseEstimation& operator=(PoseEstimation&&) = delete;
 
-    /// Returns the robot's estimated pose
+    /// Returns the robot's estimated pose in the ground frame
     Pose getPose(void) const {
         std::lock_guard<std::mutex> guard(poseMutex_);
         return pose_ * bodyToGroundTF_;
@@ -84,11 +84,11 @@ class PoseEstimation {
             double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
             double predictSigmaX, double predictSigmaY, double predictSigmaYaw);
 
-    /** Passes the input delta pose from odometry to the particle filter to
-      * predict the particles' state and then gets the new estimate.
-      * @param[in] odometryDeltaPose the input delta pose from odometry
+    /** Passes the input delta pose to the particle filter to predict the
+      * particles' state and then gets the new estimate.
+      * @param[in] deltaPose the input delta pose used for prediction
       */
-    void predictPose(const Pose& odometryDeltaPose);
+    void predictPose(const Pose& deltaPose);
 
     /** Calls the update and resample steps of the particle filter
       * @param[in] rawCloud the raw point cloud used in the update step
