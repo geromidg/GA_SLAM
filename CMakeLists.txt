@@ -23,8 +23,8 @@ cmake_minimum_required(VERSION 3.5.1)  # Ubuntu 16.04 (Xenial)
 project(ga_slam)
 
 set(TARGET_NAME ${PROJECT_NAME})
-set(CMAKE_INCLUDE_DIR ${CMAKE_SOURCE_DIR})
-set(CMAKE_SOURCE_DIR ${CMAKE_SOURCE_DIR}/${TARGET_NAME}/)
+set(CMAKE_INCLUDE_DIR ${PROJECT_SOURCE_DIR})
+set(CMAKE_SOURCE_DIR ${PROJECT_SOURCE_DIR}/${TARGET_NAME})
 
 set(CMAKE_BUILD_TYPE RelWithDebInfo)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -g -DNDEBUG")
@@ -78,7 +78,7 @@ target_link_libraries(${TARGET_NAME}
 ### Pkg Config ###
 ##################
 configure_file(
-    ${TARGET_NAME}.pc.in
+    ${PROJECT_SOURCE_DIR}/cmake/${TARGET_NAME}.pc.in
     ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}.pc @ONLY
 )
 
