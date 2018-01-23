@@ -34,6 +34,7 @@
 // STL
 #include <vector>
 #include <mutex>
+#include <cmath>
 
 namespace ga_slam {
 
@@ -102,9 +103,9 @@ Pose PoseEstimation::createPose(
 }
 
 Eigen::Vector3d PoseEstimation::getAnglesFromPose(const Pose& pose) {
-    double roll = pose.linear().eulerAngles(2, 1, 0)[2];
-    double pitch = pose.linear().eulerAngles(2, 1, 0)[1];
-    double yaw = pose.linear().eulerAngles(2, 1, 0)[0];
+    double roll = atan2(pose(2, 1), pose(2, 2));
+    double pitch = asin(-pose(2, 0));
+    double yaw = atan2(pose(1, 0), pose(0, 0));
 
     return Eigen::Vector3d(roll, pitch, yaw);
 }
