@@ -22,9 +22,11 @@ cmake_minimum_required(VERSION 3.5.1)  # Ubuntu 16.04 (Xenial)
 
 project(ga_slam)
 
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+
 set(TARGET_NAME ${PROJECT_NAME})
-set(CMAKE_INCLUDE_DIR ${CMAKE_SOURCE_DIR})
-set(CMAKE_SOURCE_DIR ${CMAKE_SOURCE_DIR}/${TARGET_NAME}/)
+set(CMAKE_INCLUDE_DIR ${PROJECT_SOURCE_DIR})
+set(CMAKE_SOURCE_DIR ${PROJECT_SOURCE_DIR}/${TARGET_NAME})
 
 set(CMAKE_BUILD_TYPE RelWithDebInfo)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -g -DNDEBUG")
@@ -33,16 +35,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
-enable_testing()
-
 ####################
 ### Dependencies ###
 ####################
-find_package(grid_map_core REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(PCL 1.7 REQUIRED)
 find_package(OpenCV 2.4 REQUIRED)
-find_package(GTest REQUIRED)
+find_package(grid_map_core REQUIRED)
 
 #############
 ### Build ###
@@ -53,7 +52,6 @@ include_directories(
     ${EIGEN3_INCLUDE_DIRS}
     ${PCL_INCLUDE_DIRS}
     ${OpenCV_INCLUDE_DIRS}
-    ${GTEST_INCLUDE_DIRS}
 )
 
 add_library(${TARGET_NAME} SHARED
@@ -78,7 +76,7 @@ target_link_libraries(${TARGET_NAME}
 ### Pkg Config ###
 ##################
 configure_file(
-    ${TARGET_NAME}.pc.in
+    ${PROJECT_SOURCE_DIR}/cmake/${TARGET_NAME}.pc.in
     ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}.pc @ONLY
 )
 
@@ -104,12 +102,6 @@ install(
 ###############
 ### Testing ###
 ###############
-add_executable(GaSlamTest ${CMAKE_SOURCE_DIR}/GaSlamTest.cc)
-target_link_libraries(GaSlamTest ${TARGET_NAME} ${GTEST_BOTH_LIBRARIES})
-add_test(GaSlamTest GaSlamTest)
-
-add_executable(ParticleFilterTest
-    ${CMAKE_SOURCE_DIR}/localization/ParticleFilterTest.cc)
-target_link_libraries(ParticleFilterTest ${TARGET_NAME} ${GTEST_BOTH_LIBRARIES})
-add_test(ParticleFilterTest ParticleFilterTest)
+enable_testing()
+add_subdirectory(test)
 

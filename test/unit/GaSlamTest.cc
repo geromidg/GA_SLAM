@@ -18,26 +18,28 @@
  */
 
 // GA SLAM
-#include "ga_slam/localization/ParticleFilter.h"
+#include "ga_slam/TypeDefs.h"
+#include "ga_slam/GaSlam.h"
 
-// GTest
-#include "gtest/gtest.h"
+// Eigen
+#include <Eigen/Geometry>
+
+// GMock
+#include "gmock/gmock.h"
 
 namespace ga_slam {
 
-TEST(ParticleFilterTest, Initialization) {
-    ParticleFilter particleFilter;
-    particleFilter.configure(1, 0., 0., 0., 0., 0., 0.);
+TEST(GaSlamTest, MapParameters) {
+    GaSlam gaSlam;
 
-    double initialX = 1.52, initialY = 2.72, initialYaw = 3.14;
-    particleFilter.initialize(initialX, initialY, initialYaw);
+    const double mapResolution = 3.14;
+    gaSlam.configure(1., mapResolution, 1., 1., 1., 1, 1, 1., 1., 1., 1.,
+            1., 1., 1., 1., 1., 1., 1., 1., Pose::Identity());
 
-    double estimateX = 1.52, estimateY = 2.72, estimateYaw = 3.14;
-    particleFilter.getEstimate(estimateX, estimateY, estimateYaw);
+    const auto& map = gaSlam.getRawMap();
+    const auto mapParameters = map.getParameters();
 
-    ASSERT_EQ(estimateX, initialX);
-    ASSERT_EQ(estimateY, initialY);
-    ASSERT_EQ(estimateYaw, initialYaw);
+    ASSERT_EQ(mapParameters.resolution, mapResolution);
 }
 
 } // namespace ga_slam
