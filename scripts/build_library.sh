@@ -20,13 +20,15 @@
 set -o errexit
 set -o verbose
 
-CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:/opt/ros/kinetic
-CTEST_OUTPUT_ON_FAILURE=1
+export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:/opt/ros/kinetic
+export CTEST_OUTPUT_ON_FAILURE=1
 
 cd ga_slam
-mkdir build && cd build
+mkdir build
+cd build
 
 cmake ..
-make && make test
+make
+make test
 sudo make install
 

@@ -17,11 +17,14 @@
 
 FROM ubuntu:xenial
 
-RUN apt-get update && apt-get install -y sudo && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y sudo
+RUN rm -rf /var/lib/apt/lists/*
 
-COPY install_dependencies.sh ga_slam/
-RUN ga_slam/install_dependencies.sh && rm -rf /var/lib/apt/lists/*
+COPY scripts/install_dependencies.sh ga_slam/scripts/
+RUN ga_slam/scripts/install_dependencies.sh
+RUN rm -rf /var/lib/apt/lists/*
 
 COPY . ga_slam
-RUN ga_slam/install_ga_slam.sh && rm -rf ga_slam
+RUN ga_slam/scripts/build_library.sh
+RUN rm -rf ga_slam
 
