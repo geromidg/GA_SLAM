@@ -20,8 +20,8 @@
 // GA SLAM
 #include "ga_slam/localization/ParticleFilter.h"
 
-// GTest
-#include "gtest/gtest.h"
+// GMock
+#include "gmock/gmock.h"
 
 namespace ga_slam {
 

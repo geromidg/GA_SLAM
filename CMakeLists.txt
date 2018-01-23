@@ -22,6 +22,8 @@ cmake_minimum_required(VERSION 3.5.1)  # Ubuntu 16.04 (Xenial)
 
 project(ga_slam)
 
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+
 set(TARGET_NAME ${PROJECT_NAME})
 set(CMAKE_INCLUDE_DIR ${PROJECT_SOURCE_DIR})
 set(CMAKE_SOURCE_DIR ${PROJECT_SOURCE_DIR}/${TARGET_NAME})
@@ -36,11 +38,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 ####################
 ### Dependencies ###
 ####################
-find_package(grid_map_core REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(PCL 1.7 REQUIRED)
 find_package(OpenCV 2.4 REQUIRED)
-find_package(GTest REQUIRED)
+find_package(grid_map_core REQUIRED)
 
 #############
 ### Build ###
@@ -51,7 +52,6 @@ include_directories(
     ${EIGEN3_INCLUDE_DIRS}
     ${PCL_INCLUDE_DIRS}
     ${OpenCV_INCLUDE_DIRS}
-    ${GTEST_INCLUDE_DIRS}
 )
 
 add_library(${TARGET_NAME} SHARED

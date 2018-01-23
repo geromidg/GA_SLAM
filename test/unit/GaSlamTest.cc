@@ -24,8 +24,8 @@
 // Eigen
 #include <Eigen/Geometry>
 
-// GTest
-#include "gtest/gtest.h"
+// GMock
+#include "gmock/gmock.h"
 
 namespace ga_slam {
 

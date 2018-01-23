@@ -15,13 +15,22 @@
 # You should have received a copy of the GNU General Public License
 # along with GA SLAM. If not, see <http://www.gnu.org/licenses/>.
 
-find_package(GMock REQUIRED)
+list(APPEND GMOCK_CHECK_SOURCES
+    src/gmock.cc
+)
 
-add_executable(GaSlamTest unit/GaSlamTest.cc)
-target_link_libraries(GaSlamTest ${TARGET_NAME} ${GMOCK_LIBRARIES})
-add_test(GaSlamTest GaSlamTest)
+list(APPEND GMOCK_CHECK_SOURCE_DIRS
+    /usr/src/gmock
+    /usr/src/googletest/googlemock
+)
 
-add_executable(ParticleFilterTest unit/ParticleFilterTest.cc)
-target_link_libraries(ParticleFilterTest ${TARGET_NAME} ${GMOCK_LIBRARIES})
-add_test(ParticleFilterTest ParticleFilterTest)
+find_path(GMOCK_SOURCE_DIR
+    NAMES ${GMOCK_CHECK_SOURCES}
+    PATHS ${GMOCK_CHECK_SOURCE_DIRS}
+)
+
+if (GMOCK_SOURCE_DIR)
+    add_subdirectory(${GMOCK_SOURCE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/gmock")
+    set(GMOCK_LIBRARIES gmock_main)
+endif()
 
