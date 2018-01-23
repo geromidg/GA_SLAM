@@ -1,0 +1,7 @@
+**/build
+**/.travis.yml
+**/.gitignore
+**/.git
+**/.dockerignore
+**/Dockerfile
+
