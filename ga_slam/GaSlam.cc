@@ -53,10 +53,11 @@ void GaSlam::configure(
         double predictSigmaX, double predictSigmaY, double predictSigmaYaw,
         double traversedDistanceThreshold, double minSlopeThreshold,
         double slopeSumThresholdMultiplier, double matchAcceptanceThreshold,
-        double globalMapLength, double globalMapResolution) {
+        double globalMapLength, double globalMapResolution,
+        const Pose& bodyToGroundTF) {
     voxelSize_ = voxelSize;
 
-    poseEstimation_.configure(numParticles, resampleFrequency,
+    poseEstimation_.configure(bodyToGroundTF, numParticles, resampleFrequency,
             initialSigmaX, initialSigmaY, initialSigmaYaw,
             predictSigmaX, predictSigmaY, predictSigmaYaw);
 
@@ -68,12 +69,10 @@ void GaSlam::configure(
             maxElevation);
 }
 
-void GaSlam::poseCallback(const Pose& poseGuess, const Pose& bodyToGroundTF) {
+void GaSlam::poseCallback(const Pose& odometryDeltaPose) {
     if (!poseInitialized_) poseInitialized_ = true;
 
-    const auto transformedPoseGuess = poseGuess * bodyToGroundTF;
-    poseEstimation_.predictPose(transformedPoseGuess);
-
+    poseEstimation_.predictPose(odometryDeltaPose);
     dataRegistration_.translateMap(poseEstimation_.getPose());
 }
 

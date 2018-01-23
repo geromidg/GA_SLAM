@@ -21,6 +21,9 @@
 #include "ga_slam/TypeDefs.h"
 #include "ga_slam/GaSlam.h"
 
+// Eigen
+#include <Eigen/Geometry>
+
 // GTest
 #include "gtest/gtest.h"
 
@@ -31,7 +34,7 @@ TEST(GaSlamTest, MapParameters) {
 
     const double mapResolution = 3.14;
     gaSlam.configure(1., mapResolution, 1., 1., 1., 1, 1, 1., 1., 1., 1.,
-            1., 1., 1., 1., 1., 1., 1., 1.);
+            1., 1., 1., 1., 1., 1., 1., 1., Pose::Identity());
 
     const auto& map = gaSlam.getRawMap();
     const auto mapParameters = map.getParameters();

@@ -39,6 +39,7 @@
 namespace ga_slam {
 
 void PoseEstimation::configure(
+        const Pose& bodyToGroundTF,
         int numParticles, int resampleFrequency,
         double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
         double predictSigmaX, double predictSigmaY, double predictSigmaYaw) {
@@ -46,29 +47,25 @@ void PoseEstimation::configure(
             initialSigmaYaw, predictSigmaX, predictSigmaY, predictSigmaYaw);
     particleFilter_.initialize();
 
+    bodyToGroundTF_ = bodyToGroundTF;
     resampleFrequency_ = resampleFrequency;
 }
 
-void PoseEstimation::predictPose(const Pose& poseGuess) {
-    Eigen::Vector3d estimateTranslation = poseGuess.translation();
-    Eigen::Vector3d estimateAngles = getAnglesFromPose(poseGuess);
+void PoseEstimation::predictPose(const Pose& odometryDeltaPose) {
+    const double deltaX = odometryDeltaPose.translation().x();
+    const double deltaY = odometryDeltaPose.translation().y();
+    const double deltaYaw = getAnglesFromPose(odometryDeltaPose).z();
+    particleFilter_.predict(deltaX, deltaY, deltaYaw);
 
-    std::unique_lock<std::mutex> guard(poseMutex_);
-    const auto deltaAngles = estimateAngles - getAnglesFromPose(pose_);
-    const auto deltaTranslation = estimateTranslation - pose_.translation();
-    guard.unlock();
+    Pose initialPoseEstimate = pose_ * odometryDeltaPose;
+    Eigen::Vector3d translation = initialPoseEstimate.translation();
+    Eigen::Vector3d angles = getAnglesFromPose(initialPoseEstimate);
+    particleFilter_.getEstimate(translation(0), translation(1), angles(2));
 
-    particleFilter_.predict(deltaTranslation(0), deltaTranslation(1),
-            deltaAngles(2));
+    const Pose finalPoseEstimate = createPose(translation, angles);
 
-    particleFilter_.getEstimate(estimateTranslation(0), estimateTranslation(1),
-            estimateAngles(2));
-
-    const Pose newPose = createPose(estimateTranslation, estimateAngles);
-
-    guard.lock();
-    pose_ = newPose;
-    guard.unlock();
+    std::lock_guard<std::mutex> guard(poseMutex_);
+    pose_ = finalPoseEstimate;
 }
 
 void PoseEstimation::filterPose(

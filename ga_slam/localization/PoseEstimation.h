@@ -59,13 +59,14 @@ class PoseEstimation {
     /// Returns the robot's estimated pose
     Pose getPose(void) const {
         std::lock_guard<std::mutex> guard(poseMutex_);
-        return pose_;
+        return pose_ * bodyToGroundTF_;
     }
 
     /// Returns the mutex protecting the pose
     std::mutex& getPoseMutex(void) { return poseMutex_; }
 
     /** Configures the particle filter by passing the parameters
+      * @param[in] bodyToGroundTF the transformation from robot's body to ground
       * @param[in] numParticles number of particles used
       * @param[in] resampleFrequency number of iterations of the particle filter
       *            before resampling
@@ -78,15 +79,16 @@ class PoseEstimation {
       * @param[in] predictSigmaYaw gaussian sigma of yaw for particle prediction
       */
     void configure(
+            const Pose& bodyToGroundTF,
             int numParticles, int resampleFrequency,
             double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
             double predictSigmaX, double predictSigmaY, double predictSigmaYaw);
 
     /** Passes the input delta pose from odometry to the particle filter to
       * predict the particles' state and then gets the new estimate.
-      * @param[in] poseGuess the input delta pose from odometry
+      * @param[in] odometryDeltaPose the input delta pose from odometry
       */
-    void predictPose(const Pose& poseGuess = Pose::Identity());
+    void predictPose(const Pose& odometryDeltaPose);
 
     /** Calls the update and resample steps of the particle filter
       * @param[in] rawCloud the raw point cloud used in the update step
@@ -115,6 +117,9 @@ class PoseEstimation {
   protected:
     /// Robot's 6-DoF pose in the continuous space
     Pose pose_;
+
+    /// Transformation from the robot's body to the ground (robot's wheels)
+    Pose bodyToGroundTF_;
 
     /// Mutex protecting the pose
     mutable std::mutex poseMutex_;
