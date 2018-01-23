@@ -33,8 +33,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
-enable_testing()
-
 ####################
 ### Dependencies ###
 ####################
@@ -104,12 +102,6 @@ install(
 ###############
 ### Testing ###
 ###############
-add_executable(GaSlamTest ${CMAKE_SOURCE_DIR}/GaSlamTest.cc)
-target_link_libraries(GaSlamTest ${TARGET_NAME} ${GTEST_BOTH_LIBRARIES})
-add_test(GaSlamTest GaSlamTest)
-
-add_executable(ParticleFilterTest
-    ${CMAKE_SOURCE_DIR}/localization/ParticleFilterTest.cc)
-target_link_libraries(ParticleFilterTest ${TARGET_NAME} ${GTEST_BOTH_LIBRARIES})
-add_test(ParticleFilterTest ParticleFilterTest)
+enable_testing()
+add_subdirectory(test)
 
