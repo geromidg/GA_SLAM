@@ -111,7 +111,6 @@ class GaSlam {
       *            to be accepted
       * @param[in] globalMapLength size of one dimension of the global map
       * @param[in] globalMapResolution resolution of the global map in meters
-      * @param[in] bodyToGroundTF the transformation from robot's body to ground
       */
     void configure(
             double mapLength, double mapResolution,
@@ -121,8 +120,7 @@ class GaSlam {
             double predictSigmaX, double predictSigmaY, double predictSigmaYaw,
             double traversedDistanceThreshold, double minSlopeThreshold,
             double slopeSumThresholdMultiplier, double matchAcceptanceThreshold,
-            double globalMapLength, double globalMapResolution,
-            const Pose& bodyToGroundTF);
+            double globalMapLength, double globalMapResolution);
 
     /** Handles the input delta pose data from odometry. The delta pose is
       * used to predict the robot's current pose and update the map's position

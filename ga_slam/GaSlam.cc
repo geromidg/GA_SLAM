@@ -53,11 +53,10 @@ void GaSlam::configure(
         double predictSigmaX, double predictSigmaY, double predictSigmaYaw,
         double traversedDistanceThreshold, double minSlopeThreshold,
         double slopeSumThresholdMultiplier, double matchAcceptanceThreshold,
-        double globalMapLength, double globalMapResolution,
-        const Pose& bodyToGroundTF) {
+        double globalMapLength, double globalMapResolution) {
     voxelSize_ = voxelSize;
 
-    poseEstimation_.configure(bodyToGroundTF, numParticles, resampleFrequency,
+    poseEstimation_.configure(numParticles, resampleFrequency,
             initialSigmaX, initialSigmaY, initialSigmaYaw,
             predictSigmaX, predictSigmaY, predictSigmaYaw);
 

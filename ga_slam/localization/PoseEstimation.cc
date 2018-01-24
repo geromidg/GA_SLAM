@@ -38,16 +38,13 @@
 
 namespace ga_slam {
 
-void PoseEstimation::configure(
-        const Pose& bodyToGroundTF,
-        int numParticles, int resampleFrequency,
+void PoseEstimation::configure(int numParticles, int resampleFrequency,
         double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
         double predictSigmaX, double predictSigmaY, double predictSigmaYaw) {
     particleFilter_.configure(numParticles, initialSigmaX, initialSigmaY,
             initialSigmaYaw, predictSigmaX, predictSigmaY, predictSigmaYaw);
     particleFilter_.initialize();
 
-    bodyToGroundTF_ = bodyToGroundTF;
     resampleFrequency_ = resampleFrequency;
 }
 
