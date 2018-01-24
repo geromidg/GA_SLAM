@@ -15,6 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with GA SLAM. If not, see <http://www.gnu.org/licenses/>.
 
+########################
+### Add Test Targets ###
+########################
+
 find_package(GMock REQUIRED)
 
 add_executable(ParticleFilterTest unit/ParticleFilterTest.cc)
@@ -24,4 +28,19 @@ add_test(ParticleFilterTest ParticleFilterTest)
 add_executable(DataRegistrationTest functional/DataRegistrationTest.cc)
 target_link_libraries(DataRegistrationTest ${TARGET_NAME} ${GMOCK_LIBRARIES})
 add_test(DataRegistrationTest DataRegistrationTest)
+
+##########################
+### Download Test Data ###
+##########################
+
+include(ExternalProject)
+
+ExternalProject_Add(ga_slam_test_data
+    SOURCE_DIR /tmp/ga_slam_test_data
+    URL https://github.com/geromidg/ga_slam_test_data/archive/master.zip
+    URL_MD5 8402501f569863ba2e9e7763bdb081dd
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+)
 
