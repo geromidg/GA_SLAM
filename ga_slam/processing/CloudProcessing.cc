@@ -64,6 +64,8 @@ void CloudProcessing::downsampleCloud(
 }
 
 void CloudProcessing::transformCloudToMap(Cloud::Ptr& cloud, const Pose& tf) {
+    if (tf.matrix().isIdentity()) return;
+
     pcl::transformPointCloud(*cloud, *cloud, tf);
 }
 
