@@ -77,16 +77,16 @@ void GaSlam::poseCallback(const Pose& odometryDeltaPose) {
 
 void GaSlam::cloudCallback(
         const Cloud::ConstPtr& cloud,
-        const Pose& sensorToBodyTF) {
+        const Pose& bodyToSensorTF) {
     if (!poseInitialized_) return;
 
-    const auto sensorToMapTF = poseEstimation_.getPose() * sensorToBodyTF;
+    const auto mapToSensorTF = poseEstimation_.getPose() * bodyToSensorTF;
     const auto mapParameters = dataRegistration_.getMap().getParameters();
     Cloud::Ptr processedCloud(new Cloud);
     std::vector<float> cloudVariances;
 
     CloudProcessing::processCloud(cloud, processedCloud, cloudVariances,
-            sensorToMapTF, mapParameters, voxelSize_);
+            mapToSensorTF, mapParameters, voxelSize_);
 
     dataRegistration_.updateMap(processedCloud, cloudVariances);
 

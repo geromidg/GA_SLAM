@@ -44,11 +44,11 @@ void CloudProcessing::processCloud(
         const Cloud::ConstPtr& inputCloud,
         Cloud::Ptr& outputCloud,
         std::vector<float>& cloudVariances,
-        const Pose& sensorToMapTF,
+        const Pose& mapToSensorTF,
         const MapParameters& mapParameters,
         double voxelSize) {
     downsampleCloud(inputCloud, outputCloud, voxelSize);
-    transformCloudToMap(outputCloud, sensorToMapTF);
+    transformCloudToMap(outputCloud, mapToSensorTF);
     cropCloudToMap(outputCloud, mapParameters);
     calculateCloudVariances(outputCloud, cloudVariances);
 }

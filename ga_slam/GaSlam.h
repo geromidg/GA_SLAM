@@ -132,11 +132,11 @@ class GaSlam {
       * processed and registered to the local map. If possible, scan-to-map and
       * map-to-map matchings are perform to improve the pose and map estimates
       * @param[in] cloud the point cloud as received from a sensor
-      * @param[in] sensorToBodyTF the transformation applied to the cloud
+      * @param[in] bodyToSensorTF the transformation applied to the cloud
       */
     void cloudCallback(
             const Cloud::ConstPtr& cloud,
-            const Pose& sensorToBodyTF);
+            const Pose& bodyToSensorTF = Pose::Identity());
 
     /** Converts the local elevation map to a point cloud and performs a
       * scan-to-map matching using the raw (sensor) point cloud for
