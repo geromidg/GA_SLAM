@@ -24,22 +24,46 @@
 // Eigen
 #include <Eigen/Geometry>
 
+// PCL
+#include <pcl/point_types.h>
+#include <pcl/point_cloud.h>
+#include <pcl/io/pcd_io.h>
+
+// STL
+#include <string>
+
 // GMock
 #include "gmock/gmock.h"
 
 namespace ga_slam {
 
-TEST(GaSlamTest, MapParameters) {
+TEST(DataRegistration, SingleCloudRegistration) {
     GaSlam gaSlam;
+    const Map& map = gaSlam.getRawMap();
 
-    const double mapResolution = 3.14;
-    gaSlam.configure(1., mapResolution, 1., 1., 1., 1, 1, 1., 1., 1., 1.,
-            1., 1., 1., 1., 1., 1., 1., 1.);
+    const double mapLength = 20.;
+    const double mapResolution = 0.2;
+    const double minElevation = -2.;
+    const double maxElevation = 2.;
+    const double voxelSize = mapResolution;
 
-    const auto& map = gaSlam.getRawMap();
-    const auto mapParameters = map.getParameters();
+    Cloud::Ptr cloud(new Cloud);
+    const std::string filename =
+        "/tmp/ga_slam_test_data/cloud_sequence/local_cloud_0.pcd";
+    pcl::io::loadPCDFile<pcl::PointXYZ>(filename, *cloud);
 
-    ASSERT_EQ(mapParameters.resolution, mapResolution);
+    gaSlam.configure(mapLength, mapResolution, minElevation, maxElevation,
+            voxelSize, 1, 1, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1.);
+
+    ASSERT_FALSE(map.isValid());
+
+    gaSlam.poseCallback(Pose::Identity());
+
+    ASSERT_FALSE(map.isValid());
+
+    gaSlam.cloudCallback(cloud);
+
+    ASSERT_TRUE(map.isValid());
 }
 
 } // namespace ga_slam
