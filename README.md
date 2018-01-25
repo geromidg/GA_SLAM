@@ -1,8 +1,8 @@
 ## GA SLAM: Globally Adaptive Simultaneous Localization And Mapping
 
-[![Travis](https://img.shields.io/travis/geromidg/ga_slam.svg?style=plastic)](https://travis-ci.org/geromidg/ga_slam)
-[![Coveralls](https://img.shields.io/coveralls/github/geromidg/ga_slam.svg?style=plastic)](https://coveralls.io/r/geromidg/ga_slam)
-[![License](https://img.shields.io/github/license/geromidg/ga_slam.svg?style=plastic)](https://github.com/geromidg/ga_slam/blob/master/LICENSE)
+[![Travis](https://img.shields.io/travis/geromidg/GA_SLAM.svg?style=plastic)](https://travis-ci.org/geromidg/GA_SLAM)
+[![Coveralls](https://img.shields.io/coveralls/github/geromidg/GA_SLAM.svg?style=plastic)](https://coveralls.io/r/geromidg/GA_SLAM)
+[![License](https://img.shields.io/github/license/geromidg/GA_SLAM.svg?style=plastic)](https://github.com/geromidg/GA_SLAM/blob/master/LICENSE)
 
 **A SLAM library for autonomous planetary exploration using global map matching**
 

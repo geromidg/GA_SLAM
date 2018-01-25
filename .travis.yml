@@ -22,5 +22,9 @@ services: docker
 install: true
 
 script:
-  - docker build ${TRAVIS_BUILD_DIR} --build-arg TRAVIS=${TRAVIS} TRAVIS_JOB_ID=${TRAVIS_JOB_ID} TRAVIS_BRANCH=${TRAVIS_BRANCH} -t ga_slam
+  - docker build ${TRAVIS_BUILD_DIR}
+    --tag ga_slam
+    --build-arg TRAVIS=${TRAVIS}
+    --build-arg TRAVIS_JOB_ID=${TRAVIS_JOB_ID}
+    --build-arg TRAVIS_BRANCH=${TRAVIS_BRANCH}
 

@@ -26,7 +26,8 @@ cd build
 
 export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:/opt/ros/kinetic
 export CTEST_OUTPUT_ON_FAILURE=1
-cmake -DENABLE_TESTS=ON -DENABLE_COVERAGE=ON ..
+cmake .. -DENABLE_TESTS=ON \
+         -DENABLE_COVERAGE=ON
 
 make -j1
 make test
