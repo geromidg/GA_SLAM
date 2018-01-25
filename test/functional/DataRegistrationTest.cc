@@ -37,33 +37,63 @@
 
 namespace ga_slam {
 
-TEST(DataRegistration, SingleCloudRegistration) {
-    GaSlam gaSlam;
-    const Map& map = gaSlam.getRawMap();
+class DataRegistrationTest : public ::testing::Test {
+  protected:
+    DataRegistrationTest(void) : gaSlam_(),
+              sequenceCount_(0) {
+        const double mapLength = 20.;
+        const double mapResolution = 0.2;
+        const double minElevation = -2.;
+        const double maxElevation = 2.;
+        const double voxelSize = mapResolution;
 
-    const double mapLength = 20.;
-    const double mapResolution = 0.2;
-    const double minElevation = -2.;
-    const double maxElevation = 2.;
-    const double voxelSize = mapResolution;
+        gaSlam_.configure(mapLength, mapResolution, minElevation, maxElevation,
+                voxelSize, 1, 1, 0, 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1.);
 
-    Cloud::Ptr cloud(new Cloud);
-    const std::string filename =
-        "/tmp/ga_slam_test_data/cloud_sequence/local_cloud_0.pcd";
-    pcl::io::loadPCDFile<pcl::PointXYZ>(filename, *cloud);
+        cloud_.reset(new Cloud);
+    }
 
-    gaSlam.configure(mapLength, mapResolution, minElevation, maxElevation,
-            voxelSize, 1, 1, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1.);
+    void insertZeroPose(void) {
+        gaSlam_.poseCallback(Pose::Identity());
+    }
 
-    ASSERT_FALSE(map.isValid());
+    void insertSingleCloud(void) {
+        readNextCloud();
+        gaSlam_.cloudCallback(cloud_);
+    }
 
-    gaSlam.poseCallback(Pose::Identity());
+    const Map& map(void) const { return gaSlam_.getRawMap(); }
 
-    ASSERT_FALSE(map.isValid());
+  private:
+    void readNextCloud(void) {
+        const std::string filename = filenamePrefix_ +
+                std::to_string(sequenceCount_) + filenameSuffix_;
+        pcl::io::loadPCDFile<pcl::PointXYZ>(filename, *cloud_);
+        sequenceCount_++;
+    }
 
-    gaSlam.cloudCallback(cloud);
+  private:
+    GaSlam gaSlam_;
 
-    ASSERT_TRUE(map.isValid());
+    Cloud::Ptr cloud_;
+
+    /// Dataset path and size
+    static constexpr const char* filenamePrefix_ =
+            "/tmp/ga_slam_test_data/cloud_sequence/local_cloud_";
+    static constexpr const char* filenameSuffix_ = ".pcd";
+
+    /// Current file of dataset
+    int sequenceCount_;
+};
+
+TEST_F(DataRegistrationTest, RegisterSingleCloud) {
+    ASSERT_FALSE(map().isValid());
+    insertZeroPose();
+    ASSERT_FALSE(map().isValid());
+    insertSingleCloud();
+    ASSERT_TRUE(map().isValid());
+}
+
 }
 
 } // namespace ga_slam
