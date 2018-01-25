@@ -19,8 +19,6 @@
 ### Add Test Targets ###
 ########################
 
-find_package(GMock REQUIRED)
-
 add_executable(ParticleFilterTest unit/ParticleFilterTest.cc)
 target_link_libraries(ParticleFilterTest ${TARGET_NAME} ${GMOCK_LIBRARIES})
 add_test(ParticleFilterTest ParticleFilterTest)

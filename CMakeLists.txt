@@ -22,18 +22,40 @@ cmake_minimum_required(VERSION 3.5.1)  # Ubuntu 16.04 (Xenial)
 
 project(ga_slam)
 
+OPTION(ENABLE_TESTS "Build the library with tests" OFF)
+OPTION(ENABLE_COVERAGE "Build the library with gcov support" OFF)
+
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 set(TARGET_NAME ${PROJECT_NAME})
 set(CMAKE_INCLUDE_DIR ${PROJECT_SOURCE_DIR})
 set(CMAKE_SOURCE_DIR ${PROJECT_SOURCE_DIR}/${TARGET_NAME})
 
-set(CMAKE_BUILD_TYPE RelWithDebInfo)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -g -DNDEBUG")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wpedantic")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+
+set(DEFAULT_BUILD_TYPE RelWithDebInfo)
+
+if (NOT CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
+    message(STATUS "No build type specified, setting to ${DEFAULT_BUILD_TYPE}")
+    set(CMAKE_BUILD_TYPE ${DEFAULT_BUILD_TYPE})
+endif()
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    message(WARNING "Debug build type selected, forcing to RelWithDebInfo")
+    set(CMAKE_BUILD_TYPE RelWithDebInfo)
+endif()
+
+if (ENABLE_COVERAGE AND ENABLE_TESTS)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g --coverage")
+    set(CMAKE_BUILD_TYPE Coverage)
+elseif (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -g -DNDEBUG")
+elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -DNDEBUG")
+endif()
 
 ####################
 ### Dependencies ###
@@ -48,10 +70,10 @@ find_package(grid_map_core REQUIRED)
 #############
 include_directories(
     ${CMAKE_INCLUDE_DIR}
-    ${grid_map_core_INCLUDE_DIRS}
     ${EIGEN3_INCLUDE_DIRS}
     ${PCL_INCLUDE_DIRS}
     ${OpenCV_INCLUDE_DIRS}
+    ${grid_map_core_INCLUDE_DIRS}
 )
 
 add_library(${TARGET_NAME} SHARED
@@ -67,9 +89,9 @@ add_library(${TARGET_NAME} SHARED
 )
 
 target_link_libraries(${TARGET_NAME}
-    ${grid_map_core_LIBRARIES}
     ${PCL_LIBRARIES}
     ${OpenCV_LIBS}
+    ${grid_map_core_LIBRARIES}
 )
 
 ##################
@@ -102,6 +124,9 @@ install(
 ###############
 ### Testing ###
 ###############
-enable_testing()
-add_subdirectory(test)
+if (ENABLE_TESTS)
+    find_package(GMock REQUIRED)
+    enable_testing()
+    add_subdirectory(test)
+endif()
 
