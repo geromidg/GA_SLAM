@@ -26,36 +26,14 @@ OPTION(ENABLE_TESTS "Build the library with tests" OFF)
 OPTION(ENABLE_COVERAGE "Build the library with gcov support" OFF)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+include("${PROJECT_SOURCE_DIR}/cmake/functions.cmake")
 
 set(TARGET_NAME ${PROJECT_NAME})
 set(CMAKE_INCLUDE_DIR ${PROJECT_SOURCE_DIR})
 set(CMAKE_SOURCE_DIR ${PROJECT_SOURCE_DIR}/${TARGET_NAME})
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wpedantic")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-
-set(DEFAULT_BUILD_TYPE RelWithDebInfo)
-
-if (NOT CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
-    message(STATUS "No build type specified, setting to ${DEFAULT_BUILD_TYPE}")
-    set(CMAKE_BUILD_TYPE ${DEFAULT_BUILD_TYPE})
-endif()
-
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    message(WARNING "Debug build type selected, forcing to RelWithDebInfo")
-    set(CMAKE_BUILD_TYPE RelWithDebInfo)
-endif()
-
-if (ENABLE_COVERAGE AND ENABLE_TESTS)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g --coverage")
-    set(CMAKE_BUILD_TYPE Coverage)
-elseif (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -g -DNDEBUG")
-elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -DNDEBUG")
-endif()
+configure_build_type()
+configure_compiler_flags()
 
 ####################
 ### Dependencies ###
