@@ -42,4 +42,5 @@ sudo apt-get install -y \
     python-pip
 
 sudo pip install cpp-coveralls
+sudo pip install -U pyopenssl
 

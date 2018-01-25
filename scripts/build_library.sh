@@ -32,3 +32,6 @@ make -j1
 make test
 sudo make install
 
+cd ..
+coveralls --root . --exclude 'test' --extension 'cc'
+

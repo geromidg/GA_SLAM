@@ -17,6 +17,13 @@
 
 FROM ubuntu:xenial
 
+ARG TRAVIS
+ARG TRAVIS_JOB_ID
+ARG TRAVIS_BRANCH
+ENV TRAVIS ${TRAVIS}
+ENV TRAVIS_JOB_ID ${TRAVIS_JOB_ID}
+ENV TRAVIS_BRANCH ${TRAVIS_BRANCH}
+
 RUN apt-get update
 RUN apt-get install -y sudo
 RUN rm -rf /var/lib/apt/lists/*
