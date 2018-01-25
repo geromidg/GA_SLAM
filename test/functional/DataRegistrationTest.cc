@@ -62,6 +62,10 @@ class DataRegistrationTest : public ::testing::Test {
         gaSlam_.cloudCallback(cloud_);
     }
 
+    void insertCloudSequence(void) {
+        for (int i = 0; i <= numOfClouds_; ++i) insertSingleCloud();
+    }
+
     const Map& map(void) const { return gaSlam_.getRawMap(); }
 
   private:
@@ -81,6 +85,7 @@ class DataRegistrationTest : public ::testing::Test {
     static constexpr const char* filenamePrefix_ =
             "/tmp/ga_slam_test_data/cloud_sequence/local_cloud_";
     static constexpr const char* filenameSuffix_ = ".pcd";
+    const int numOfClouds_ = 20;
 
     /// Current file of dataset
     int sequenceCount_;
@@ -94,6 +99,12 @@ TEST_F(DataRegistrationTest, RegisterSingleCloud) {
     ASSERT_TRUE(map().isValid());
 }
 
+TEST_F(DataRegistrationTest, RegisterCloudSequence) {
+    ASSERT_FALSE(map().isValid());
+    insertZeroPose();
+    ASSERT_FALSE(map().isValid());
+    insertCloudSequence();
+    ASSERT_TRUE(map().isValid());
 }
 
 } // namespace ga_slam
