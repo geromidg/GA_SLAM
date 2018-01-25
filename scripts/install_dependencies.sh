@@ -28,9 +28,18 @@ sudo apt-get update
 sudo apt-get install -y \
     cmake \
     g++ \
+    git
+
+sudo apt-get install -y \
     libeigen3-dev \
     libopencv-dev \
     libpcl-dev \
     ros-kinetic-grid-map-core \
     google-mock
+
+sudo apt-get install -y \
+    python \
+    python-pip
+
+sudo pip install cpp-coveralls
 

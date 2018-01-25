@@ -17,7 +17,8 @@
 
 FROM ubuntu:xenial
 
-RUN apt-get update && apt-get install -y sudo
+RUN apt-get update
+RUN apt-get install -y sudo
 RUN rm -rf /var/lib/apt/lists/*
 
 COPY scripts/install_dependencies.sh ga_slam/scripts/
