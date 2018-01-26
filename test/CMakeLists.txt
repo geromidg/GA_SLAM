@@ -27,6 +27,10 @@ add_executable(DataRegistrationTest functional/DataRegistrationTest.cc)
 target_link_libraries(DataRegistrationTest ${TARGET_NAME} ${GMOCK_LIBRARIES})
 add_test(DataRegistrationTest DataRegistrationTest)
 
+add_executable(PoseCorrectionTest functional/PoseCorrectionTest.cc)
+target_link_libraries(PoseCorrectionTest ${TARGET_NAME} ${GMOCK_LIBRARIES})
+add_test(PoseCorrectionTest PoseCorrectionTest)
+
 ##########################
 ### Download Test Data ###
 ##########################
