@@ -48,7 +48,7 @@ void ImageProcessing::convertMapToImage(const Map& map, Image& image) {
         const float value = meanData(mapIndex(0), mapIndex(1));
 
         const Eigen::Array2i index(it.getUnwrappedIndex());
-        if (std::isfinite(value)) image.at<float>(index(0), index(1)) = value;
+        image.at<float>(index(0), index(1)) = value;
     }
 }
 
@@ -119,30 +119,27 @@ void ImageProcessing::calculateLaplacianImage(
 }
 
 bool ImageProcessing::findBestMatch(
-        const Image& originalImage,
+        const Image& sourceImage,
         const Image& templateImage,
         cv::Point2d& matchedPosition,
         double matchAcceptanceThreshold,
         bool matchImageGradients,
-        bool useCrossCorrelation,
         bool displayMatch) {
-    Image originalInput, templateInput, resultOutput;
-    int method;
-
-    if (useCrossCorrelation)
-        method = CV_TM_CCORR_NORMED;
-    else
-        method = CV_TM_CCOEFF_NORMED;
+    Image sourceInput, templateInput, resultOutput;
 
     if (matchImageGradients) {
-        calculateGradientImage(originalImage, originalInput);
+        calculateGradientImage(sourceImage, sourceInput);
         calculateGradientImage(templateImage, templateInput);
     } else {
-        originalInput = originalImage;
+        sourceInput = sourceImage;
         templateInput = templateImage;
     }
 
-    cv::matchTemplate(originalInput, templateInput, resultOutput, method);
+    replaceNanWithZero(sourceInput);
+    replaceNanWithZero(templateInput);
+
+    const auto method = CV_TM_CCORR_NORMED;
+    cv::matchTemplate(sourceInput, templateInput, resultOutput, method);
 
     cv::Point2i maxPosition;
     double maxValue;
@@ -152,19 +149,19 @@ bool ImageProcessing::findBestMatch(
     if (matchFound) matchedPosition = cv::Point2d(maxPosition.x, maxPosition.y);
 
     if (displayMatch && matchFound)
-        displayMatchedPosition(originalInput, templateInput, resultOutput,
+        displayMatchedPosition(sourceInput, templateInput, resultOutput,
                 matchedPosition);
 
     return matchFound;
 }
 
 void ImageProcessing::displayMatchedPosition(
-        const Image& originalImage,
+        const Image& sourceImage,
         const Image& templateImage,
         const Image& resultImage,
         const cv::Point2d& matchedPosition,
         double zoom) {
-    Image originalImageClone = originalImage.clone();
+    Image sourceImageClone = sourceImage.clone();
     Image templateImageClone = templateImage.clone();
     Image resultImageClone = resultImage.clone();
 
@@ -173,10 +170,10 @@ void ImageProcessing::displayMatchedPosition(
             std::round(matchedPosition.y) + templateImageClone.rows);
 
     const auto color = cv::Scalar::all(0.);
-    cv::rectangle(originalImageClone, matchedPosition, matchedDiagonal, color);
+    cv::rectangle(sourceImageClone, matchedPosition, matchedDiagonal, color);
     cv::rectangle(resultImageClone, matchedPosition, matchedDiagonal, color);
 
-    displayImage(originalImageClone, "Original Image", zoom);
+    displayImage(sourceImageClone, "Source Image", zoom);
     displayImage(templateImageClone, "Template Image", zoom);
     displayImage(resultImageClone, "Result Image", zoom);
 }
@@ -190,6 +187,10 @@ void ImageProcessing::convertPositionToMapCoordinates(
 
     imagePosition.x = mapPositionX * mapResolution;
     imagePosition.y = mapPositionY * mapResolution;
+}
+
+void ImageProcessing::replaceNanWithZero(Image& image) {
+    image.setTo(0., image != image);
 }
 
 }  // namespace ga_slam

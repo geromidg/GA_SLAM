@@ -40,7 +40,6 @@ class ImageProcessing {
     ImageProcessing(void) = delete;
 
     /** Converts an elevation map to an image of float type
-      * @note nan values in the map (cells with no data) are converted to zero
       * @param[in] map the elevation map to be converted
       * @param[out] image the converted image
       */
@@ -101,32 +100,29 @@ class ImageProcessing {
             bool applyGaussianBlur = false,
             int gaussianKernelSize = 3);
 
-    /** Find the best match given an original and a template image using
+    /** Find the best match given an source and a template image using
       * template matching. The matching can be done using the images as they are
       * or using their gradients
-      * @param[in] originalImage the original image (search space)
+      * @param[in] sourceImage the source image (search space)
       * @param[in] templateImage the image to be matched
       * @param[out] matchedPosition the position of the match
       * @param[in] matchAcceptanceThreshold the minimum score the matched
       *            position must have, in order for the matching to be accepted
       * @param[in] matchImageGradients whether to match the images' gradients
-      * @param[in] useCrossCorrelation whether to use the cross correlation
-      *            or the correlation coefficient method
       * @param[in] displayImage whether to display the found match
       * @return true if a match was found
       */
     static bool findBestMatch(
-            const Image& originalImage,
+            const Image& sourceImage,
             const Image& templateImage,
             cv::Point2d& matchedPosition,
             double matchAcceptanceThreshold,
             bool matchImageGradients = true,
-            bool useCrossCorrelation = false,
             bool displayMatch = true);
 
     /** Displays result of the template matching by drawing rectangles at the
-      * matched position in the original and the result images
-      * @param[in] originalImage the original image (search space)
+      * matched position in the source and the result images
+      * @param[in] sourceImage the source image (search space)
       * @param[in] templateImage the template image that was matched
       * @param[in] resultImage the image representing the normalized result of
       *            the matching for each position
@@ -134,7 +130,7 @@ class ImageProcessing {
       * @param[in] zoom the zoom to be applied to the image display
       */
     static void displayMatchedPosition(
-            const Image& originalImage,
+            const Image& sourceImage,
             const Image& templateImage,
             const Image& resultImage,
             const cv::Point2d& matchedPosition,
@@ -150,6 +146,11 @@ class ImageProcessing {
         cv::Point2d& imagePosition,
         const Image& image,
         double mapResolution);
+
+    /** Replace the NaN values of an image with 0
+      * @param[in] image the image to be processed
+      */
+    static void replaceNanWithZero(Image& image);
 };
 
 }  // namespace ga_slam
