@@ -39,6 +39,7 @@
 // STL
 #include <mutex>
 #include <cmath>
+#include <vector>
 
 namespace ga_slam {
 
@@ -54,51 +55,22 @@ void PoseCorrection::configure(
     slopeSumThresholdMultiplier_ = slopeSumThresholdMultiplier;
     matchAcceptanceThreshold_ = matchAcceptanceThreshold;
 
-    std::lock_guard<std::mutex> guard(globalMapMutex_);
-    globalMap_.setParameters(globalMapLength, globalMapResolution);
+    globalDataRegistration_.configure(globalMapLength, globalMapResolution);
 }
 
 void PoseCorrection::createGlobalMap(
             const Cloud::ConstPtr& globalCloud,
             const Pose& globalCloudPose) {
-    std::lock_guard<std::mutex> guard(globalMapMutex_);
+    constexpr double globalCloudVariance = 1.f;
+    std::vector<float> globalCloudVariances;
+    globalCloudVariances.resize(globalCloud->size(), globalCloudVariance);
 
-    globalMap_.clear();
-    globalMap_.translate(Eigen::Vector3d::Zero(), true);
+    globalDataRegistration_.clear();
+    globalDataRegistration_.translateMap(Pose::Identity(), true);
+    globalDataRegistration_.updateMap(globalCloud, globalCloudVariances);
+    globalDataRegistration_.translateMap(globalCloudPose, true);
 
-    auto& meanData = globalMap_.getMeanZ();
-    auto& varianceData = globalMap_.getVarianceZ();
-
-    size_t cloudIndex = 0;
-    size_t mapIndex;
-
-    for (const auto& point : globalCloud->points) {
-        cloudIndex++;
-
-        if (!globalMap_.getIndexFromPosition(point.x, point.y, mapIndex))
-            continue;
-
-        float& mean = meanData(mapIndex);
-        float& variance = varianceData(mapIndex);
-        const float& pointVariance = 1.;
-
-        if (!std::isfinite(mean)) {
-            mean = point.z;
-            variance = pointVariance;
-        } else {
-            const double innovation = point.z - mean;
-            const double gain = variance / (variance + pointVariance);
-            mean = mean + (gain * innovation);
-            variance = variance * (1. - gain);
-        }
-    }
-
-    globalMap_.translate(globalCloudPose.translation(), true);
     globalMapPose_ = globalCloudPose;
-
-    globalMap_.setValid(true);
-    globalMap_.setTimestamp(globalCloud->header.stamp);
-
     globalMapInitialized_ = true;
 }
 
@@ -133,9 +105,10 @@ bool PoseCorrection::matchMaps(
     ImageProcessing::convertMapToImage(localMap, localImage);
     const double localMapResolution = localMap.getParameters().resolution;
 
-    std::unique_lock<std::mutex> guard(globalMapMutex_);
-    ImageProcessing::convertMapToImage(globalMap_, globalImage);
-    const double globalMapResolution = globalMap_.getParameters().resolution;
+    std::unique_lock<std::mutex> guard(getGlobalMapMutex());
+    const auto& globalMap = getGlobalMap();
+    ImageProcessing::convertMapToImage(globalMap, globalImage);
+    const double globalMapResolution = globalMap.getParameters().resolution;
     guard.unlock();
 
     const double resolutionRatio = localMapResolution / globalMapResolution;

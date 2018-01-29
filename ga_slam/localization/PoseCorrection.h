@@ -22,6 +22,7 @@
 // GA SLAM
 #include "ga_slam/TypeDefs.h"
 #include "ga_slam/mapping/Map.h"
+#include "ga_slam/mapping/DataRegistration.h"
 
 // Eigen
 #include <Eigen/Geometry>
@@ -44,7 +45,6 @@ class PoseCorrection {
     /// Instantiates the global elevation map
     PoseCorrection(void)
         : globalMapInitialized_(false),
-          globalMap_(),
           globalMapPose_(Pose::Identity()),
           lastCorrectedPose_(Pose::Identity()) {}
 
@@ -55,10 +55,12 @@ class PoseCorrection {
     PoseCorrection& operator=(PoseCorrection&&) = delete;
 
     /// Returns the global elevation map
-    const Map& getGlobalMap(void) const { return globalMap_; }
+    const Map& getGlobalMap(void) const {
+        return globalDataRegistration_.getMap(); }
 
     /// Returns the mutex protecting the map
-    std::mutex& getGlobalMapMutex(void) { return globalMapMutex_; }
+    std::mutex& getGlobalMapMutex(void) {
+        return globalDataRegistration_.getMapMutex(); };
 
     /** Configures the global map and sets the module's parameters
       * @param[in] traversedDistanceThreshold the distance the robot must
@@ -119,14 +121,11 @@ class PoseCorrection {
             Pose& correctionDeltaPose);
 
   protected:
+    /// Data registration instance to hold and manipulate the global map
+    DataRegistration globalDataRegistration_;
+
     /// Whether the global map has been initialized
     std::atomic<bool> globalMapInitialized_;
-
-    /// Global low-resolution elevation map
-    Map globalMap_;
-
-    /// Mutex protecting the map
-    mutable std::mutex globalMapMutex_;
 
     /// Pose corresponding to the center of the global map
     Pose globalMapPose_;

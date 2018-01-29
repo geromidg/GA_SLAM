@@ -115,8 +115,8 @@ class Map {
     void setParameters(
             double length,
             double resolution,
-            double minElevation = -std::numeric_limits<double>::max(),
-            double maxElevation = std::numeric_limits<double>::max());
+            double minElevation,
+            double maxElevation);
 
     /// Returns the structure containing the map's parameters
     MapParameters getParameters(void) const;
@@ -149,7 +149,7 @@ class Map {
       * @param[in] moveData whether to move and keep the data or empty the
       *            cells that fall out of the map
       */
-    void translate(const Eigen::Vector3d& translation, bool moveData = false);
+    void translate(const Eigen::Vector3d& translation, bool moveData);
 
   protected:
     /// Instance of the wrapped GridMap class

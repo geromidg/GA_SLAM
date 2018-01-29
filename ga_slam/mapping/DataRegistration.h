@@ -65,8 +65,8 @@ class DataRegistration {
     void configure(
             double mapLength,
             double mapResolution,
-            double minElevation,
-            double maxElevation);
+            double minElevation = -std::numeric_limits<double>::max(),
+            double maxElevation = std::numeric_limits<double>::max());
 
     /// Returns the structure containing the map's parameters
     MapParameters getMapParameters(void) const {
@@ -74,10 +74,15 @@ class DataRegistration {
         return map_.getParameters();
     }
 
+    /// Clears the values of the map
+    void clear(void) { map_.clear(); }
+
     /** Translates the map to a new position
       * @param[in] estimatedPose the robot's new pose estimate
+      * @param[in] moveData whether to move and keep the data or empty the
+      *            cells that fall out of the map
       */
-    void translateMap(const Pose& estimatedPose);
+    void translateMap(const Pose& estimatedPose, bool moveData = false);
 
     /** Registers a point cloud to the map by fusing each point of the cloud
       * to corresponding cell of the map. Each cell of the map and each point

@@ -46,9 +46,9 @@ void DataRegistration::configure(
     map_.setParameters(mapLength, mapResolution, minElevation, maxElevation);
 }
 
-void DataRegistration::translateMap(const Pose& estimatedPose) {
+void DataRegistration::translateMap(const Pose& estimatedPose, bool moveData) {
     std::lock_guard<std::mutex> guard(mapMutex_);
-    map_.translate(estimatedPose.translation());
+    map_.translate(estimatedPose.translation(), moveData);
 }
 
 void DataRegistration::updateMap(

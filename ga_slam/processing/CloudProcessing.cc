@@ -92,7 +92,7 @@ void CloudProcessing::calculateCloudVariances(
     variances.reserve(cloud->size());
 
     for (const auto& point : cloud->points)
-        variances.push_back(1.);
+        variances.push_back(1.f);
 }
 
 void CloudProcessing::convertMapToCloud(const Map& map, Cloud::Ptr& cloud) {

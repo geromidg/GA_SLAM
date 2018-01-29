@@ -72,7 +72,7 @@ void GaSlam::poseCallback(const Pose& odometryDeltaPose) {
     if (!poseInitialized_) poseInitialized_ = true;
 
     poseEstimation_.predictPose(odometryDeltaPose);
-    dataRegistration_.translateMap(poseEstimation_.getPose());
+    dataRegistration_.translateMap(getPose());
 }
 
 void GaSlam::imuCallback(const Pose& imuOrientation) {
@@ -86,8 +86,8 @@ void GaSlam::cloudCallback(
         const Pose& bodyToSensorTF) {
     if (!poseInitialized_) return;
 
-    const auto mapToSensorTF = poseEstimation_.getPose() * bodyToSensorTF;
-    const auto mapParameters = dataRegistration_.getMap().getParameters();
+    const auto mapToSensorTF = getPose() * bodyToSensorTF;
+    const auto mapParameters = getRawMap().getParameters();
     Cloud::Ptr processedCloud(new Cloud);
     std::vector<float> cloudVariances;
 
@@ -114,8 +114,8 @@ void GaSlam::createGlobalMap(
 void GaSlam::matchLocalMapToRawCloud(const Cloud::ConstPtr& rawCloud) {
     Cloud::Ptr mapCloud(new Cloud);
 
-    std::unique_lock<std::mutex> guard(dataRegistration_.getMapMutex());
-    const auto& map = dataRegistration_.getMap();
+    std::unique_lock<std::mutex> guard(getRawMapMutex());
+    const auto& map = getRawMap();
     CloudProcessing::convertMapToCloud(map, mapCloud);
     guard.unlock();
 
@@ -123,11 +123,11 @@ void GaSlam::matchLocalMapToRawCloud(const Cloud::ConstPtr& rawCloud) {
 }
 
 void GaSlam::matchLocalMapToGlobalMap(void) {
-    const auto currentPose = poseEstimation_.getPose();
+    const auto currentPose = getPose();
     if (!poseCorrection_.distanceCriterionFulfilled(currentPose)) return;
 
-    std::unique_lock<std::mutex> guard(dataRegistration_.getMapMutex());
-    const auto& map = dataRegistration_.getMap();
+    std::unique_lock<std::mutex> guard(getRawMapMutex());
+    const auto& map = getRawMap();
     if (!poseCorrection_.featureCriterionFulfilled(map)) return;
 
     Pose correctionDeltaPose;

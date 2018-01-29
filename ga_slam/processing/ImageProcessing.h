@@ -147,7 +147,7 @@ class ImageProcessing {
         const Image& image,
         double mapResolution);
 
-    /** Replace the NaN values of an image with 0
+    /** Replaces the NaN values of an image with 0
       * @param[in] image the image to be processed
       */
     static void replaceNanWithZero(Image& image);
