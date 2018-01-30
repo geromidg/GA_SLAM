@@ -28,6 +28,7 @@
 #include "ga_slam/localization/PoseCorrection.h"
 
 // Eigen
+#include <Eigen/Core>
 #include <Eigen/Geometry>
 
 // PCL
@@ -81,6 +82,10 @@ class GaSlam {
     /// Returns the mutex protecting the global elevation map
     std::mutex& getGlobalMapMutex(void) {
         return poseCorrection_.getGlobalMapMutex(); }
+
+    /// Returns the array with the particles from the particle filter
+    Eigen::ArrayXXd getParticlesArray(void) const {
+        return poseEstimation_.getParticlesArray(); }
 
     /** Configures the managed submodules by passing the respective parameters
       * @param[in] mapLength size of one dimension of the local map in meters

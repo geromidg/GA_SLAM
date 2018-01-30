@@ -23,6 +23,7 @@
 #include "ga_slam/TypeDefs.h"
 
 // Eigen
+#include <Eigen/Core>
 #include <Eigen/Geometry>
 
 // PCL
@@ -131,6 +132,12 @@ class ParticleFilter {
             double& estimateX,
             double& estimateY,
             double& estimateYaw) const;
+
+    /** Returns the vector of particles as a Nx4 array with the x, y, yaw
+      * and weight values for each particle
+      * @return the array with the particles' data
+      */
+    Eigen::ArrayXXd getParticlesArray(void) const;
 
   protected:
     /** Returns the particle with highest weight in the population

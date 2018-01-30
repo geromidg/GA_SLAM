@@ -188,5 +188,17 @@ Pose ParticleFilter::getDeltaPoseFromParticle(
     return deltaPose;
 }
 
+Eigen::ArrayXXd ParticleFilter::getParticlesArray(void) const {
+    Eigen::ArrayXXd particlesArray(numParticles_, 4);
+
+    std::lock_guard<std::mutex> guard(particlesMutex_);
+
+    for (auto i = 0; i < numParticles_; ++i)
+        particlesArray.row(i) << particles_[i].x, particles_[i].y,
+                particles_[i].yaw, particles_[i].weight;
+
+    return particlesArray;
+}
+
 }  // namespace ga_slam
 

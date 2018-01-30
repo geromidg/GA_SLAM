@@ -62,6 +62,10 @@ class PoseEstimation {
         return pose_;
     }
 
+    /// Returns the array with the particles from the particle filter
+    Eigen::ArrayXXd getParticlesArray(void) const {
+        return particleFilter_.getParticlesArray(); }
+
     /// Returns the mutex protecting the pose
     std::mutex& getPoseMutex(void) { return poseMutex_; }
 
