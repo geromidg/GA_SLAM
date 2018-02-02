@@ -49,8 +49,9 @@ void PoseEstimation::configure(int numParticles, int resampleFrequency,
 }
 
 void PoseEstimation::predictPose(const Pose& deltaPose) {
-    const double deltaX = deltaPose.translation().x();
-    const double deltaY = deltaPose.translation().y();
+    Eigen::Vector3d deltaTranslation = pose_.linear() * deltaPose.translation();
+    const double deltaX = deltaTranslation.x();
+    const double deltaY = deltaTranslation.y();
     const double deltaYaw = getAnglesFromPose(deltaPose).z();
     particleFilter_.predict(deltaX, deltaY, deltaYaw);
 
