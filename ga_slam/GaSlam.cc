@@ -105,6 +105,12 @@ void GaSlam::cloudCallback(
                 &GaSlam::matchLocalMapToGlobalMap, this);
 }
 
+void GaSlam::createGlobalMap(
+            const Cloud::ConstPtr& globalCloud,
+            const Pose& globalCloudPose) {
+    poseCorrection_.createGlobalMap(globalCloud, globalCloudPose);
+}
+
 void GaSlam::matchLocalMapToRawCloud(const Cloud::ConstPtr& rawCloud) {
     Cloud::Ptr mapCloud(new Cloud);
 
@@ -130,12 +136,6 @@ void GaSlam::matchLocalMapToGlobalMap(void) {
     guard.unlock();
 
     if (matchFound) poseEstimation_.predictPose(correctionDeltaPose);
-}
-
-void GaSlam::createGlobalMap(
-            const Cloud::ConstPtr& globalCloud,
-            const Pose& globalCloudPose) {
-    poseCorrection_.createGlobalMap(globalCloud, globalCloudPose);
 }
 
 }  // namespace ga_slam

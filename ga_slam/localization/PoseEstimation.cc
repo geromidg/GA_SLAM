@@ -49,13 +49,15 @@ void PoseEstimation::configure(int numParticles, int resampleFrequency,
 }
 
 void PoseEstimation::predictPose(const Pose& deltaPose) {
-    Eigen::Vector3d deltaTranslation = pose_.linear() * deltaPose.translation();
+    const Pose pose = getPose();
+
+    Eigen::Vector3d deltaTranslation = pose.linear() * deltaPose.translation();
     const double deltaX = deltaTranslation.x();
     const double deltaY = deltaTranslation.y();
     const double deltaYaw = getAnglesFromPose(deltaPose).z();
     particleFilter_.predict(deltaX, deltaY, deltaYaw);
 
-    Pose initialPoseEstimate = pose_ * deltaPose;
+    Pose initialPoseEstimate = pose * deltaPose;
     Eigen::Vector3d translation = initialPoseEstimate.translation();
     Eigen::Vector3d angles = getAnglesFromPose(initialPoseEstimate);
     particleFilter_.getEstimate(translation(0), translation(1), angles(2));
@@ -67,7 +69,7 @@ void PoseEstimation::predictPose(const Pose& deltaPose) {
 }
 
 void PoseEstimation::fuseImuOrientation(const Pose& imuOrientation) {
-    const Eigen::Vector3d translation = pose_.translation();
+    const Eigen::Vector3d translation = getPose().translation();
     const Eigen::Vector3d angles = getAnglesFromPose(imuOrientation);
     const Pose newPoseEstimate = createPose(translation, angles);
 
@@ -78,10 +80,7 @@ void PoseEstimation::fuseImuOrientation(const Pose& imuOrientation) {
 void PoseEstimation::filterPose(
         const Cloud::ConstPtr& rawCloud,
         const Cloud::ConstPtr& mapCloud) {
-    std::unique_lock<std::mutex> guard(poseMutex_);
-    const Pose lastPose = pose_;
-    guard.unlock();
-
+    const Pose lastPose = getPose();
     particleFilter_.update(lastPose, rawCloud, mapCloud);
 
     resampleCounter_++;
