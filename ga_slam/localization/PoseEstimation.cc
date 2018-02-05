@@ -66,6 +66,15 @@ void PoseEstimation::predictPose(const Pose& deltaPose) {
     pose_ = finalPoseEstimate;
 }
 
+void PoseEstimation::fuseImuOrientation(const Pose& imuOrientation) {
+    const Eigen::Vector3d translation = pose_.translation();
+    const Eigen::Vector3d angles = getAnglesFromPose(imuOrientation);
+    const Pose newPoseEstimate = createPose(translation, angles);
+
+    std::lock_guard<std::mutex> guard(poseMutex_);
+    pose_ = newPoseEstimate;
+}
+
 void PoseEstimation::filterPose(
         const Cloud::ConstPtr& rawCloud,
         const Cloud::ConstPtr& mapCloud) {

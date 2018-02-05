@@ -133,6 +133,12 @@ class GaSlam {
       */
     void poseCallback(const Pose& odometryDeltaPose);
 
+    /** Handles the input pose data from the IMU sensor. The orientation
+      * part of the pose is fused with the current pose estimate
+      * @param[in] imuOrientation the input orientation as received from the IMU
+      */
+    void imuCallback(const Pose& imuOrientation);
+
     /** Handles the input point cloud data from various sensors. The cloud is
       * processed and registered to the local map. If possible, scan-to-map and
       * map-to-map matchings are perform to improve the pose and map estimates
@@ -143,6 +149,16 @@ class GaSlam {
             const Cloud::ConstPtr& cloud,
             const Pose& bodyToSensorTF = Pose::Identity());
 
+    /** Passes the input global cloud and pose to be used in map matching to the
+      * respective module
+      * @param[in] globalCloud the point cloud as received from the orbiter
+      * @param[in] globalCloudPose the pose of point cloud in the world
+      */
+    void createGlobalMap(
+            const Cloud::ConstPtr& globalCloud,
+            const Pose& globalCloudPose);
+
+  protected:
     /** Converts the local elevation map to a point cloud and performs a
       * scan-to-map matching using the raw (sensor) point cloud for
       * each particle of the particle filter
@@ -155,15 +171,6 @@ class GaSlam {
       * matching to correct the robot's pose estimate
       */
     void matchLocalMapToGlobalMap(void);
-
-    /** Passes the input global cloud and pose to be used in map matching to the
-      * respective module
-      * @param[in] globalCloud the point cloud as received from the orbiter
-      * @param[in] globalCloudPose the pose of point cloud in the world
-      */
-    void createGlobalMap(
-            const Cloud::ConstPtr& globalCloud,
-            const Pose& globalCloudPose);
 
     /** Checks if the future is ready to hold a new task's state
       * @param[in] future the future to be checked

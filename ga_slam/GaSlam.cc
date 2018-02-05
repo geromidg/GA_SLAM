@@ -75,6 +75,12 @@ void GaSlam::poseCallback(const Pose& odometryDeltaPose) {
     dataRegistration_.translateMap(poseEstimation_.getPose());
 }
 
+void GaSlam::imuCallback(const Pose& imuOrientation) {
+    if (!poseInitialized_) return;
+
+    poseEstimation_.fuseImuOrientation(imuOrientation);
+}
+
 void GaSlam::cloudCallback(
         const Cloud::ConstPtr& cloud,
         const Pose& bodyToSensorTF) {

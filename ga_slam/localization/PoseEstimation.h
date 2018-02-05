@@ -86,7 +86,7 @@ class PoseEstimation {
             double predictSigmaX, double predictSigmaY, double predictSigmaYaw);
 
     /** Passes the input delta pose to the particle filter to predict the
-      * particles' state and then gets the new estimate.
+      * particles' state and then constructs the new estimate
       * @param[in] deltaPose the input delta pose used for prediction
       */
     void predictPose(const Pose& deltaPose);
@@ -98,6 +98,13 @@ class PoseEstimation {
     void filterPose(
             const Cloud::ConstPtr& rawCloud,
             const Cloud::ConstPtr& mapCloud);
+
+    /** Fuses the IMU pose with the current pose estimate by copying the
+      * roll and pitch values as they are and performing gaussian fusion
+      * to update the yaw value
+      * @param[in] imuOrientation the input orientation as received from the IMU
+      */
+    void fuseImuOrientation(const Pose& imuOrientation);
 
   protected:
     /** Creates a pose given the translation and angle vectors
