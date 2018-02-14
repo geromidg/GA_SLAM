@@ -61,7 +61,6 @@ add_library(${TARGET_NAME} SHARED
     ${CMAKE_SOURCE_DIR}/localization/PoseCorrection.cc
     ${CMAKE_SOURCE_DIR}/mapping/Map.cc
     ${CMAKE_SOURCE_DIR}/mapping/DataRegistration.cc
-    ${CMAKE_SOURCE_DIR}/mapping/DataFusion.cc
     ${CMAKE_SOURCE_DIR}/processing/CloudProcessing.cc
     ${CMAKE_SOURCE_DIR}/processing/ImageProcessing.cc
 )

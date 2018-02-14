@@ -66,7 +66,7 @@ class DataRegistrationTest : public ::testing::Test {
         for (int i = 0; i <= numOfClouds_; ++i) insertSingleCloud();
     }
 
-    const Map& map(void) const { return gaSlam_.getRawMap(); }
+    const Map& map(void) const { return gaSlam_.getLocalMap(); }
 
   private:
     void readNextCloud(void) {

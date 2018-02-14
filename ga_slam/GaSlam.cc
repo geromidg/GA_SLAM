@@ -41,7 +41,6 @@ GaSlam::GaSlam(void)
         : poseEstimation_(),
           poseCorrection_(),
           dataRegistration_(),
-          dataFusion_(),
           poseInitialized_(false) {
 }
 
@@ -87,7 +86,7 @@ void GaSlam::cloudCallback(
     if (!poseInitialized_) return;
 
     const auto mapToSensorTF = getPose() * bodyToSensorTF;
-    const auto mapParameters = getRawMap().getParameters();
+    const auto mapParameters = getLocalMap().getParameters();
     Cloud::Ptr processedCloud(new Cloud);
     std::vector<float> cloudVariances;
 
@@ -114,8 +113,8 @@ void GaSlam::createGlobalMap(
 void GaSlam::matchLocalMapToRawCloud(const Cloud::ConstPtr& rawCloud) {
     Cloud::Ptr mapCloud(new Cloud);
 
-    std::unique_lock<std::mutex> guard(getRawMapMutex());
-    const auto& map = getRawMap();
+    std::unique_lock<std::mutex> guard(getLocalMapMutex());
+    const auto& map = getLocalMap();
     CloudProcessing::convertMapToCloud(map, mapCloud);
     guard.unlock();
 
@@ -126,8 +125,8 @@ void GaSlam::matchLocalMapToGlobalMap(void) {
     const auto currentPose = getPose();
     if (!poseCorrection_.distanceCriterionFulfilled(currentPose)) return;
 
-    std::unique_lock<std::mutex> guard(getRawMapMutex());
-    const auto& map = getRawMap();
+    std::unique_lock<std::mutex> guard(getLocalMapMutex());
+    const auto& map = getLocalMap();
     if (!poseCorrection_.featureCriterionFulfilled(map)) return;
 
     Pose correctionDeltaPose;

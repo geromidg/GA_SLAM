@@ -23,7 +23,6 @@
 #include "ga_slam/TypeDefs.h"
 #include "ga_slam/mapping/Map.h"
 #include "ga_slam/mapping/DataRegistration.h"
-#include "ga_slam/mapping/DataFusion.h"
 #include "ga_slam/localization/PoseEstimation.h"
 #include "ga_slam/localization/PoseCorrection.h"
 
@@ -51,7 +50,7 @@ namespace ga_slam {
 class GaSlam {
   public:
     /// Instantiates the submodules of localization (PoseEstimation and
-    /// PoseCorrection) and mapping (DataRegistration and DataFusion)
+    /// PoseCorrection) and mapping (DataRegistration)
     GaSlam(void);
 
     /// Delete the default copy/move constructors and operators
@@ -66,14 +65,12 @@ class GaSlam {
     /// Returns the mutex protecting the pose
     std::mutex& getPoseMutex(void) { return poseEstimation_.getPoseMutex(); }
 
-    /// Returns the raw elevation map
-    const Map& getRawMap(void) const { return dataRegistration_.getMap(); }
+    /// Returns the local elevation map
+    const Map& getLocalMap(void) const { return dataRegistration_.getMap(); }
 
-    /// Returns the mutex protecting the raw map
-    std::mutex& getRawMapMutex(void) { return dataRegistration_.getMapMutex(); }
-
-    /// Returns the elevation map after neighborhood fusion
-    const Map& getFusedMap(void) const { return dataFusion_.getFusedMap(); }
+    /// Returns the mutex protecting the local map
+    std::mutex& getLocalMapMutex(void) {
+        return dataRegistration_.getMapMutex(); }
 
     /// Returns the global elevation map
     const Map& getGlobalMap(void) const {
@@ -188,7 +185,6 @@ class GaSlam {
     PoseEstimation poseEstimation_;
     PoseCorrection poseCorrection_;
     DataRegistration dataRegistration_;
-    DataFusion dataFusion_;
 
     /// Futures to hold the state of the scan-to-map and map-to-map matching
     /// asynchronous tasks
