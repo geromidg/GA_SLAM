@@ -91,7 +91,7 @@ void GaSlam::cloudCallback(
     std::vector<float> cloudVariances;
 
     CloudProcessing::processCloud(cloud, processedCloud, cloudVariances,
-            mapToSensorTF, mapParameters, voxelSize_);
+            getPose(), mapToSensorTF, mapParameters, voxelSize_);
 
     dataRegistration_.updateMap(processedCloud, cloudVariances);
 

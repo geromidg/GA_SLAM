@@ -58,6 +58,7 @@ class CloudProcessing {
             const Cloud::ConstPtr& inputCloud,
             Cloud::Ptr& outputCloud,
             std::vector<float>& cloudVariances,
+            const Pose& robotPose,
             const Pose& sensorToMapTF,
             const MapParameters& mapParameters,
             double voxelSize);
@@ -84,6 +85,7 @@ class CloudProcessing {
       */
     static void cropCloudToMap(
             Cloud::Ptr& cloud,
+            const Pose& robotPose,
             const MapParameters& mapParameters);
 
     /** Calculates a variance value for each point of the point cloud using the

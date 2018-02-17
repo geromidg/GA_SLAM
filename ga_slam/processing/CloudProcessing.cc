@@ -44,12 +44,13 @@ void CloudProcessing::processCloud(
         const Cloud::ConstPtr& inputCloud,
         Cloud::Ptr& outputCloud,
         std::vector<float>& cloudVariances,
+        const Pose& robotPose,
         const Pose& mapToSensorTF,
         const MapParameters& mapParameters,
         double voxelSize) {
     downsampleCloud(inputCloud, outputCloud, voxelSize);
     transformCloudToMap(outputCloud, mapToSensorTF);
-    cropCloudToMap(outputCloud, mapParameters);
+    cropCloudToMap(outputCloud, robotPose, mapParameters);
     calculateCloudVariances(outputCloud, cloudVariances);
 }
 
@@ -71,12 +72,16 @@ void CloudProcessing::transformCloudToMap(Cloud::Ptr& cloud, const Pose& tf) {
 
 void CloudProcessing::cropCloudToMap(
         Cloud::Ptr& cloud,
+        const Pose& robotPose,
         const MapParameters& params) {
+    const double robotElevation = robotPose.translation().z();
     const float pointX = (params.length / 2) + params.positionX;
     const float pointY = (params.length / 2) + params.positionY;
+    const float minElevation = robotElevation + params.minElevation;
+    const float maxElevation = robotElevation + params.maxElevation;
 
-    Eigen::Vector4f minCutoffPoint(-pointX, -pointY, params.minElevation, 0.);
-    Eigen::Vector4f maxCutoffPoint(pointX, pointY, params.maxElevation, 0.);
+    Eigen::Vector4f minCutoffPoint(-pointX, -pointY, minElevation, 0.);
+    Eigen::Vector4f maxCutoffPoint(pointX, pointY, maxElevation, 0.);
 
     pcl::CropBox<pcl::PointXYZ> cropBox;
     cropBox.setInputCloud(cloud);
