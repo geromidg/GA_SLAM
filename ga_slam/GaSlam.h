@@ -91,6 +91,12 @@ class GaSlam {
       * @param[in] minElevation minimum cutoff height of the voxelized cloud
       * @param[in] maxElevation maximum cutoff height of the voxelized cloud
       * @param[in] voxelSize dimension of each voxel of the point cloud
+      * @param[in] depthSigmaCoeff1 the first coefficient of the uncertainty
+      *            equation of the depth sensor
+      * @param[in] depthSigmaCoeff2 the second coefficient of the uncertainty
+      *            equation of the depth sensor
+      * @param[in] depthSigmaCoeff3 the third coefficient of the uncertainty
+      *            equation of the depth sensor
       * @param[in] numParticles number of particles used in the particle filter
       * @param[in] resampleFrequency number of iterations of the particle filter
       *            before resampling
@@ -117,7 +123,8 @@ class GaSlam {
     void configure(
             double mapLength, double mapResolution,
             double minElevation, double maxElevation, double voxelSize,
-            int numParticles, int resampleFrequency,
+            double depthSigmaCoeff1, double depthSigmaCoeff2,
+            double depthSigmaCoeff3, int numParticles, int resampleFrequency,
             double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
             double predictSigmaX, double predictSigmaY, double predictSigmaYaw,
             double traversedDistanceThreshold, double minSlopeThreshold,
@@ -196,6 +203,11 @@ class GaSlam {
 
     /// Voxel size of the downsampled point cloud after it it processed
     double voxelSize_;
+
+    /// Coefficients of the uncertainty equation of the depth sensor
+    double depthSigmaCoeff1_;
+    double depthSigmaCoeff2_;
+    double depthSigmaCoeff3_;
 };
 
 }  // namespace ga_slam

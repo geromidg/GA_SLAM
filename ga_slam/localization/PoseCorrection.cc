@@ -61,7 +61,7 @@ void PoseCorrection::configure(
 void PoseCorrection::createGlobalMap(
             const Cloud::ConstPtr& globalCloud,
             const Pose& globalCloudPose) {
-    constexpr double globalCloudVariance = 1.f;
+    constexpr float globalCloudVariance = 1.f;
     std::vector<float> globalCloudVariances;
     globalCloudVariances.resize(globalCloud->size(), globalCloudVariance);
 

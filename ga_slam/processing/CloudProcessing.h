@@ -53,6 +53,12 @@ class CloudProcessing {
       * @param[in] sensorToMapTF the transformation to be applied to the cloud
       * @param[in] mapParameters the structure containing the map's parameters
       * @param[in] voxelSize the voxel size needed to downsample the cloud
+      * @param[in] depthSigmaCoeff1 the first coefficient of the uncertainty
+      *            equation of the depth sensor
+      * @param[in] depthSigmaCoeff2 the second coefficient of the uncertainty
+      *            equation of the depth sensor
+      * @param[in] depthSigmaCoeff3 the third coefficient of the uncertainty
+      *            equation of the depth sensor
       */
     static void processCloud(
             const Cloud::ConstPtr& inputCloud,
@@ -61,7 +67,10 @@ class CloudProcessing {
             const Pose& robotPose,
             const Pose& sensorToMapTF,
             const MapParameters& mapParameters,
-            double voxelSize);
+            double voxelSize,
+            double depthSigmaCoeff1,
+            double depthSigmaCoeff2,
+            double depthSigmaCoeff3);
 
     /** Downsamples a point cloud using a voxel grid to the specified resolution
       * @param[in] inputCloud the point cloud to be downsampled
@@ -89,13 +98,24 @@ class CloudProcessing {
             const MapParameters& mapParameters);
 
     /** Calculates a variance value for each point of the point cloud using the
-      * sensor's model
+      * sensor's model. To make the calculation sensor agnostic, a quadratic
+      * equation models the uncertainty depending on the distance of each
+      * points
       * @param[in] cloud the input point cloud
       * @param[out] variances the vector of the computed variances
+      * @param[in] depthSigmaCoeff1 the first coefficient of the uncertainty
+      *            equation of the depth sensor
+      * @param[in] depthSigmaCoeff2 the second coefficient of the uncertainty
+      *            equation of the depth sensor
+      * @param[in] depthSigmaCoeff3 the third coefficient of the uncertainty
+      *            equation of the depth sensor
       */
     static void calculateCloudVariances(
             const Cloud::ConstPtr& cloud,
-            std::vector<float>& variances);
+            std::vector<float>& variances,
+            double depthSigmaCoeff1,
+            double depthSigmaCoeff2,
+            double depthSigmaCoeff3);
 
     /** Converts an elevation map to a non-organized dense point cloud
       * @param[in] map the elevation map to be converted

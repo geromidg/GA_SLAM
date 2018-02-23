@@ -47,13 +47,17 @@ GaSlam::GaSlam(void)
 void GaSlam::configure(
         double mapLength, double mapResolution,
         double minElevation, double maxElevation, double voxelSize,
-        int numParticles, int resampleFrequency,
+        double depthSigmaCoeff1, double depthSigmaCoeff2,
+        double depthSigmaCoeff3, int numParticles, int resampleFrequency,
         double initialSigmaX, double initialSigmaY, double initialSigmaYaw,
         double predictSigmaX, double predictSigmaY, double predictSigmaYaw,
         double traversedDistanceThreshold, double minSlopeThreshold,
         double slopeSumThresholdMultiplier, double matchAcceptanceThreshold,
         double globalMapLength, double globalMapResolution) {
     voxelSize_ = voxelSize;
+    depthSigmaCoeff1_ = depthSigmaCoeff1;
+    depthSigmaCoeff2_ = depthSigmaCoeff2;
+    depthSigmaCoeff3_ = depthSigmaCoeff3;
 
     poseEstimation_.configure(numParticles, resampleFrequency,
             initialSigmaX, initialSigmaY, initialSigmaYaw,
@@ -91,7 +95,8 @@ void GaSlam::cloudCallback(
     std::vector<float> cloudVariances;
 
     CloudProcessing::processCloud(cloud, processedCloud, cloudVariances,
-            getPose(), mapToSensorTF, mapParameters, voxelSize_);
+            getPose(), mapToSensorTF, mapParameters, voxelSize_,
+            depthSigmaCoeff1_, depthSigmaCoeff2_, depthSigmaCoeff3_);
 
     dataRegistration_.updateMap(processedCloud, cloudVariances);
 

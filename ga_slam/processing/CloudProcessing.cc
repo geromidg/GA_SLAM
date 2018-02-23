@@ -47,11 +47,15 @@ void CloudProcessing::processCloud(
         const Pose& robotPose,
         const Pose& mapToSensorTF,
         const MapParameters& mapParameters,
-        double voxelSize) {
+        double voxelSize,
+        double depthSigmaCoeff1,
+        double depthSigmaCoeff2,
+        double depthSigmaCoeff3) {
     downsampleCloud(inputCloud, outputCloud, voxelSize);
     transformCloudToMap(outputCloud, mapToSensorTF);
     cropCloudToMap(outputCloud, robotPose, mapParameters);
-    calculateCloudVariances(outputCloud, cloudVariances);
+    calculateCloudVariances(outputCloud, cloudVariances,
+            depthSigmaCoeff1, depthSigmaCoeff2, depthSigmaCoeff3);
 }
 
 void CloudProcessing::downsampleCloud(
@@ -92,12 +96,20 @@ void CloudProcessing::cropCloudToMap(
 
 void CloudProcessing::calculateCloudVariances(
         const Cloud::ConstPtr& cloud,
-        std::vector<float>& variances) {
+        std::vector<float>& variances,
+        double depthSigmaCoeff1,
+        double depthSigmaCoeff2,
+        double depthSigmaCoeff3) {
     variances.clear();
     variances.reserve(cloud->size());
 
-    for (const auto& point : cloud->points)
-        variances.push_back(1.f);
+    for (const auto& point : cloud->points) {
+        const auto depth = Eigen::Vector3d(point.x, point.y, point.z).norm();
+        const auto sigma = depthSigmaCoeff1 * (depth * depth) +
+                depthSigmaCoeff2 * depth + depthSigmaCoeff3;
+
+        variances.push_back(sigma * sigma);
+    }
 }
 
 void CloudProcessing::convertMapToCloud(const Map& map, Cloud::Ptr& cloud) {
