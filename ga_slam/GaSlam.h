@@ -117,6 +117,10 @@ class GaSlam {
       * @param[in] matchAcceptanceThreshold minimum score the matched position
       *            from template matching must have, in order for the matching
       *            to be accepted
+      * @param[in] matchYawRange scan range of yaw angle in radians for the
+      *            template matching
+      * @param[in] matchYawStep scan step of yaw angle in radians for the
+      *            template matching
       * @param[in] globalMapLength size of one dimension of the global map
       * @param[in] globalMapResolution resolution of the global map in meters
       */
@@ -129,6 +133,7 @@ class GaSlam {
             double predictSigmaX, double predictSigmaY, double predictSigmaYaw,
             double traversedDistanceThreshold, double minSlopeThreshold,
             double slopeSumThresholdMultiplier, double matchAcceptanceThreshold,
+            double matchYawRange, double matchYawStep,
             double globalMapLength, double globalMapResolution);
 
     /** Handles the input delta pose data from odometry. The delta pose is

@@ -73,6 +73,10 @@ class PoseCorrection {
       * @param[in] matchAcceptanceThreshold the minimum score the matched
       *            position from template matching must have, in order for the
       *            matching to be accepted
+      * @param[in] matchYawRange scan range of yaw angle in radians of the
+      *            template matching
+      * @param[in] matchYawStep scan step of yaw angle in radians of the
+      *            template matching
       * @param[in] globalMapLength the size of one dimension of the global map
       * @param[in] globalMapResolution the resolution of the global map
       *            in meters
@@ -82,6 +86,8 @@ class PoseCorrection {
             double minSlopeThreshold,
             double slopeSumThresholdMultiplier,
             double matchAcceptanceThreshold,
+            double matchYawRange,
+            double matchYawStep,
             double globalMapLength,
             double globalMapResolution);
 
@@ -145,6 +151,12 @@ class PoseCorrection {
 
     /// Minimum score in template matching a match must have to be accepted
     double matchAcceptanceThreshold_;
+
+    /// Scan range of yaw angle in radians for the template matching
+    double matchYawRange_;
+
+    /// Scan step of yaw angle in radians for the template matching
+    double matchYawStep_;
 };
 
 }  // namespace ga_slam

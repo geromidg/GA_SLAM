@@ -121,11 +121,13 @@ void ImageProcessing::calculateLaplacianImage(
 bool ImageProcessing::findBestMatch(
         const Image& sourceImage,
         const Image& templateImage,
-        cv::Point2d& matchedPosition,
+        cv::Point3d& matchedPosition,
         double matchAcceptanceThreshold,
+        double matchYawRange,
+        double matchYawStep,
         bool matchImageGradients,
         bool displayMatch) {
-    Image sourceInput, templateInput, resultOutput;
+    Image sourceInput, templateInput;
 
     if (matchImageGradients) {
         calculateGradientImage(sourceImage, sourceInput);
@@ -138,19 +140,33 @@ bool ImageProcessing::findBestMatch(
     replaceNanWithZero(sourceInput);
     replaceNanWithZero(templateInput);
 
-    const auto method = CV_TM_CCORR_NORMED;
-    cv::matchTemplate(sourceInput, templateInput, resultOutput, method);
+    constexpr int method = CV_TM_CCORR_NORMED;
 
+    Image warpedTemplate, resultMatrix, bestResultMatrix;
+    cv::Point3d bestPosition;
     cv::Point2i maxPosition;
     double maxValue;
-    cv::minMaxLoc(resultOutput, nullptr, &maxValue, nullptr, &maxPosition);
+    double bestValue = 0.;
+
+    for (double yaw = - matchYawRange / 2.; yaw <= matchYawRange / 2;
+            yaw += matchYawStep) {
+        warpImage(templateInput, warpedTemplate, yaw);
+
+        cv::matchTemplate(sourceInput, warpedTemplate, resultMatrix, method);
+        cv::minMaxLoc(resultMatrix, nullptr, &maxValue, nullptr, &maxPosition);
+
+        if (maxValue > bestValue) {
+            bestPosition = cv::Point3d(maxPosition.x, maxPosition.y, yaw);
+            bestResultMatrix = resultMatrix;
+        }
+    }
 
     const bool matchFound = maxValue > matchAcceptanceThreshold;
-    if (matchFound) matchedPosition = cv::Point2d(maxPosition.x, maxPosition.y);
+    if (matchFound) matchedPosition = bestPosition;
 
     if (displayMatch && matchFound)
-        displayMatchedPosition(sourceInput, templateInput, resultOutput,
-                matchedPosition);
+        displayMatchedPosition(sourceInput, warpedTemplate, bestResultMatrix,
+                cv::Point2d(matchedPosition.x, matchedPosition.y));
 
     return matchFound;
 }
@@ -179,7 +195,7 @@ void ImageProcessing::displayMatchedPosition(
 }
 
 void ImageProcessing::convertPositionToMapCoordinates(
-        cv::Point2d& imagePosition,
+        cv::Point3d& imagePosition,
         const Image& image,
         double mapResolution) {
     double mapPositionX = std::round(image.rows / 2.) - imagePosition.y;
@@ -191,6 +207,16 @@ void ImageProcessing::convertPositionToMapCoordinates(
 
 void ImageProcessing::replaceNanWithZero(Image& image) {
     image.setTo(0., image != image);
+}
+
+void ImageProcessing::warpImage(
+        const Image& inputImage,
+        Image& outputImage,
+        double angle) {
+    const cv::Point2f center(inputImage.cols / 2.f, inputImage.rows / 2.f);
+    Image rotationMatrix = cv::getRotationMatrix2D(center, angle, 1.);
+
+    cv::warpAffine(inputImage, outputImage, rotationMatrix, inputImage.size());
 }
 
 }  // namespace ga_slam

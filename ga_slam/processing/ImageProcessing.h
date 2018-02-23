@@ -102,12 +102,17 @@ class ImageProcessing {
 
     /** Find the best match given an source and a template image using
       * template matching. The matching can be done using the images as they are
-      * or using their gradients
+      * or using their gradients. The template image is rotated to maximize
+      * the match score and find a correction in yaw
       * @param[in] sourceImage the source image (search space)
       * @param[in] templateImage the image to be matched
-      * @param[out] matchedPosition the position of the match
+      * @param[out] matchedPosition the position and orientation of the match
       * @param[in] matchAcceptanceThreshold the minimum score the matched
       *            position must have, in order for the matching to be accepted
+      * @param[in] matchYawRange scan range of yaw angle in radians for the
+      *            template matching
+      * @param[in] matchYawStep scan step of yaw angle in radians for the
+      *            template matching
       * @param[in] matchImageGradients whether to match the images' gradients
       * @param[in] displayImage whether to display the found match
       * @return true if a match was found
@@ -115,8 +120,10 @@ class ImageProcessing {
     static bool findBestMatch(
             const Image& sourceImage,
             const Image& templateImage,
-            cv::Point2d& matchedPosition,
+            cv::Point3d& matchedPosition,
             double matchAcceptanceThreshold,
+            double matchYawRange,
+            double matchYawStep,
             bool matchImageGradients = true,
             bool displayMatch = true);
 
@@ -143,7 +150,7 @@ class ImageProcessing {
       * @param[in] mapResolution the resolution of the map
       */
     static void convertPositionToMapCoordinates(
-        cv::Point2d& imagePosition,
+        cv::Point3d& imagePosition,
         const Image& image,
         double mapResolution);
 
@@ -151,6 +158,16 @@ class ImageProcessing {
       * @param[in] image the image to be processed
       */
     static void replaceNanWithZero(Image& image);
+
+    /** Rotates an image around its center
+      * @param[in] inputImage the image source
+      * @param[out] outputImage the image destination
+      * @param[in] angle the yaw value of rotation
+      */
+    static void warpImage(
+            const Image& inputImage,
+            Image& outputImage,
+            double angle);
 };
 
 }  // namespace ga_slam
