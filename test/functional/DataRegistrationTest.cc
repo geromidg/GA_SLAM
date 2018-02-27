@@ -48,7 +48,8 @@ class DataRegistrationTest : public ::testing::Test {
         const double voxelSize = mapResolution;
 
         gaSlam_.configure(mapLength, mapResolution, minElevation, maxElevation,
-                voxelSize, 1, 1, 0, 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1.);
+                voxelSize, 0., 0., 1., 1, 1, 0, 0., 0., 0., 0., 0., 0., 0., 0.,
+                0., 1., 1.);
 
         cloud_.reset(new Cloud);
     }

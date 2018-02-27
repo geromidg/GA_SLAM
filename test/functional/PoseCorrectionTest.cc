@@ -47,8 +47,8 @@ class PoseCorrectionTest : public ::testing::Test {
         const double globalMapLength = 100.;
         const double globalMapResolution = 1.;
 
-        gaSlam_.configure(1., 1., 1., 1., 1., 1, 1, 0., 0., 0., 0., 0., 0.,
-                traversedDistanceThreshold, minSlopeThreshold,
+        gaSlam_.configure(1., 1., 1., 1., 1., 0., 0., 1., 1, 1, 0., 0., 0., 0.,
+                0., 0., traversedDistanceThreshold, minSlopeThreshold,
                 slopeSumThresholdMultiplier, matchAcceptanceThreshold,
                 globalMapLength, globalMapResolution);
 
