@@ -48,6 +48,7 @@ void PoseCorrection::configure(
         double minSlopeThreshold,
         double slopeSumThresholdMultiplier,
         double matchAcceptanceThreshold,
+        bool matchYaw,
         double matchYawRange,
         double matchYawStep,
         double globalMapLength,
@@ -56,6 +57,7 @@ void PoseCorrection::configure(
     minSlopeThreshold_ = minSlopeThreshold;
     slopeSumThresholdMultiplier_ = slopeSumThresholdMultiplier;
     matchAcceptanceThreshold_ = matchAcceptanceThreshold;
+    matchYaw_ = matchYaw;
     matchYawRange_ = matchYawRange;
     matchYawStep_ = matchYawStep;
 
@@ -122,7 +124,7 @@ bool PoseCorrection::matchMaps(
     cv::Point3d matchedPosition;
     const bool matchFound = ImageProcessing::findBestMatch(globalImage,
             localImage, matchedPosition, matchAcceptanceThreshold_,
-            matchYawRange_, matchYawStep_);
+            matchYaw_, matchYawRange_, matchYawStep_);
 
     if (matchFound) {
         ImageProcessing::convertPositionToMapCoordinates(matchedPosition,
@@ -130,7 +132,7 @@ bool PoseCorrection::matchMaps(
 
         const Eigen::Vector2d mapXY = globalMapPose_.translation().head(2);
         const Eigen::Vector2d currentXY = currentPose.translation().head(2);
-        const auto correctionDeltaPose = Eigen::Translation3d(
+        correctionDeltaPose = Eigen::Translation3d(
                 mapXY.x() + matchedPosition.x - currentXY.x(),
                 mapXY.y() + matchedPosition.y - currentXY.y(), 0.);
 

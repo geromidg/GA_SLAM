@@ -123,6 +123,7 @@ bool ImageProcessing::findBestMatch(
         const Image& templateImage,
         cv::Point3d& matchedPosition,
         double matchAcceptanceThreshold,
+        bool matchYaw,
         double matchYawRange,
         double matchYawStep,
         bool matchImageGradients,
@@ -148,24 +149,33 @@ bool ImageProcessing::findBestMatch(
     double maxValue;
     double bestValue = 0.;
 
-    for (double yaw = - matchYawRange / 2.; yaw <= matchYawRange / 2;
-            yaw += matchYawStep) {
-        warpImage(templateInput, warpedTemplate, yaw);
+    if (matchYaw) {
+        for (double yaw = - matchYawRange / 2.; yaw <= matchYawRange / 2;
+                yaw += matchYawStep) {
+            warpImage(templateInput, warpedTemplate, yaw);
 
-        cv::matchTemplate(sourceInput, warpedTemplate, resultMatrix, method);
-        cv::minMaxLoc(resultMatrix, nullptr, &maxValue, nullptr, &maxPosition);
+            cv::matchTemplate(sourceInput, warpedTemplate, resultMatrix,
+                    method);
+            cv::minMaxLoc(resultMatrix, nullptr, &maxValue, nullptr,
+                    &maxPosition);
 
-        if (maxValue > bestValue) {
-            bestPosition = cv::Point3d(maxPosition.x, maxPosition.y, yaw);
-            bestResultMatrix = resultMatrix;
+            if (maxValue > bestValue) {
+                bestPosition = cv::Point3d(maxPosition.x, maxPosition.y, yaw);
+                bestResultMatrix = resultMatrix;
+            }
         }
+    } else {
+        cv::matchTemplate(sourceInput, templateInput, resultMatrix, method);
+        cv::minMaxLoc(resultMatrix, nullptr, &maxValue, nullptr, &maxPosition);
+        bestPosition = cv::Point3d(maxPosition.x, maxPosition.y, 0.);
+        bestResultMatrix = resultMatrix;
     }
 
     const bool matchFound = maxValue > matchAcceptanceThreshold;
     if (matchFound) matchedPosition = bestPosition;
 
     if (displayMatch && matchFound)
-        displayMatchedPosition(sourceInput, warpedTemplate, bestResultMatrix,
+        displayMatchedPosition(sourceInput, templateInput, bestResultMatrix,
                 cv::Point2d(matchedPosition.x, matchedPosition.y));
 
     return matchFound;

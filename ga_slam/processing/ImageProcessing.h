@@ -122,8 +122,9 @@ class ImageProcessing {
             const Image& templateImage,
             cv::Point3d& matchedPosition,
             double matchAcceptanceThreshold,
-            double matchYawRange,
-            double matchYawStep,
+            bool matchYaw = false,
+            double matchYawRange = 0.,
+            double matchYawStep = 0.,
             bool matchImageGradients = true,
             bool displayMatch = true);
 

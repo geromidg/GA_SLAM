@@ -73,6 +73,7 @@ class PoseCorrection {
       * @param[in] matchAcceptanceThreshold the minimum score the matched
       *            position from template matching must have, in order for the
       *            matching to be accepted
+      * @param[in] matchYaw whether to correct the yaw of the global pose
       * @param[in] matchYawRange scan range of yaw angle in radians of the
       *            template matching
       * @param[in] matchYawStep scan step of yaw angle in radians of the
@@ -86,6 +87,7 @@ class PoseCorrection {
             double minSlopeThreshold,
             double slopeSumThresholdMultiplier,
             double matchAcceptanceThreshold,
+            bool matchYaw,
             double matchYawRange,
             double matchYawStep,
             double globalMapLength,
@@ -151,6 +153,9 @@ class PoseCorrection {
 
     /// Minimum score in template matching a match must have to be accepted
     double matchAcceptanceThreshold_;
+
+    /// Whether to correct the yaw of the global pose
+    bool matchYaw_;
 
     /// Scan range of yaw angle in radians for the template matching
     double matchYawRange_;
