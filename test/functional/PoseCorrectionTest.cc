@@ -31,6 +31,7 @@
 
 // STL
 #include <string>
+#include <cmath>
 
 // GMock
 #include "gmock/gmock.h"
@@ -44,12 +45,16 @@ class PoseCorrectionTest : public ::testing::Test {
         const double minSlopeThreshold = 0.5;
         const double slopeSumThresholdMultiplier = 10.;
         const double matchAcceptanceThreshold = 0.9;
+        const double matchYaw = true;
+        const double matchYawRange = 20 * M_PI / 180;
+        const double matchYawStep = M_PI / 180;
         const double globalMapLength = 100.;
         const double globalMapResolution = 1.;
 
         gaSlam_.configure(1., 1., 1., 1., 1., 0., 0., 1., 1, 1, 0., 0., 0., 0.,
                 0., 0., traversedDistanceThreshold, minSlopeThreshold,
                 slopeSumThresholdMultiplier, matchAcceptanceThreshold,
+                matchYaw, matchYawRange, matchYawStep,
                 globalMapLength, globalMapResolution);
 
         cloud_.reset(new Cloud);
