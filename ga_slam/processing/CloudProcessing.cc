@@ -78,14 +78,16 @@ void CloudProcessing::cropCloudToMap(
         Cloud::Ptr& cloud,
         const Pose& robotPose,
         const MapParameters& params) {
-    const double robotElevation = robotPose.translation().z();
-    const float pointX = (params.length / 2) + params.positionX;
-    const float pointY = (params.length / 2) + params.positionY;
-    const float minElevation = robotElevation + params.minElevation;
-    const float maxElevation = robotElevation + params.maxElevation;
+    const double positionZ = robotPose.translation().z();
+    const float minPointX = params.positionX - params.length / 2;
+    const float minPointY = params.positionY - params.length / 2;
+    const float minElevation = positionZ + params.minElevation;
+    const float maxPointX = params.positionX + params.length / 2;
+    const float maxPointY = params.positionY + params.length / 2;
+    const float maxElevation = positionZ + params.maxElevation;
 
-    Eigen::Vector4f minCutoffPoint(-pointX, -pointY, minElevation, 0.);
-    Eigen::Vector4f maxCutoffPoint(pointX, pointY, maxElevation, 0.);
+    Eigen::Vector4f minCutoffPoint(minPointX, minPointY, minElevation, 0.);
+    Eigen::Vector4f maxCutoffPoint(maxPointX, maxPointY, maxElevation, 0.);
 
     pcl::CropBox<pcl::PointXYZ> cropBox;
     cropBox.setInputCloud(cloud);
