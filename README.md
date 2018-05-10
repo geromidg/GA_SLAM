@@ -22,6 +22,14 @@ Developed at: Planetary Robotics Lab (PRL), European Space Agency (ESA)
 * :collision: Automatic **sensor fusion** when multiple inputs are provided (without prior configuration)
 * :page_with_curl: **Easily tunable** parameter set to fit the needs of different robots and applications
 
+<img src="https://raw.githubusercontent.com/geromidg/diploma_thesis/master/Figures/local_and_global_maps.png" width="600">
+
+### Technical Overview
+
+The high-level design diagram shows the main modules that comprise the system.
+
+<img src="https://raw.githubusercontent.com/geromidg/diploma_thesis/master/Figures/high_level_design_diagram.png">
+
 ### Installation
 
 Although the library can be used on other systems, it was validated using:
@@ -62,4 +70,3 @@ Make sure to set CMAKE_PREFIX_PATH if you installed the grid_map_core library fr
 For example if you installed it using `sudo apt-get install ros-kinetic-grid-map-core`, run:
 
     export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:/opt/ros/kinetic
-
